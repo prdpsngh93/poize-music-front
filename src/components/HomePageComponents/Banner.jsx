@@ -15,14 +15,14 @@ export default function Banner() {
         >
 
             <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
-                <div className="relative max-w-[1414px] w-full h-[169px]">
+                {/* <div className="relative max-w-[1414px] w-full h-[169px]">
                     <Image
                         src={'/images/poizeText.png'}
-                        alt="Poize Music Collective"
+                        alt=" Music Collective"
                         fill
                         className="object-contain"
                     />
-                </div>
+                </div> */}
 
                 <p className="font-poppins mt-[70px] font-bold text-[48px] leading-[48px] tracking-[0px]">
                     Join the Sound Revolution
