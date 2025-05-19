@@ -33,7 +33,9 @@ export default function Navbar() {
           {rightItems.map((item) => (
             <Link href="#" key={item} className="hover:underline">{item}</Link>
           ))}
-          <Image src={'/images/menu.png'}  alt='menu' width={60} height={55}/>
+          <Image src={'/images/menu.png'} 
+          
+          alt='menu' width={60} height={55}/>
         </div>
 
         {/* Mobile Menu Button */}

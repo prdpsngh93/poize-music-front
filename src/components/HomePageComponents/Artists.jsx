@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import MeetOurArtists from "./MeetOurArtists";
+import MeetOurArtistsTwo from "./MeetOurArtistsTwo";
 
 const topArtists = [
   {
@@ -40,7 +41,8 @@ const galleryImages = [
 export default function Artists() {
   return (
     <section className="container mx-auto  px-4 py-16 ">
-      <MeetOurArtists />
+      <MeetOurArtistsTwo/>
+
     
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {galleryImages.map((src, i) => (

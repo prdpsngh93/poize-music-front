@@ -59,7 +59,7 @@ export default function MeetOurArtists() {
         ))}
       </div>
 
-      <button className="px-[30px] flex justify-center mx-auto   py-3 text-[18px] font-bold font-poppins uppercase bg-black text-white rounded-full hover:opacity-80 transition">
+      <button className="px-[30px] s flex justify-center mx-auto   py-3 text-[18px] font-bold font-poppins uppercase bg-black text-white rounded-full hover:opacity-80 transition">
         View More Artists 
       </button>
     </section>

@@ -73,7 +73,7 @@ export default function ListenToTheCollective() {
 
         {/* View More Artists Button */}
         <div className="text-center mt-16">
-          <button className="px-8 py-3 text-sm font-bold uppercase tracking-widest bg-black text-white rounded-full hover:bg-gray-800 transition">
+          <button className="px-8 py-3  text-sm font-bold uppercase tracking-widest bg-black text-white rounded-full hover:bg-gray-800 transition">
             View More Artists
           </button>
         </div>

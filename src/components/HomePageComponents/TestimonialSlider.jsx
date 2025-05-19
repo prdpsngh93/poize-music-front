@@ -39,7 +39,10 @@ export default function TestimonialSlider() {
 
   return (
     <section className="w-full bg-[#F1F0EB] px-4 py-16">
-      <div className="container mx-auto h-[500px] bg-black text-white rounded-2xl px-6 py-12 text-center relative shadow-lg overflow-hidden">
+<div className="container mx-auto h-[500px] bg-[url('/images/bg-image.png')] bg-cover bg-center text-white rounded-2xl px-6 py-12 text-center relative shadow-lg overflow-hidden">
+
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-black/60 rounded-2xl z-0"></div>
         <Swiper
           modules={[Navigation]}
           slidesPerView={1}
@@ -73,7 +76,7 @@ export default function TestimonialSlider() {
         </div>
 
         
-        <div className="absolute bottom-6 right-28 flex items-center gap-3">
+        <div className="absolute bottom-6 right-28 z-[10] flex items-center gap-3">
           <button
             onClick={() => swiperRef.current?.slidePrev()}
             className="hover:cursor-pointer"

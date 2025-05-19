@@ -54,7 +54,7 @@ export default function NewsSection() {
 
         {/* Button */}
         <div className="mt-12  flex justify-center">
-          <button className="bg-black text-[18px] text-white px-[30px] hover:cursor-pointer py-3 rounded-full font-semibold hover:bg-gray-800 transition">
+          <button className="bg-black text-[18px] uppercase text-white px-[30px] hover:cursor-pointer py-3 rounded-full font-semibold hover:bg-gray-800 transition">
             View More Artists
           </button>
         </div>

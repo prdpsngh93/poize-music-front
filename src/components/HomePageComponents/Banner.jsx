@@ -31,12 +31,12 @@ export default function Banner() {
                     Uniting artists, events, and fans in one immersive experience.
                 </p>
                 <div className="flex gap-4 mt-[60px] flex-wrap justify-center">
-                    <button className="bg-black text-white px-[45px] py-3 rounded-full font-bold border  border-white  hover:bg-gray-200 transition font-poppins text-[28px] leading-[28px] tracking-[0px] uppercase">
+                    <button className="bg-black cursor-pointer text-white px-[45px] py-3 rounded-full font-bold border  border-white   transition font-poppins text-[28px] leading-[28px] tracking-[0px] uppercase">
                         EXPLORE OUR ARTISTS
                     </button>
-                    <button className="bg-black border flex gap-x-7  items-center border-white text-white px-[45px] py-3 rounded-full font-bold hover:bg-white hover:text-black transition">
+                    <button className="bg-black border  cursor-pointer flex gap-x-7  items-center border-white text-white px-[45px] py-3 rounded-full font-bold   transition">
                         <Image src={'/images/voice.png'} width={45} height={35} alt='voice' />
-                        <p className='font-poppins font-bold text-[28px] leading-[28px] tracking-[0px] uppercase'>
+                        <p className='font-poppins   font-bold text-[28px] leading-[28px] tracking-[0px] uppercase'>
                             LISTEN NOW
                         </p>
                     </button>
