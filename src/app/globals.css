@@ -1,0 +1,76 @@
+@font-face {
+  font-family: 'NewPressErodedBold';
+  src: url('/fonts/NewPressErodedBold.otf') format('opentype'); /* served from /public */
+  font-weight: normal;
+  font-style: normal;
+}
+
+@import "tailwindcss";
+
+.font-NewPressErodedBold {
+  font-family: 'NewPressErodedBold', sans-serif;
+}
+
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-poppins: var(--font-poppins);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+::placeholder{
+  color: #38695D;
+  font-weight:300;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+    font-family: var(--font-sans);
+}
+
+
+.container {
+  max-width: 1620px;
+  width: 100%;
+}
+/* Chrome, Safari, Edge, Opera */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* Firefox */
+input[type="date"] {
+  -moz-appearance: textfield;
+}
+.range-color{
+  
+  accent-color: #1FB58F !important;
+  background-color:#1FB58F ;
+}
+
+.text-grunge {
+  background-image: url('/images/grunge-wall.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
