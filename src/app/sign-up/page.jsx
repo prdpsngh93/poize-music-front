@@ -5,7 +5,7 @@ import Hero from '@/components/GlobalComponents/Hero';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '../../../lib/api';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 
 const SignUp = () => {
   const router = useRouter();
@@ -53,6 +53,7 @@ const SignUp = () => {
     return true;
   };
 
+  // Regular form submission sign-up
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -66,7 +67,8 @@ const SignUp = () => {
       const payload = {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        password: formData.password
+        password: formData.password,
+         is_oauth_login: false// Indicate this is email signup
       };
 
       const result = await authAPI.register(payload);
@@ -74,7 +76,9 @@ const SignUp = () => {
       setSuccess('Account created successfully!');
       
       if (result.token) {
-        localStorage.setItem('authToken', result.token);
+        // Store token in memory or use your preferred method
+        // Note: localStorage is not recommended for production
+        sessionStorage.setItem('authToken', result.token);
       }
 
       setTimeout(() => {
@@ -92,22 +96,160 @@ const SignUp = () => {
     }
   };
 
+  // Google sign-in with API integration
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setError('');
+    setSuccess('');
     
     try {
+      // Step 1: Authenticate with Google via NextAuth
       const result = await signIn('google', { 
         redirect: false,
-        callbackUrl: '/music-connect' // Where to redirect after success
+        callbackUrl: '/music-connect'
       });
-      debugger
       
       if (result?.error) {
         throw new Error(result.error);
       }
+
+      // Step 2: Get the session data after Google sign-in
+      const session = await getSession();
+      console.log("session",session)
       
-      // If successful, the redirect will happen automatically
+      if (session?.user) {
+        // Step 3: Call your sign-up API with Google user data
+        try {
+          const googleUserPayload = {
+            name: session.user.name,
+            email: session.user.email,
+            // googleId: session.user.id || session.user.email, // Use ID if available, fallback to email
+            // avatar: session.user.image,
+            is_oauth_login: true, // Indicate this is Google signup
+            // Add any other fields your API expects
+          };
+
+          const apiResult = await authAPI.register(googleUserPayload);
+          
+          // Handle successful API registration
+          if (apiResult.token) {
+            sessionStorage.setItem('authToken', apiResult.token);
+          }
+
+          setSuccess('Account created successfully with Google!');
+          
+          setTimeout(() => {
+            router.push('/music-connect');
+          }, 2000);
+
+        } catch (apiErr) {
+          // Handle case where user might already exist
+          if (apiErr.response?.status === 409 || apiErr.response?.data?.message?.includes('already exists')) {
+            // User already exists, just redirect to login or dashboard
+            setSuccess('Welcome back! Redirecting...');
+            setTimeout(() => {
+              router.push('/music-connect');
+            }, 1500);
+          } else {
+            // Other API errors
+            const errorMessage = apiErr.response?.data?.message || 
+                              apiErr.response?.data?.error || 
+                              'Failed to create account. Please try again.';
+            setError(errorMessage);
+            console.error('API registration error:', apiErr);
+          }
+        }
+      } else {
+        throw new Error('Failed to get user information from Google');
+      }
+      
+    } catch (err) {
+      setError(err.message || 'Google sign-in failed. Please try again.');
+      console.error('Google sign-in error:', err);
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  // Alternative approach: Check if user exists first, then create or sign in
+  const handleGoogleSignInWithCheck = async () => {
+    setGoogleLoading(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      // Step 1: Authenticate with Google
+      const result = await signIn('google', { 
+        redirect: false,
+        callbackUrl: '/music-connect'
+      });
+      
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
+      const session = await getSession();
+      
+      if (session?.user) {
+        // Step 2: Check if user exists in your database
+        try {
+          const checkUserResponse = await authAPI.checkUserExists(session.user.email);
+          
+          if (checkUserResponse.exists) {
+            // User exists, proceed to sign in
+            setSuccess('Welcome back! Signing you in...');
+            setTimeout(() => {
+              router.push('/music-connect');
+            }, 1500);
+          } else {
+            // User doesn't exist, create new account
+            const googleUserPayload = {
+              name: session.user.name,
+              email: session.user.email,
+              googleId: session.user.id || session.user.email,
+              avatar: session.user.image,
+              signUpMethod: 'google',
+            };
+
+            const apiResult = await authAPI.register(googleUserPayload);
+            
+            if (apiResult.token) {
+              sessionStorage.setItem('authToken', apiResult.token);
+            }
+
+            setSuccess('Account created successfully with Google!');
+            setTimeout(() => {
+              router.push('/music-connect');
+            }, 2000);
+          }
+        } catch (apiErr) {
+          // Fallback: attempt to create user anyway
+          const googleUserPayload = {
+            name: session.user.name,
+            email: session.user.email,
+            googleId: session.user.id || session.user.email,
+            avatar: session.user.image,
+            signUpMethod: 'google',
+          };
+
+          try {
+            const apiResult = await authAPI.register(googleUserPayload);
+            if (apiResult.token) {
+              sessionStorage.setItem('authToken', apiResult.token);
+            }
+            setSuccess('Account created successfully with Google!');
+            setTimeout(() => {
+              router.push('/music-connect');
+            }, 2000);
+          } catch (finalErr) {
+            const errorMessage = finalErr.response?.data?.message || 
+                              finalErr.response?.data?.error || 
+                              'Failed to process Google sign-in. Please try again.';
+            setError(errorMessage);
+          }
+        }
+      }
+      
     } catch (err) {
       setError(err.message || 'Google sign-in failed. Please try again.');
       console.error('Google sign-in error:', err);
@@ -119,7 +261,7 @@ const SignUp = () => {
   return (
     <>
       <Hero/>
-      <div className="h-screen flex flex-col md:flex-row max-h-[900px]">
+      <div className="min-h-screen flex flex-col md:flex-row max-h-[900px]">
         {/* Left Section: Sign Up Form */}
         <div className="md:w-1/2 w-full flex flex-col justify-center items-center bg-[#F7F7F5] p-6 min-h-screen">
           <div className='w-full max-w-[617px]'>
@@ -218,28 +360,27 @@ const SignUp = () => {
             </form>
 
             <div className="my-[30px]">
-                    <button 
-        type="button"
-        onClick={handleGoogleSignIn}
-        disabled={loading || googleLoading}
-        className="w-full flex items-center justify-center border text-[16px] font-semibold text-[#222222] border-black h-[60px] py-[18px] rounded-[25px] hover:bg-gray-100 disabled:opacity-50"
-      >
-        {googleLoading ? (
-          <>
-            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Signing in with Google...
-          </>
-        ) : (
-          <>
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5 mr-2" />
-            Sign Up with Google
-          </>
-        )}
-      </button>
-
+              <button 
+                type="button"
+                onClick={handleGoogleSignIn} // or use handleGoogleSignInWithCheck
+                disabled={loading || googleLoading}
+                className="w-full flex items-center justify-center border text-[16px] font-semibold text-[#222222] border-black h-[60px] py-[18px] rounded-[25px] hover:bg-gray-100 disabled:opacity-50"
+              >
+                {googleLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in with Google...
+                  </>
+                ) : (
+                  <>
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5 mr-2" />
+                    Sign Up with Google
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
