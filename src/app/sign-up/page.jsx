@@ -170,6 +170,7 @@ const SignUp = () => {
       setGoogleLoading(false);
     }
   };
+  
 
   // Alternative approach: Check if user exists first, then create or sign in
   const handleGoogleSignInWithCheck = async () => {
