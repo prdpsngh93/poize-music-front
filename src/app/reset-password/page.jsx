@@ -106,7 +106,7 @@ const SetNewPassword = () => {
       // Redirect to login page after successful reset
       setTimeout(() => {
         router.push('/login');
-      }, 2000);
+      }, 100);
 
     } catch (err) {
       // Handle API errors
