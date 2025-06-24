@@ -6,6 +6,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '../../../lib/api';
 import SetNewPassword from './SetNewPassword';
+import SetNewPasswordWrapper from '@/app/reset-password/page';
 
 const VerificationCode = ({ email, onBack, onVerificationSuccess }) => {
   const router = useRouter();
@@ -145,7 +146,7 @@ const VerificationCode = ({ email, onBack, onVerificationSuccess }) => {
 
   // If verification is complete, show the SetNewPassword component
   if (verificationComplete) {
-    return <SetNewPassword email={email} token={verificationToken} />;
+    return <SetNewPasswordWrapper email={email} token={verificationToken} />;
   }
 
   return (

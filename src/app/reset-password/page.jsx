@@ -2,9 +2,18 @@
 
 import Hero from '@/components/GlobalComponents/Hero';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authAPI } from '../../../lib/api';
+
+// Create a wrapper component that handles the suspense boundary
+const SetNewPasswordWrapper = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SetNewPassword />
+    </Suspense>
+  );
+};
 
 const SetNewPassword = () => {
   const router = useRouter();
@@ -12,6 +21,24 @@ const SetNewPassword = () => {
   const email = searchParams.get('email');
   const token = searchParams.get('token');
   
+  // Add validation for missing email or token
+  if (!email || !token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F7F5]">
+        <div className="text-center p-6 max-w-md">
+          <h2 className="text-2xl font-bold mb-4 text-red-600">Invalid Reset Link</h2>
+          <p className="mb-4">The password reset link is missing required parameters.</p>
+          <Link 
+            href="/forgot-password" 
+            className="text-[#1FB58F] hover:underline font-semibold"
+          >
+            Request a new reset link
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const [formData, setFormData] = useState({
     password: '',
     confirmPassword: ''
@@ -206,4 +233,4 @@ const SetNewPassword = () => {
   );
 };
 
-export default SetNewPassword;
+export default SetNewPasswordWrapper;
