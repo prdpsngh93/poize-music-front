@@ -91,10 +91,8 @@ const Login = () => {
         localStorage.setItem("userData", JSON.stringify(result.user));
       }
 
-      // Redirect after successful login
-      setTimeout(() => {
-        router.push("/music-connect"); // or wherever you want to redirect
-      }, 100);
+      router.push("/music-connect");
+
     } catch (err) {
       // Handle API errors
       const errorMessage =
