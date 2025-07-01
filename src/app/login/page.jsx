@@ -92,7 +92,6 @@ const Login = () => {
       }
 
       router.push("/music-connect");
-
     } catch (err) {
       // Handle API errors
       const errorMessage =
