@@ -5,6 +5,7 @@ import Link from 'next/link';
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authAPI } from '../../../lib/api';
+import Navbar from '@/components/GlobalComponents/Navbar';
 
 // Create a wrapper component that handles the suspense boundary
 const SetNewPasswordWrapper = () => {
