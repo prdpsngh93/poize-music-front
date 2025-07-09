@@ -10,6 +10,7 @@ import { authAPI } from '../../../lib/api';
 const SetNewPasswordWrapper = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
+        <Navbar/>
       <SetNewPassword />
     </Suspense>
   );

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { authAPI } from '../../../lib/api';
 import { signIn, getSession } from 'next-auth/react';
 import Link from 'next/link';
+import Navbar from '@/components/GlobalComponents/Navbar';
 
 const SignUp = () => {
   const router = useRouter();
@@ -117,6 +118,7 @@ const SignUp = () => {
 
   return (
     <>
+      <Navbar/>
       <Hero/>
       <div className="min-h-screen flex flex-col md:flex-row max-h-[900px]">
         {/* Left Section: Sign Up Form */}

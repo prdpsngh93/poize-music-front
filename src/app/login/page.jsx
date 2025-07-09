@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authAPI } from "../../../lib/api";
 import { signIn, getSession } from 'next-auth/react';
+import Navbar from "@/components/GlobalComponents/Navbar";
 
 const Login = () => {
   const router = useRouter();
@@ -91,10 +92,7 @@ const Login = () => {
         localStorage.setItem("userData", JSON.stringify(result.user));
       }
 
-      // Redirect after successful login
-      setTimeout(() => {
-        router.push("/music-connect"); // or wherever you want to redirect
-      }, 100);
+      router.push("/music-connect");
     } catch (err) {
       // Handle API errors
       const errorMessage =
@@ -110,6 +108,7 @@ const Login = () => {
 
   return (
     <>
+    <Navbar/>
       <Hero />
 
       <div className="min-h-screen flex flex-col lg:flex-row w-full">
