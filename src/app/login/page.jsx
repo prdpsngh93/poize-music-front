@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authAPI } from "../../../lib/api";
 import { signIn, getSession } from 'next-auth/react';
+import Navbar from "@/components/GlobalComponents/Navbar";
 
 const Login = () => {
   const router = useRouter();
@@ -107,6 +108,7 @@ const Login = () => {
 
   return (
     <>
+    <Navbar/>
       <Hero />
 
       <div className="min-h-screen flex flex-col lg:flex-row w-full">
