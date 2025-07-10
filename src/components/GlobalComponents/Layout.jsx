@@ -7,6 +7,7 @@ const Layout = ({ children }) => {
   const token = cookieStore.get('token');
   const isLoggedIn = !!token;
 
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar isLoggedIn={isLoggedIn} />
