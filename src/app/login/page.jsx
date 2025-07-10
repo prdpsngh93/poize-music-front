@@ -90,9 +90,8 @@ const Login = () => {
       if (result.user) {
         localStorage.setItem("userData", JSON.stringify(result.user));
       }
-
-      router.push("/music-connect");
-
+      window.location.href = "/music-connect";
+      
     } catch (err) {
       // Handle API errors
       const errorMessage =
