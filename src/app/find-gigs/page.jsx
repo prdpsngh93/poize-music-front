@@ -31,8 +31,7 @@ const FindGigsPage = () => {
 
 
 {/* No gigs page */}
-     <NoGigsFound/>
-
+     <NoGigsFound  heading={"No gigs found"}  para={" Try adjusting your search filters or check back later for new opportunities."} />
         </div>
       </main>
     </>
