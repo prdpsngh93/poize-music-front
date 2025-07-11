@@ -4,13 +4,12 @@ import Hero from '@/components/GlobalComponents/Hero';
 import Navbar from '@/components/GlobalComponents/Navbar';
 
 const EventBooking = () => {
-  return(
+  return (
     <>
-      <Navbar/>
-    <Hero/>
-        <MusicConnect/>
+      <Hero />
+      <MusicConnect />
     </>
   )
 };
 
-export default EventBooking;
+export default EventBooking;
