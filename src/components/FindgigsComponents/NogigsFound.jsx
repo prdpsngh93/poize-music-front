@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 
-const NoGigsFound = ({ onClear }) => {
+const NoGigsFound = ({ onClear ,heading,para}) => {
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 px-4 md:px-9 lg:px-12">
       <div className="w-64 h-44 relative mb-6">
@@ -14,9 +14,9 @@ const NoGigsFound = ({ onClear }) => {
         />
       </div>
 
-      <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-1">No gigs found</h2>
+      <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-1">{heading}</h2>
       <p className="text-sm md:text-base max-w-lg text-gray-600 mb-4">
-        Try adjusting your search filters or check back later for new opportunities.
+        {para}
       </p>
       <button
         onClick={onClear}
