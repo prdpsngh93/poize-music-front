@@ -18,7 +18,6 @@ export default function Navbar({ variant = 'light', isLoggedIn }) {
   const handleLogout = () => {
     Cookies.remove('token');
     router.push('/login')
-    
   };
 
   return (
