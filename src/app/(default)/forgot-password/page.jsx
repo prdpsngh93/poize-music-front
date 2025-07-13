@@ -2,52 +2,22 @@
 
 import Hero from '@/components/GlobalComponents/Hero';
 import Link from 'next/link';
-import React, { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { authAPI } from '../../../lib/api';
-import Navbar from '@/components/GlobalComponents/Navbar';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { authAPI } from '../../../../lib/api';
 
-// Create a wrapper component that handles the suspense boundary
-const SetNewPasswordWrapper = () => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-        <Navbar/>
-      <SetNewPassword />
-    </Suspense>
-  );
-};
+// Import the VerificationCode component
+import VerificationCode from '@/components/GlobalComponents/VerificationCode';
 
-const SetNewPassword = () => {
+const ForgotPassword = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const email = searchParams.get('email');
-  const token = searchParams.get('token');
-  
-  // Add validation for missing email or token
-  if (!email || !token) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F7F5]">
-        <div className="text-center p-6 max-w-md">
-          <h2 className="text-2xl font-bold mb-4 text-red-600">Invalid Reset Link</h2>
-          <p className="mb-4">The password reset link is missing required parameters.</p>
-          <Link 
-            href="/forgot-password" 
-            className="text-[#1FB58F] hover:underline font-semibold"
-          >
-            Request a new reset link
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: ''
+    email: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showOTPComponent, setShowOTPComponent] = useState(false);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -62,20 +32,8 @@ const SetNewPassword = () => {
 
   // Validate form
   const validateForm = () => {
-    if (!formData.password) {
-      setError('Password is required');
-      return false;
-    }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return false;
-    }
-    if (!formData.confirmPassword) {
-      setError('Please confirm your password');
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    if (!formData.email.trim()) {
+      setError('Email is required');
       return false;
     }
     return true;
@@ -94,48 +52,63 @@ const SetNewPassword = () => {
     try {
       // Prepare payload for API
       const payload = {
-        email: email,
-        token: token,
-        password: formData.password
+        email: formData.email.trim()
       };
 
-      // Call reset password API
-      await authAPI.resetPassword(payload);
+      // Call forgot password API
+      const result = await authAPI.sendOTP(payload);
       
-      // Handle successful password reset
-      setSuccess('Password reset successfully!');
+      // Handle successful request
+      setSuccess('OTP sent to your email!');
       
-      // Redirect to login page after successful reset
+      // Show OTP component instead of navigating
       setTimeout(() => {
-        router.push('/login');
+        setShowOTPComponent(true);
       }, 100);
 
     } catch (err) {
       // Handle API errors
       const errorMessage = err.response?.data?.message || 
                           err.response?.data?.error || 
-                          'Failed to reset password. Please try again.';
+                          'Failed to send OTP. Please try again.';
       setError(errorMessage);
-      console.error('Reset password error:', err);
+      console.error('Forgot password error:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Function to go back to forgot password form
+  const handleBackToForgotPassword = () => {
+    setShowOTPComponent(false);
+    setSuccess('');
+    setError('');
+  };
+
+  // If OTP component should be shown, render the VerificationCode component
+  if (showOTPComponent) {
+    return (
+      <VerificationCode 
+        email={formData.email}
+        onBack={handleBackToForgotPassword}
+      />
+    );
+  }
 
   return (
     <>
       <Hero />
 
       <div className="min-h-screen flex flex-col lg:flex-row w-full">
-        {/* Left: Set Password Form */}
+        {/* Left: Forgot Password Form */}
         <div className="w-full lg:w-1/2 bg-[#F7F7F5] flex items-center justify-center px-6 py-10 lg:px-16">
           <div className="w-full max-w-[617px]">
             <h2 className="text-[32px] md:text-[42px] font-bold mb-6 text-[#1B3139] text-center">
-              Set Password
+              Forgot Password?
             </h2>
             
             <p className="text-center text-[16px] text-[#666] mb-10">
-              Create a new password for your account.
+              Enter your email address and we'll send you an OTP to reset your password.
             </p>
 
             {/* Error Message */}
@@ -153,33 +126,17 @@ const SetNewPassword = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* New Password */}
+              {/* Email */}
               <div>
                 <label className="block text-[#1B3139] text-[17px] font-semibold mb-2 pl-2">
-                  New Password
+                  Your email address
                 </label>
                 <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
+                  type="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleChange}
-                  placeholder="Enter new password"
-                  className="w-full bg-white text-[#1B3139] pl-6 py-[16px] rounded-[25px] focus:outline-none focus:ring-2 focus:ring-teal-400"
-                  disabled={loading}
-                />
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <label className="block text-[#1B3139] text-[17px] font-semibold mb-2 pl-2">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Confirm new password"
+                  placeholder="Enter your email address"
                   className="w-full bg-white text-[#1B3139] pl-6 py-[16px] rounded-[25px] focus:outline-none focus:ring-2 focus:ring-teal-400"
                   disabled={loading}
                 />
@@ -197,10 +154,10 @@ const SetNewPassword = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Updating Password...
+                    Sending...
                   </>
                 ) : (
-                  'Update Password'
+                  'Send OTP'
                 )}
               </button>
             </form>
@@ -235,4 +192,4 @@ const SetNewPassword = () => {
   );
 };
 
-export default SetNewPasswordWrapper;
+export default ForgotPassword;

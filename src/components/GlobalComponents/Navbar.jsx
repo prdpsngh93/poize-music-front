@@ -1,27 +1,25 @@
 'use client';
 
-import { useState  , useEffect} from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-import { logoutUser } from '@/utils/cookies';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie'; // Install: npm install js-cookie
 
-export default function Navbar({ variant = 'light', isLoggedIn: initialLoggedIn =false }) {
+export default function Navbar({ variant = 'light', isLoggedIn }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(initialLoggedIn);
+
+  const router = useRouter()
 
   const isLight = variant === 'light';
   const navItems = ['Home', 'Events', 'Shop', 'Blog', 'Work', 'Artists'];
 
-  const handleLogout = async () => {
-    await logoutUser()
-    setIsLoggedIn(false);
-    window.location.reload()
+  const handleLogout = () => {
+    Cookies.remove('token');
+    router.push('/login')
+    
   };
-
-  useEffect(() => {
-    setIsLoggedIn(isLoggedIn);
-  }, [isLoggedIn]);
 
   return (
     <nav className={`w-full z-50 font-poppins font-normal lg:font-bold text-sm uppercase ${

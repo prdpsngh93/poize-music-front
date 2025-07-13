@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins } from 'next/font/google';
-import "./globals.css";
-import Layout from "@/components/GlobalComponents/Layout";
+import "@/app/globals.css";
+import Footer from "@/components/GlobalComponents/Footer"; // Remove Layout import
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -29,9 +29,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={poppins.className}>
       <body className={`${poppins.variable} antialiased`}>
-        <Layout>
+        <div className="flex flex-col min-h-screen">
           {children}
-        </Layout>
+          <Footer />
+        </div>
       </body>
     </html>
   );

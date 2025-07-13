@@ -4,8 +4,8 @@ import Hero from '@/components/GlobalComponents/Hero';
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { authAPI } from '../../../lib/api';
 import SetNewPassword from './SetNewPassword';
+import { authAPI } from '../../../lib/api';
 
 const VerificationCode = ({ email, onBack, onVerificationSuccess }) => {
   const router = useRouter();
