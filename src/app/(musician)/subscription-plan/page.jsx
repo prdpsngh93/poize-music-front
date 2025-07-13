@@ -4,7 +4,6 @@ import PricingCards from "@/components/SubscriptionPlan/PricingCard"
 const page = () => {
     return (
         <>
-            <NavbarMusician />
             <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
                 <PricingCards/>
               

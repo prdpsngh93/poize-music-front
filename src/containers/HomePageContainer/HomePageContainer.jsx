@@ -13,7 +13,6 @@ import React from 'react'
 function HomePageContainer() {
     return (
         <>
-            <Navbar />
             <Banner />
             <Artists/>
             <SpotifyPlaylist/>

@@ -3,7 +3,7 @@
 import Hero from '@/components/GlobalComponents/Hero';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { authAPI } from '../../../lib/api';
+import { authAPI } from '../../../../lib/api';
 import { signIn, getSession } from 'next-auth/react';
 import Link from 'next/link';
 import Navbar from '@/components/GlobalComponents/Navbar';
@@ -104,7 +104,7 @@ const SignUp = () => {
   setSuccess('');
 
   try {
-    await signIn('google', { callbackUrl: '/music-connect' });
+    await signIn('google', { callbackUrl: '/musician-profile' });
   } catch (err) {
     console.error('Google sign-in error:', err);
     setError(err.message || 'Google sign-in failed. Please try again.');

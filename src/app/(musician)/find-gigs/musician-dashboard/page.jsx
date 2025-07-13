@@ -9,7 +9,6 @@ import Analytics from '@/components/MusicianDashboardComponents/Analytics'
 const page = () => {
     return (
         <>
-            <NavbarMusician />
             <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
                 <div className="max-w-5xl mx-auto flex flex-col gap-10">
                     {/* Heading */}

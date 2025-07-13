@@ -2,12 +2,11 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { cookies } from 'next/headers';
 
-const Layout = ({ children }) => {
-  const cookieStore =  cookies(); // 
+const Layout = async ({ children }) => {
+  const cookieStore = await  cookies(); // 
   const token = cookieStore.get('token');
   const isLoggedIn = !!token;
 
-  
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar isLoggedIn={isLoggedIn} />

@@ -1,10 +1,14 @@
-
 "use client"
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Mic, Headphones, BarChart3, ArrowRight } from 'lucide-react';
+import { authAPI } from '../../../../lib/api';
 
 export default function RoleSelection() {
   const [selectedRole, setSelectedRole] = useState('Artist');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   const roles = [
     {
@@ -27,8 +31,40 @@ export default function RoleSelection() {
     }
   ];
 
+  const handleNext = async () => {
+    if (!selectedRole) {
+      setError('Please select a role');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Call update profile API with selected role
+      const payload = {
+        role: selectedRole
+      };
+
+      const result = await authAPI.updateProfile(payload);
+
+      // Navigate to musician profile page after successful update
+      router.push('/musician-profile');
+    } catch (err) {
+      // Handle API errors
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        'Failed to update role. Please try again.';
+      setError(errorMessage);
+      console.error('Role update error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="  flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-sm p-8 w-full max-w-2xl">
         <div className="text-center mb-8">
           <h1 className="text-xl font-medium text-gray-900 mb-2">
@@ -39,6 +75,13 @@ export default function RoleSelection() {
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-3 bg-red-100 border border-red-400 text-red-700 rounded-2xl text-center">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {roles.map((role) => {
             const IconComponent = role.icon;
@@ -48,7 +91,8 @@ export default function RoleSelection() {
               <button
                 key={role.id}
                 onClick={() => setSelectedRole(role.id)}
-                className={`p-6 rounded-2xl border-2 transition-all duration-200 text-center hover:shadow-md ${
+                disabled={loading}
+                className={`p-6 rounded-2xl border-2 transition-all duration-200 text-center hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
                   isSelected
                     ? 'border-emerald-400 bg-emerald-50'
                     : 'border-gray-200 bg-white hover:border-gray-300'
@@ -80,9 +124,16 @@ export default function RoleSelection() {
         </div>
 
         <div className="flex justify-center">
-          <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-8 py-3 rounded-full flex items-center space-x-2 transition-colors duration-200">
-            <span>Next</span>
-            <ArrowRight size={18} />
+          <button 
+            onClick={handleNext}
+            disabled={loading}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-8 py-3 rounded-full flex items-center space-x-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span>{loading ? 'Processing...' : 'Next'}</span>
+            {!loading && <ArrowRight size={18} />}
+            {loading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            )}
           </button>
         </div>
       </div>

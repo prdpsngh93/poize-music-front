@@ -7,10 +7,10 @@ export async function middleware(request) {
   const token = cookieStore.get('token');
 
   if (request.nextUrl.pathname.startsWith('/login') && token) {
-    return NextResponse.redirect(new URL('/music-connect', request.url));  
+    return NextResponse.redirect(new URL('/musician-profile', request.url));  
   }
 
-  if (!token && request.nextUrl.pathname.startsWith('/music-connect')) {
+  if (!token && request.nextUrl.pathname.startsWith('/musician-profile')) {
     return NextResponse.redirect(new URL('/login', request.url));  
   }
   

@@ -4,9 +4,10 @@ import Hero from "@/components/GlobalComponents/Hero";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authAPI } from "../../../lib/api";
 import { signIn, getSession } from 'next-auth/react';
 import Navbar from "@/components/GlobalComponents/Navbar";
+import Cookies from 'js-cookie';
+import { authAPI } from "../../../../lib/api";
 
 const Login = () => {
   const router = useRouter();
@@ -37,7 +38,7 @@ const Login = () => {
     setSuccess("");
 
     try {
-      await signIn("google", { callbackUrl: "/music-connect" });
+      await signIn("google", { callbackUrl: "/musician-profile" });
     } catch (err) {
       console.error("Google sign-in error:", err);
       setError(err.message || "Google sign-in failed. Please try again.");
@@ -82,16 +83,32 @@ const Login = () => {
       // Handle successful login
       setSuccess("Login successful!");
 
-      // Store token
+      // Set cookies based on remember me preference
+      const cookieOptions = {
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        sameSite: 'strict', // CSRF protection
+        expires: formData.rememberMe ? 30 : undefined, // 30 days if remember me, session cookie otherwise
+      };
+
+      // Store token in cookie
       if (result.token) {
-        localStorage.setItem("authToken", result.token);
+        Cookies.set('token', result.token, cookieOptions);
       }
 
-      // Store user data if provided
+      // Store user data in cookie
       if (result.user) {
-        localStorage.setItem("userData", JSON.stringify(result.user));
+        Cookies.set('userData', JSON.stringify(result.user), cookieOptions);
       }
-      window.location.href = "/music-connect";
+
+      // Optional: Set additional user info cookies for easy access
+      if (result.user) {
+        Cookies.set('userId', result.user.id.toString(), cookieOptions);
+        Cookies.set('userName', result.user.name, cookieOptions);
+        Cookies.set('userEmail', result.user.email, cookieOptions);
+      }
+
+      // Redirect after successful login
+        router.push('/musician-profile');
       
     } catch (err) {
       // Handle API errors
