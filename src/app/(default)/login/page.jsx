@@ -1,12 +1,12 @@
 "use client";
 
 import Hero from "@/components/GlobalComponents/Hero";
+import Navbar from "@/components/GlobalComponents/Navbar";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, getSession } from 'next-auth/react';
-import Navbar from "@/components/GlobalComponents/Navbar";
-import Cookies from 'js-cookie';
+import { signIn } from "next-auth/react";
+import Cookies from "js-cookie";
 import { authAPI } from "../../../../lib/api";
 
 const Login = () => {
@@ -16,19 +16,18 @@ const Login = () => {
     password: "",
     rememberMe: false,
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    // Clear error when user starts typing
     if (error) setError("");
   };
 
@@ -36,7 +35,6 @@ const Login = () => {
     setGoogleLoading(true);
     setError("");
     setSuccess("");
-
     try {
       await signIn("google", { callbackUrl: "/musician-profile" });
     } catch (err) {
@@ -47,7 +45,6 @@ const Login = () => {
     }
   };
 
-  // Validate form
   const validateForm = () => {
     if (!formData.email.trim()) {
       setError("Email is required");
@@ -60,10 +57,8 @@ const Login = () => {
     return true;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setLoading(true);
@@ -71,47 +66,30 @@ const Login = () => {
     setSuccess("");
 
     try {
-      // Prepare payload for API
       const payload = {
         email: formData.email.trim(),
         password: formData.password,
       };
 
-      // Call login API
       const result = await authAPI.login(payload);
 
-      // Handle successful login
-      setSuccess("Login successful!");
-
-      // Set cookies based on remember me preference
       const cookieOptions = {
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-        sameSite: 'strict', // CSRF protection
-        expires: formData.rememberMe ? 30 : undefined, // 30 days if remember me, session cookie otherwise
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        expires: formData.rememberMe ? 30 : undefined,
       };
 
-      // Store token in cookie
-      if (result.token) {
-        Cookies.set('token', result.token, cookieOptions);
-      }
-
-      // Store user data in cookie
+      if (result.token) Cookies.set('token', result.token, cookieOptions);
       if (result.user) {
         Cookies.set('userData', JSON.stringify(result.user), cookieOptions);
-      }
-
-      // Optional: Set additional user info cookies for easy access
-      if (result.user) {
         Cookies.set('userId', result.user.id.toString(), cookieOptions);
         Cookies.set('userName', result.user.name, cookieOptions);
         Cookies.set('userEmail', result.user.email, cookieOptions);
       }
 
-      // Redirect after successful login
-        router.push('/musician-profile');
-      
+      setSuccess("Login successful!");
+      router.push("/musician-profile");
     } catch (err) {
-      // Handle API errors
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
@@ -125,9 +103,8 @@ const Login = () => {
 
   return (
     <>
-    <Navbar/>
+      <Navbar />
       <Hero />
-
       <div className="min-h-screen flex flex-col lg:flex-row w-full">
         {/* Left: Login Form */}
         <div className="w-full lg:w-1/2 bg-[#F7F7F5] flex items-center justify-center px-6 py-10 lg:px-16">
@@ -136,14 +113,11 @@ const Login = () => {
               Welcome Back!
             </h2>
 
-            {/* Error Message */}
             {error && (
               <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
                 {error}
               </div>
             )}
-
-            {/* Success Message */}
             {success && (
               <div className="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg text-sm">
                 {success}
@@ -151,7 +125,6 @@ const Login = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email */}
               <div>
                 <label className="block text-[#1B3139] text-[17px] font-semibold mb-2 pl-2">
                   Your email address
@@ -167,7 +140,6 @@ const Login = () => {
                 />
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block text-[#1B3139] text-[17px] font-semibold mb-2 pl-2">
                   Password
@@ -202,20 +174,14 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Login Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#1FB58F] cursor-pointer text-white py-[16px] rounded-[25px] text-[16px] font-semibold hover:bg-teal-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full bg-[#1FB58F] text-white py-[16px] rounded-[25px] text-[16px] font-semibold hover:bg-teal-600 transition disabled:opacity-50 flex items-center justify-center"
               >
                 {loading ? (
                   <>
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none">
                       <circle
                         className="opacity-25"
                         cx="12"
@@ -223,12 +189,12 @@ const Login = () => {
                         r="10"
                         stroke="currentColor"
                         strokeWidth="4"
-                      ></circle>
+                      />
                       <path
                         className="opacity-75"
                         fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
                     </svg>
                     Logging in...
                   </>
@@ -238,38 +204,33 @@ const Login = () => {
               </button>
             </form>
 
-            {/* Google Button */}
             <div className="my-6">
               <button
                 type="button"
                 disabled={loading || googleLoading}
                 onClick={handleGoogleSignIn}
-                className="w-full flex items-center cursor-pointer justify-center border border-black text-[16px] font-semibold text-[#222] h-[60px] rounded-[25px] hover:bg-gray-100 disabled:opacity-50"
+                className="w-full flex items-center justify-center border border-black text-[16px] font-semibold text-[#222] h-[60px] rounded-[25px] hover:bg-gray-100 disabled:opacity-50"
               >
                 {googleLoading ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-black"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Signing in with Google...
-                  </>
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"
+                    />
+                  </svg>
                 ) : (
                   <>
                     <img
@@ -283,7 +244,6 @@ const Login = () => {
               </button>
             </div>
 
-            {/* Terms and Sign Up Link */}
             <p className="text-center text-[14px] text-black font-medium">
               By logging in, you agree to our{" "}
               <a href="#" className="text-[#1FB58F] underline">
@@ -296,7 +256,7 @@ const Login = () => {
             </p>
 
             <p className="text-center text-[16px] font-semibold mt-4 text-black">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/sign-up" className="text-[#1FB58F] hover:underline">
                 Sign Up
               </Link>
@@ -304,23 +264,43 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Right: Image Section */}
-        <div className="w-full lg:w-1/2 bg-[#1FB58F] flex items-center justify-center relative px-6 py-10">
-          <div className="relative w-full max-w-[400px] md:max-w-[500px] h-[70%] bg-[#C5EFE6] rounded-[30px] p-6 md:p-10  text-center">
-            <img
-              src="/images/headphone.png"
-              alt="Live Music"
-              className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-[60%] md:w-[70%]"
-            />
-            <div className="mt-[140px] p-3 md:p-2 md:mt-[250px]">
-              <p className="text-[20px] md:text-[26px] mt-8 text-black font-bold">
-                Seamless
-                <br />
-                work experience
-              </p>
-            </div>
-          </div>
-        </div>
+    {/* Right: Image Section with Background */}
+<div className="w-full lg:w-1/2 bg-[#1FB58F] relative flex items-end justify-center   px-6 py-12 md:py-18">
+  {/* Main Content */}
+  <div  className="relative z- w-full max-w-[400px] md:max-w-[450px] h-[100%] md:h-[90%] bg-[#FFFFFF]/30 rounded-xl p-6 md:p-10 text-center ">
+
+    {/* Music Notes Background */}
+    <img
+      src="/images/loginbg.png"
+      alt="Music Notes Background"
+      className="absolute inset-0 left-20 h-full object-cover z-0 opacity-70"
+    />
+
+    {/* Gradient Overlay */}
+    <img
+      src="/images/login-gradient.png"
+      alt="Gradient Overlay"
+      className="absolute inset-0 left-10 h-full z-0 object-cover  mix-blend-plus-lighter "
+    />
+
+    {/* Headphone Image */}
+    <img
+      src="/images/headphone.png"
+      alt="Live Music"
+      className="absolute -top-[10%] left-[56%]  -translate-x-1/2 w-[90%] md:w-[100%] z-10"
+    />
+
+    {/* Text */}
+    <div className="mt-[230px] md:mt-[350px] z-20 relative">
+      <p className="text-[20px] md:text-[26px] mt-8 text-black font-bold">
+        Seamless
+        <br />
+        work experience
+      </p>
+    </div>
+  </div>
+</div>
+
       </div>
     </>
   );
