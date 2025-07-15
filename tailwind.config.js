@@ -2,7 +2,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        poppins: ['var(--font-poppins)'],
+        anton: ['var(--font-anton)'],
+        roboto: ['var(--font-roboto)'],
          juno: ['JunoDemo', 'sans-serif'],
       },
     },

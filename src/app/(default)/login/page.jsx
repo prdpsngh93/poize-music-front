@@ -36,7 +36,7 @@ const Login = () => {
     setError("");
     setSuccess("");
     try {
-      await signIn("google", { callbackUrl: "/musician-profile" });
+      await signIn("google", { callbackUrl: "/musician-dashboard" });
     } catch (err) {
       console.error("Google sign-in error:", err);
       setError(err.message || "Google sign-in failed. Please try again.");
@@ -88,7 +88,7 @@ const Login = () => {
       }
 
       setSuccess("Login successful!");
-      router.push("/musician-profile");
+      router.push("/musician-dashboard");
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
@@ -104,7 +104,7 @@ const Login = () => {
   return (
     <>
       <Navbar />
-      <Hero />
+      <Hero title="Log in" />
       <div className="min-h-screen flex flex-col lg:flex-row w-full">
         {/* Left: Login Form */}
         <div className="w-full lg:w-1/2 bg-[#F7F7F5] flex items-center justify-center px-6 py-10 lg:px-16">

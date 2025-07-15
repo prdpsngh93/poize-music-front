@@ -124,7 +124,7 @@ const SetNewPassword = () => {
 
   return (
     <>
-      <Hero />
+      <Hero title="Reset Password" />
 
       <div className="min-h-screen flex flex-col lg:flex-row w-full">
         {/* Left: Set Password Form */}
