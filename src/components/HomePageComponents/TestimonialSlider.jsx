@@ -54,7 +54,7 @@ export default function TestimonialSlider() {
             <SwiperSlide key={index}>
               <div className="flex flex-col items-center justify-center h-[400px] sm:h-[400px] text-center z-10 relative">
                 <p className="text-sm sm:text-base text-white mb-2">{item.title}</p>
-                <blockquote className="font-bold text-lg sm:text-2xl max-w-[90%] sm:max-w-[800px] mx-auto tracking-normal font-poppins">
+                <blockquote className="font-bold text-lg sm:text-2xl max-w-[90%] sm:max-w-[800px] mx-auto tracking-normal font-anton">
                   {item.quote}
                 </blockquote>
                 <div className="flex justify-center mb-3 mt-8 sm:mt-10">

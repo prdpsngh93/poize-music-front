@@ -26,19 +26,19 @@ export default function Banner() {
             POIZE MUSIC COLLECTIVE
           </h1>
                <div className='flex flex-col gap-4 xl:gap-10'>
-                <p className="font-poppins  font-bold text-xl md:text-3xl xl:text-5xl  leading-10 tracking-[0px]">
+                <p className="font-anton  font-bold text-xl md:text-3xl xl:text-5xl  leading-10 tracking-[0px]">
                     Join the Sound Revolution
                 </p>
-                <p className="font-poppins  font-bold md:text-xl xl:text-3xl leading-7  tracking-[0px]">
+                <p className="font-anton  font-bold md:text-xl xl:text-3xl leading-7  tracking-[0px]">
                     Uniting artists, events, and fans in one immersive experience.
                 </p>
                 <div className="flex gap-4  flex-wrap justify-center">
-                    <button className="bg-black cursor-pointer text-white px-[45px] py-3 rounded-full font-bold border  border-white   transition font-poppins  xl:text-3xl leading-[28px] tracking-[0px] uppercase">
+                    <button className="bg-black cursor-pointer text-white px-[45px] py-3 rounded-full font-bold border  border-white   transition font-anton  xl:text-3xl leading-[28px] tracking-[0px] uppercase">
                         EXPLORE OUR ARTISTS
                     </button>
                     <button className="bg-black border  cursor-pointer flex gap-x-7  items-center border-white text-white px-[45px] py-3 rounded-full font-bold   transition">
                         <Image src={'/images/voice.png'} width={45} height={35} className='w-9' alt='voice' />
-                        <p className='font-poppins   font-bold xl:text-3xl leading-[28px] tracking-[0px] uppercase'>
+                        <p className='font-anton   font-bold xl:text-3xl leading-[28px] tracking-[0px] uppercase'>
                             LISTEN NOW
                         </p>
                     </button>

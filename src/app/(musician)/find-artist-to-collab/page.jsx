@@ -1,5 +1,4 @@
 import React from "react";
-import NavbarMusician from "@/components/MusicianPageComponents/NavbarMusician";
 import FindGigsSearchBar from "@/components/FindgigsComponents/FindGigsSearchBar";
 import Dropdowns from "@/components/FindgigsComponents/Dropdowns";
 import FindArtistsCards from "@/components/MusicianPageComponents/FindArtistsCards";

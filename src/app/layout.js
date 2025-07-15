@@ -1,23 +1,27 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { Poppins } from 'next/font/google';
+import { Poppins, Anton, Roboto } from 'next/font/google';
 import "@/app/globals.css";
-import Footer from "@/components/GlobalComponents/Footer"; // Remove Layout import
+import Footer from "@/components/GlobalComponents/Footer";
 
-const poppins = Poppins({
+const anton = Anton({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-poppins',
+  weight: ['400'],
+  variable: '--font-anton',
   display: 'swap',
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+export const roboto = Roboto({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-roboto', 
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+export const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins', // Fixed: was '--font-robto', should be unique
+  display: 'swap',
 });
 
 export const metadata = {
@@ -28,11 +32,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={poppins.className}>
-      <body className={`${poppins.variable} antialiased`}>
-        <div className="flex flex-col min-h-screen">
-          {children}
-          <Footer />
-        </div>
+      <body className={`${poppins.variable} ${roboto.variable} ${anton.variable} antialiased`}>
+          <div className="flex flex-col min-h-screen">
+            {children}
+            <Footer />
+          </div>
       </body>
     </html>
   );

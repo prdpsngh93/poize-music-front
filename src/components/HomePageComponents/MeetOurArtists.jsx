@@ -24,7 +24,7 @@ export default function MeetOurArtists() {
   return (
     <section className="container mx-auto px-4 md:px-9 lg:px-12 max-w-7xl  py-4 md:py-16">
       <div className="mb-8">
-        <p className="text-[24px] text-[#222222] font-bold font-poppins tracking-wide uppercase">
+        <p className="text-[24px] text-[#222222] font-bold font-anton tracking-wide uppercase">
           Creators of Tomorrow’s Sound
         </p>
         <h2 className="text-[40px] lg:text-[60px] md:text-5xl font-extrabold mt-2 mb-12 text-[#222222]">
@@ -45,21 +45,21 @@ export default function MeetOurArtists() {
               />
             </div>
             <div className="mt-4 text-left w-full px-2">
-              <h3 className="text-[16px] text-[#222222] font-bold font-poppins">
+              <h3 className="text-[16px] text-[#222222] font-bold font-anton">
                 {artist.name}
               </h3>
               <p className="text-[12px] font-bold text-gray-700 uppercase mt-1">
                 {artist.role}
               </p>
             </div>
-            <button className="mt-4 px-4 py-1 text-[12px] font-bold font-poppins uppercase bg-black text-white rounded-full hover:opacity-80 transition">
+            <button className="mt-4 px-4 py-1 text-[12px] font-bold font-anton uppercase bg-black text-white rounded-full hover:opacity-80 transition">
               Buy Tickets
             </button>
           </div>
         ))}
       </div>
 
-      <button className="px-[30px] s flex justify-center mx-auto   py-3 text-[18px] font-bold font-poppins uppercase bg-black text-white rounded-full hover:opacity-80 transition">
+      <button className="px-[30px] s flex justify-center mx-auto   py-3 text-[18px] font-bold font-anton uppercase bg-black text-white rounded-full hover:opacity-80 transition">
         View More Artists 
       </button>
     </section>

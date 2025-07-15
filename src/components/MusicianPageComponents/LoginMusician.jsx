@@ -13,15 +13,16 @@ export default function CreateMusicianProfile() {
     availability: "",
     website_url: "",
     social_media_url: "",
+    profile_image: "", // Added profile_image field
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false); // State for image upload
 
   const cookies = Cookies.get("token");
-  console.log("cookies", cookies);
 
   const genres = ["Vocals", "Guitar", "Piano", "Drums", "Bass"];
 
@@ -44,6 +45,7 @@ export default function CreateMusicianProfile() {
           availability: result.user.availability || "",
           website_url: result.user.website_url || "",
           social_media_url: result.user.social_media_url || "",
+          profile_image: result.user.profile_image || "", // Added profile_image
         });
 
         // Determine if this is editing an existing profile
@@ -63,6 +65,66 @@ export default function CreateMusicianProfile() {
 
   const handleGenreClick = (selectedGenre) => {
     setFormData({ ...formData, primary_genre: selectedGenre });
+  };
+
+  // Cloudinary image upload handler
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Please upload a valid image file (JPEG, PNG, JPG, or WebP)");
+      return;
+    }
+
+    // Validate file size (e.g., 5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      setError("Image size should be less than 5MB");
+      return;
+    }
+
+    setImageUploading(true);
+    setError("");
+
+    try {
+      // Create form data for Cloudinary upload
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET); 
+      formData.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME); 
+
+      // Upload to Cloudinary
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      
+      // Update form data with the uploaded image URL
+      setFormData(prev => ({
+        ...prev,
+        profile_image: data.secure_url
+      }));
+
+      console.log('Image uploaded successfully:', data.secure_url);
+      
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      setError('Failed to upload image. Please try again.');
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const validateForm = () => {
@@ -99,6 +161,7 @@ export default function CreateMusicianProfile() {
         availability: formData.availability.trim(),
         website_url: formData.website_url.trim(),
         social_media_url: formData.social_media_url.trim(),
+        profile_image: formData.profile_image, // Include profile_image in payload
         is_profile_complete: true,
       };
 
@@ -169,16 +232,41 @@ export default function CreateMusicianProfile() {
           </div>
         )}
 
-        {/* Avatar */}
+        {/* Avatar Upload */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-30 h-30 rounded-full bg-gray-200 overflow-hidden border border-gray-300">
-            <img
-              src="/images/avatar.png"
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
+          <div className="w-30 h-30 rounded-full bg-gray-200 overflow-hidden border border-gray-300 relative">
+            {formData.profile_image ? (
+              <img
+                src={formData.profile_image}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src="/images/avatar.png"
+                alt="Default Profile"
+                className="w-full h-full object-cover"
+              />
+            )}
+            {imageUploading && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+              </div>
+            )}
           </div>
-          <p className="text-sm text-gray-600 mt-2">Upload Image</p>
+          
+          <label className="mt-2 cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+              disabled={imageUploading}
+            />
+            <span className="text-sm text-[#1FB58F] hover:text-green-500 transition">
+              {imageUploading ? "Uploading..." : "Upload Image"}
+            </span>
+          </label>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -310,7 +398,7 @@ export default function CreateMusicianProfile() {
           <div className="flex justify-center items-center">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || imageUploading}
               className="px-5 py-2 bg-[#1FB58F] text-white rounded-2xl hover:bg-green-500 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading

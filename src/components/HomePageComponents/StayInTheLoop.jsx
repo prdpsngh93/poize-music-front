@@ -11,7 +11,7 @@ export default function StayInTheLoop() {
 
         {/* Content */}
         <div className="relative z-10 w-full">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-poppins mb-4 leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-anton mb-4 leading-tight">
             Stay in the Loop
           </h2>
           <p className="max-w-[700px] w-full mx-auto text-base sm:text-lg md:text-[17px] font-light leading-relaxed mb-10">

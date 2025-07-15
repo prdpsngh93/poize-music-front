@@ -1,50 +1,69 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { Menu, X, Search, Bell } from 'lucide-react';
-import Link from 'next/link';
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { Menu, X, Search, Bell } from "lucide-react";
+import Link from "next/link";
+import { authAPI } from "../../../lib/api";
 
-export default function NavbarMusician({ variant = 'light' }) {
+export default function NavbarMusician({ variant = "light" }) {
   const [isOpen, setIsOpen] = useState(false);
-  const isLight = variant === 'light';
+  const isLight = variant === "light";
 
-  const navItems = ['Home', 'Events', 'Shop', 'Blog', 'Work', 'Artists'];
+  const [profileImage,setProfileImage] = useState("")
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const result = await authAPI.getApi();
+
+      if (result.user) {
+        // Map API response to form data
+        setProfileImage(result.user.profile_image || "",);
+      }
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+    }
+  };
+
+  const navItems = ["Home", "Events", "Shop", "Blog", "Work", "Artists"];
 
   return (
-   <div
-  className="relative h-[120px] bg-cover bg-top "
-  style={{
-    backgroundImage: "url('/images/banner.png')",
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-  }}
->
+    <div
+      className="relative h-[120px] bg-cover bg-top "
+      style={{
+        backgroundImage: "url('/images/banner.png')",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/40 z-0" />
 
       <nav
-        className={`w-full z-50 font-poppins font-normal lg:font-bold text-sm uppercase ${
-          isLight ? 'text-white absolute top-0 left-0' : 'text-black'
+        className={`w-full z-50 font-roboto font-normal lg:font-bold text-sm uppercase ${
+          isLight ? "text-white absolute top-0 left-0" : "text-black"
         }`}
       >
         <div className="max-w-[1620px] w-full mx-auto px-4 md:px-9 lg:px-12 relative z-10">
           <div
             className={`flex border-b-[0.5px] ${
-              isLight ? 'border-[#7A7A7A]' : 'border-gray-400'
+              isLight ? "border-[#7A7A7A]" : "border-gray-400"
             } justify-between items-center py-4`}
           >
             {/* Logo */}
             <div className="flex items-center space-x-2">
               <Image
-                src="/images/logo.png"
+                src={"/images/logo.png"}
                 alt="Logo"
                 width={60}
                 height={60}
                 className="object-contain"
               />
-             
             </div>
 
             {/* Desktop Nav Links */}
@@ -64,17 +83,17 @@ export default function NavbarMusician({ variant = 'light' }) {
               <Search className="w-5 h-5 cursor-pointer" />
               <Bell className="w-5 h-5 cursor-pointer" />
               <Image
-                src="/images/avatar.png"
+                src={profileImage || "/images/avatar.png"}
                 alt="Profile"
                 width={32}
                 height={32}
-                className="rounded-full object-cover cursor-pointer"
+                className="rounded-full h-8 w-8 object-cover cursor-pointer"
               />
             </div>
 
             {/* Mobile Menu Toggle */}
             <button
-              className={`md:hidden ${isLight ? 'text-white' : 'text-black'}`}
+              className={`md:hidden ${isLight ? "text-white" : "text-black"}`}
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? <X size={32} /> : <Menu size={32} />}

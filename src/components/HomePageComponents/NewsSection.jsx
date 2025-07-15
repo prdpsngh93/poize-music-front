@@ -43,7 +43,7 @@ export default function NewsSection() {
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div className="absolute bottom-10 left-6 right-6 text-white">
-                <p className="font-poppins font-semibold text-[24px] tracking-[0%]  text-center">{item.title}</p>
+                <p className="font-anton font-semibold text-[24px] tracking-[0%]  text-center">{item.title}</p>
                 <button className="px-4 flex hover:cursor-pointer mx-auto py-1 text-[16px] uppercase border mt-[17px] border-white rounded-full text-sm font-bold hover:bg-white hover:text-black transition">
                   Buy Tickets
                 </button>
