@@ -13,7 +13,7 @@ const ProfileDetail = () => {
         {/* Profile Top Section */}
         <div className="flex flex-col md:flex-row items-center justify-center md:items-start gap-6 md:gap-12">
           {/* Profile Image */}
-          <div className="w-[250px] h-[200px]">
+          <div className="w-[250px] flex items-center justify-center h-[200px]">
   <Image
     src="/images/avatar.png"
     alt="Profile"
