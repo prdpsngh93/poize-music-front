@@ -1,3 +1,4 @@
+'use c'
 import React, { useState } from 'react';
 
 const Dropdown = ({ label = "Sort By", options = [], onSelect }) => {
