@@ -1,3 +1,4 @@
+'use c'
 import React, { useState } from 'react';
 
 const Dropdown = ({ label = "Sort By", options = [], onSelect }) => {
@@ -13,6 +14,8 @@ const Dropdown = ({ label = "Sort By", options = [], onSelect }) => {
   return (
     <div className="relative inline-block px-[11px] rounded-[10px] py-[8px] bg-[#1FB58F] text-left">
       <div>
+
+
         <button
           onClick={() => setOpen(!open)}
           className="inline-flex justify-between items-center w-full font-medium rounded-md focus:outline-none">
@@ -25,6 +28,8 @@ const Dropdown = ({ label = "Sort By", options = [], onSelect }) => {
           >
             <path d="M5.5 7l4.5 4.5L14.5 7h-9z" />
           </svg>
+
+
         </button>
       </div>
 
@@ -37,6 +42,7 @@ const Dropdown = ({ label = "Sort By", options = [], onSelect }) => {
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-teal-100"
             >
               {option}
+              
             </button>
           ))}
         </div>
