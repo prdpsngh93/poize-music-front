@@ -1,7 +1,7 @@
 import React from 'react'
 import { Search } from 'lucide-react';
 
-const FindGigsSearchBar = () => {
+const FindGigsSearchBar = ({placeholder}) => {
   return (
 
       <div className="w-full flex justify-center">
@@ -10,7 +10,7 @@ const FindGigsSearchBar = () => {
           <Search className="text-gray-400 w-5 h-5 mr-3" />
           <input
             type="text"
-            placeholder="Search for gigs"
+            placeholder={placeholder}
             className="flex-1 text-base text-gray-900 outline-none border-none bg-transparent placeholder-gray-400"
           />
         </div>
