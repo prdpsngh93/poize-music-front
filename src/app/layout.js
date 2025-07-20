@@ -35,7 +35,7 @@ export default function RootLayout({ children }) {
       <body className={`${poppins.variable} ${roboto.variable} ${anton.variable} antialiased`}>
           <div className="flex flex-col min-h-screen">
             {children}
-            <Footer />
+            {/* <Footer /> */}
           </div>
       </body>
     </html>
