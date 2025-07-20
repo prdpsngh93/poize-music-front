@@ -20,7 +20,7 @@ const FindGigsPage = () => {
           </div>
 
           {/* Search Bar */}
-          <FindGigsSearchBar />
+          <FindGigsSearchBar placeholder={"Find gigs"} />
 
           {/* Dropdown Filters */}
           <Dropdowns />

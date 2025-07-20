@@ -14,7 +14,7 @@ const page = () => {
               Find Artists to Collaborate
             </h1>
           </div>
-          <FindGigsSearchBar />
+          <FindGigsSearchBar placeholder={"Find gigs"} />
           <Dropdowns />
           <FindArtistsCards />
         </div>
