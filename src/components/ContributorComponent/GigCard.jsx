@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const GigCard = ({ title, subtitle, image, text }) => {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center w-full border-b-2 border-gray-200 p-4 md:p-6 gap-4 md:gap-6">
+    <div className="flex flex-col md:flex-row justify-between items-center w-full border-b-2 border-gray-200 py-4 md:py-6 gap-4 md:gap-6">
       {/* Text Section */}
       <div className="flex-1 w-full md:w-auto">
         <h3 className="text-base font-semibold text-[#121417]">{title}</h3>
