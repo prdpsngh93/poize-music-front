@@ -86,15 +86,21 @@ export const ChatProvider = ({ children }) => {
     const connectHandler = () => setIsConnected(true);
     const disconnectHandler = () => setIsConnected(false);
     const onlineUsersHandler = (users) => setOnlineUsers(users || {});
- const newMessageHandler = (msg) => {
-  setMessages((prevMessages) => {
-    const exists = prevMessages.some((m) => m.id === msg.id);
-    if (exists) {
-      return prevMessages; // skip duplicate
-    }
-    return [...prevMessages, msg];
-  });
-};
+    
+    const newMessageHandler = (msg) => {
+      setMessages((prevMessages) => {
+        // Robust duplicate check using multiple properties
+        const isDuplicate = prevMessages.some(
+          m => m.id === msg.id || 
+               (m.sender_id === msg.sender_id && 
+                m.receiver_id === msg.receiver_id && 
+                m.content === msg.content && 
+                Math.abs(new Date(m.createdAt) - new Date(msg.createdAt)) < 1000)
+        );
+        
+        return isDuplicate ? prevMessages : [...prevMessages, msg];
+      });
+    };
 
     const messageReadHandler = ({ senderId }) => {
       setMessages((prev) =>
@@ -184,19 +190,8 @@ export const ChatProvider = ({ children }) => {
   // Send message function
   const sendMessage = (content) => {
     if (!socket || !currentUser || !selectedArtist) return;
-
-    const message = {
-      id: Date.now(),
-      sender_id: currentUser.id,
-      receiver_id: selectedArtist.id,
-      content,
-      createdAt: new Date(),
-      is_read: false,
-    };
-
-    // Optimistic add message
-    setMessages((prev) => [...prev, message]);
-
+    
+    // Only emit the message - no local state update
     socket.emit("send_message", {
       receiver_id: selectedArtist.id,
       content,

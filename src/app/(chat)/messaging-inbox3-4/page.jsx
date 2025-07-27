@@ -36,8 +36,6 @@ const page = () => {
             {/* User Header */}
             <UserHeaderBar />
 
-             
-
             {/* Chat Messages */}
             <ChatMessageList />
 
