@@ -2,10 +2,12 @@ import NavbarChat from '@/components/ChatComponents/NavbarChat';
 import React from 'react';
 import SearchBarChat from '@/components/ChatComponents/SearchBarChat';
 import ProfileCards from '@/components/ChatComponents/ProfileCards';
+import { ChatProvider } from '@/app/context/ChatContext';
 
 const Page = () => {
   return (
     <>
+    <ChatProvider>
       <NavbarChat />
 
       {/* Content Section */}
@@ -24,6 +26,7 @@ const Page = () => {
         <ProfileCards/>
 
       </div>
+      </ChatProvider>
     </>
   );
 };

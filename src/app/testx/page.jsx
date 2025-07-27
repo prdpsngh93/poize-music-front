@@ -25,7 +25,7 @@ const ArtistList = () => {
       if (!token) return;
 
       try {
-        const res = await fetch("http://localhost:5000/api/user-info", {
+        const res = await fetch("https://poize-music-backend-kn0u.onrender.com/api/user-info", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -122,7 +122,7 @@ const ArtistList = () => {
       }
 
       try {
-        const res = await fetch("http://localhost:5000/api/artists", {
+        const res = await fetch("https://poize-music-backend-kn0u.onrender.com/api/artists", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -169,7 +169,7 @@ const ArtistList = () => {
 
         // Fixed URL pattern to match server route
         const res = await fetch(
-          `http://localhost:5000/api/messages/conversation/${selectedArtist.id}`,
+          `https://poize-music-backend-kn0u.onrender.com/api/messages/conversation/${selectedArtist.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
