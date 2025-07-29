@@ -1,8 +1,10 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mic, Headphones, BarChart3, ArrowRight } from 'lucide-react';
+import { Mic, Headphones, BarChart3, ArrowRight  , LocationEditIcon} from 'lucide-react';
 import { authAPI } from '../../../../lib/api';
+import { toast } from 'sonner';
+
 
 export default function RoleSelection() {
   const [selectedRole, setSelectedRole] = useState('Artist');
@@ -28,6 +30,12 @@ export default function RoleSelection() {
       icon: BarChart3,
       title: 'Producer',
       description: 'Mix and sell your tracks'
+    },
+    {
+      id: 'Venue',
+      icon: LocationEditIcon,
+      title: 'Venue',
+      description: 'Discover and enjoy your tracks'
     }
   ];
 
@@ -43,30 +51,41 @@ export default function RoleSelection() {
     try {
       // Call update profile API with selected role
       const payload = {
-        role: selectedRole
+        newRole: selectedRole.toLocaleLowerCase()
       };
 
-      const result = await authAPI.updateProfile(payload);
+      const result = await authAPI.updateRole(payload);
+   
+      if(result.status === "success"){
+        toast.success("User role updated successfully");
+        if (result.user.role === null) {
+          router.push("/role");
+        } else if (result.user.role === "contributor" || result.user.role === "producer" ) {
+          router.push("/contributor-dashboard");
+        } else if (result.user.role === "artist") {
+          router.push("/musician-dashboard");
+        } else if (result.user.role === "listener") {
+          router.push("/");
+        } else if (result.user.role === "venue")
+        router.push("/venue-dashboard");
+      }
 
-      // Navigate to musician profile page after successful update
-      router.push('/musician-profile');
+     
     } catch (err) {
       // Handle API errors
       const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        'Failed to update role. Please try again.';
-      setError(errorMessage);
-      console.error('Role update error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        err.response?.data?.message || err.response?.data?.error || 'Failed to update role. Please try again.';
+        setError(errorMessage);
+        console.error('Role update error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <div className="flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-sm p-8 w-full max-w-2xl">
-        <div className="text-center mb-8">
+      <div className="bg-white rounded-2xl shadow-sm p-8 w-full max-w-4xl">
+        <div className="text-center  mb-8">
           <h1 className="text-xl font-medium text-gray-900 mb-2">
             Select the role that best describes you to
           </h1>
@@ -82,7 +101,7 @@ export default function RoleSelection() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           {roles.map((role) => {
             const IconComponent = role.icon;
             const isSelected = selectedRole === role.id;
@@ -92,7 +111,7 @@ export default function RoleSelection() {
                 key={role.id}
                 onClick={() => setSelectedRole(role.id)}
                 disabled={loading}
-                className={`p-6 rounded-2xl border-2 transition-all duration-200 text-center hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`p-6 rounded-2xl border-2 transition-all duration-200 text-center hover:shadow-md disabled:opacity-50 hover:cursor-pointer disabled:cursor-not-allowed ${
                   isSelected
                     ? 'border-emerald-400 bg-emerald-50'
                     : 'border-gray-200 bg-white hover:border-gray-300'

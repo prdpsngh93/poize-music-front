@@ -50,7 +50,7 @@ export const ChatProvider = ({ children }) => {
 
       try {
         const res = await fetch(
-          "https://poize-music-backend-kn0u.onrender.com/api/user-info",
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user-info`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -70,7 +70,7 @@ export const ChatProvider = ({ children }) => {
     const token = Cookies.get("token");
     if (!token) return;
 
-    const newSocket = io("https://poize-music-backend-kn0u.onrender.com", {
+    const newSocket = io(`${process.env.NEXT_PUBLIC_API_BASE_URL}`, {
       auth: { token },
       reconnection: true,
     });
@@ -133,7 +133,7 @@ export const ChatProvider = ({ children }) => {
 
       try {
         const res = await fetch(
-          "https://poize-music-backend-kn0u.onrender.com/api/artists",
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/artists`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -163,7 +163,7 @@ export const ChatProvider = ({ children }) => {
         if (!token) return;
 
         const res = await fetch(
-          `https://poize-music-backend-kn0u.onrender.com/api/messages/conversation/${selectedArtist.id}`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/messages/conversation/${selectedArtist.id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

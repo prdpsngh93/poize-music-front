@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins, Anton, Roboto } from 'next/font/google';
 import "@/app/globals.css";
 import Footer from "@/components/GlobalComponents/Footer";
+import { Toaster } from 'sonner';
+
 
 const anton = Anton({
   subsets: ['latin'],
@@ -34,8 +36,9 @@ export default function RootLayout({ children }) {
     <html lang="en" className={poppins.className}>
       <body className={`${poppins.variable} ${roboto.variable} ${anton.variable} antialiased`}>
           <div className="flex flex-col min-h-screen">
+            <Toaster />
             {children}
-            {/* <Footer /> */}
+            <Footer />
           </div>
       </body>
     </html>
