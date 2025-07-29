@@ -6,7 +6,6 @@ import { Menu, X, Search } from "lucide-react";
 import Link from "next/link";
 import { BellIcon } from "@heroicons/react/24/solid";  // Imported Heroicons for filled bell
 
-
 export default function NavbarChat({ variant = "light" }) {
   const [isOpen, setIsOpen] = useState(false);
   const isLight = variant === "light";
@@ -38,7 +37,7 @@ export default function NavbarChat({ variant = "light" }) {
             } justify-between items-center py-4`}
           >
             {/* Logo */}
-            <div className="flex items-center space-x-2">
+          <Link className="flex items-center space-x-2" href={'/'}>
               <Image
                 src={"/images/logo.png"}
                 alt="Logo"
@@ -46,7 +45,7 @@ export default function NavbarChat({ variant = "light" }) {
                 height={60}
                 className="object-contain"
               />
-            </div>
+            </Link>
 
             {/* Desktop Right Side */}
             <div className="hidden md:flex space-x-4 items-center">

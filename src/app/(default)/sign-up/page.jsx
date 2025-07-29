@@ -7,6 +7,7 @@ import { authAPI } from "../../../../lib/api";
 import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
 import Navbar from "@/components/GlobalComponents/Navbar";
+import { toast } from "sonner";
 
 const SignUp = () => {
   const router = useRouter();
@@ -76,20 +77,14 @@ const SignUp = () => {
 
       setSuccess("Account created successfully!");
 
-      if (result.token) {
-        // Store token in memory or use your preferred method
-        // Note: localStorage is not recommended for production
+      if (result.status === "success") {
+        toast.success("Account created successfully!")
         sessionStorage.setItem("authToken", result.token);
+        setTimeout(() => router.push("/login"), 1000); // 1 sec delay
       }
 
-      setTimeout(() => {
-        router.push("/login");
-      }, 100);
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        "Registration failed. Please try again.";
+      const errorMessage =  err?.response?.data?.message || err?.response?.data?.error || "Registration failed. Please try again.";
       setError(errorMessage);
       console.error("Registration error:", err);
     } finally {

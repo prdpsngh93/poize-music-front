@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Cookies from "js-cookie";
 import { authAPI } from "../../../../lib/api";
+import { toast } from "sonner";
 
 const Login = () => {
   const router = useRouter();
@@ -85,10 +86,21 @@ const Login = () => {
         Cookies.set('userId', result.user.id.toString(), cookieOptions);
         Cookies.set('userName', result.user.name, cookieOptions);
         Cookies.set('userEmail', result.user.email, cookieOptions);
+        toast.success("Login successful!");
+        setSuccess("Login successful!");
+        if (result.user.role === null) {
+          router.push("/role");
+        } else if (result.user.role === "contributor" || result.user.role === "producer") {
+          router.push("/contributor-dashboard");
+        } else if (result.user.role === "artist") {
+          router.push("/musician-dashboard");
+        } else if (result.user.role === "listener") {
+          router.push("/");
+        } else if (result.user.role === "venue")
+        router.push("/venue-dashboard");
       }
 
-      setSuccess("Login successful!");
-      router.push("/musician-dashboard");
+   
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||

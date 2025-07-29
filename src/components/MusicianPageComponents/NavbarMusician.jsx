@@ -56,7 +56,7 @@ export default function NavbarMusician({ variant = "light" }) {
             } justify-between items-center py-4`}
           >
             {/* Logo */}
-            <div className="flex items-center space-x-2">
+            <Link className="flex items-center space-x-2" href={'/'}>
               <Image
                 src={"/images/logo.png"}
                 alt="Logo"
@@ -64,7 +64,7 @@ export default function NavbarMusician({ variant = "light" }) {
                 height={60}
                 className="object-contain"
               />
-            </div>
+            </Link>
 
             {/* Desktop Nav Links */}
             <ul className="hidden md:flex space-x-6">
