@@ -18,7 +18,10 @@ const page = () => {
                             Here's a snapshot of your music journey.
                         </p>
                     </div>
+                    <div>
+                    <h2 className="text-xl  font-semibold text-gray-900 mb-6">Upcoming Gigs</h2>
                     <UpcomingGigs />
+                    </div>
                     <ProfileStats/>
                     <RecentActivity/>
                     <Announcements/>

@@ -39,7 +39,7 @@ const gigs = [
 const UpcomingGigs = () => {
   return (
     <div className="bg-[#f4f3ee]">
-      <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Upcoming Gigs</h2>
+
 
       <div className="flex flex-wrap gap-4 justify-center md:justify-start">
         {gigs.map((gig) => (
