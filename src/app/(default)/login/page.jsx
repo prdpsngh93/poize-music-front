@@ -73,7 +73,6 @@ const Login = () => {
       };
 
       const result = await authAPI.login(payload);
-      console.log("result",result)
 
       const cookieOptions = {
         secure: process.env.NODE_ENV === 'production',
@@ -87,7 +86,7 @@ const Login = () => {
         Cookies.set('userId', result.user.id.toString(), cookieOptions);
         Cookies.set('userName', result.user.name, cookieOptions);
         Cookies.set('userEmail', result.user.email, cookieOptions);
-        Cookies.set('id', result.profile.id, cookieOptions);
+        Cookies.set('id', result?.profile?.id, cookieOptions);
         toast.success("Login successful!");
         setSuccess("Login successful!");
         if (result.user.role === null) {

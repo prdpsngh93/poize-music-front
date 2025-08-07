@@ -164,6 +164,8 @@ export default function ContributorProfile() {
 
       setSuccess(isEditing ? "Profile updated successfully!" : "Profile created successfully!");
       setIsEditing(true);
+      router.push("/create-gig");
+
 
       const cookieOptions = {
         secure: process.env.NODE_ENV === "production",

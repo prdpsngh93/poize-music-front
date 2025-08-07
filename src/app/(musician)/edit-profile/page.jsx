@@ -245,7 +245,6 @@ export default function EditProfile() {
       const result = await authAPI.updateProfile(payload);
 
       setSuccess("Profile updated successfully!");
-      router.push("/create-gig");
 
       const cookieOptions = {
         secure: process.env.NODE_ENV === "production",
