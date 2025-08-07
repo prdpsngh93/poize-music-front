@@ -30,17 +30,19 @@ export default function PostOpportunity() {
   const genres = ['Indie Pop', 'Electronic', 'Acoustic', 'Rock', 'Folk', 'Lo-Fi'];
 
   // Check if we're editing an existing opportunity (from URL params or props)
-  useEffect(() => {
-    // You can get the opportunity ID from URL params or props
+useEffect(() => {
+  if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search);
     const editId = urlParams.get('id');
-    
+
     if (editId) {
       setOpportunityId(editId);
       setIsEditing(true);
       fetchOpportunity(editId);
     }
-  }, []);
+  }
+}, []);
+
 
   // Fetch existing opportunity data for editing
   const fetchOpportunity = async (id) => {

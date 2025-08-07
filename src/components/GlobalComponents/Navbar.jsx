@@ -13,10 +13,14 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
   const isLight = variant === "light";
   const navItems = ["Home", "Events", "Shop", "Blog", "Work", "Artists"];
 
-  const handleLogout = async () => {
-    Cookies.remove("token");
+const handleLogout = async () => {
+  Cookies.remove("token");
+
+  if (typeof window !== "undefined") {
     window.location.replace("/login");
-  };
+  }
+};
+
 
   return (
     <nav
