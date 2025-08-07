@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import PerformanceStats from './PerformanceStats';
 import GigCard from './GigCard';
+import Cookies from 'js-cookie';
 
 const ContributorDashboard = () => {
   const [filters, setFilters] = useState({
@@ -63,11 +64,15 @@ const ContributorDashboard = () => {
     }));
   };
 
+
+  const userName= Cookies.get("userName")
+
+
   return (
     <main className="bg-[#F1F0EA]  min-h-screen py-8 px-4 sm:px-12">
         <div className='max-w-5xl flex  flex-col justify-center  mx-auto'> 
       <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 ">
-        Welcome back, Sophia
+        Welcome back, {userName ? userName: "Sophia"} 
       </h1>
 
       {/* My Active Gigs */}

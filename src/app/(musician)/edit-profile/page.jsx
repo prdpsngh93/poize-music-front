@@ -14,7 +14,7 @@ export default function EditProfile() {
     profile_image: "",
     youtube_url: "",
     soundcloud_url: "",
-    availability: new Date().toISOString().split('T')[0] // Default to today
+    availability: new Date().toISOString().split("T")[0], // Default to today
   });
 
   const [loading, setLoading] = useState(false);
@@ -26,19 +26,38 @@ export default function EditProfile() {
   const [settings, setSettings] = useState({
     notifications: true,
     darkMode: false,
-    profileVisibility: true
+    profileVisibility: true,
   });
 
-  const genres = ["House", "Jazz", "Indie", "Rock", "Pop", "Electronic", "Classical", "Hip-Hop"];
+  const genres = [
+    "House",
+    "Jazz",
+    "Indie",
+    "Rock",
+    "Pop",
+    "Electronic",
+    "Classical",
+    "Hip-Hop",
+  ];
 
   const cookies = Cookies.get("token");
 
   // Calendar navigation
   const [currentDate, setCurrentDate] = useState(new Date());
-  
+
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
@@ -62,7 +81,8 @@ export default function EditProfile() {
           profile_image: result.user.profile_image || "",
           youtube_url: result.user.youtube_url || "",
           soundcloud_url: result.user.soundcloud_url || "",
-          availability: result.user.availability || new Date().toISOString().split('T')[0]
+          availability:
+            result.user.availability || new Date().toISOString().split("T")[0],
         });
 
         // Set genres from user data
@@ -83,10 +103,8 @@ export default function EditProfile() {
   };
 
   const handleGenreToggle = (genre) => {
-    setSelectedGenres(prev => 
-      prev.includes(genre) 
-        ? prev.filter(g => g !== genre)
-        : [...prev, genre]
+    setSelectedGenres((prev) =>
+      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
     );
   };
 
@@ -94,7 +112,7 @@ export default function EditProfile() {
     const file = event.target.files[0];
     if (!file) return;
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       setError("Please upload a valid image file (JPEG, PNG, JPG, or WebP)");
       return;
@@ -111,40 +129,45 @@ export default function EditProfile() {
 
     try {
       const formDataUpload = new FormData();
-      formDataUpload.append('file', file);
-      formDataUpload.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
-      formDataUpload.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
+      formDataUpload.append("file", file);
+      formDataUpload.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+      );
+      formDataUpload.append(
+        "cloud_name",
+        process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      );
 
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
         {
-          method: 'POST',
+          method: "POST",
           body: formDataUpload,
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to upload image');
+        throw new Error("Failed to upload image");
       }
 
       const data = await response.json();
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        profile_image: data.secure_url
+        profile_image: data.secure_url,
       }));
-      
     } catch (err) {
-      console.error('Error uploading image:', err);
-      setError('Failed to upload image. Please try again.');
+      console.error("Error uploading image:", err);
+      setError("Failed to upload image. Please try again.");
     } finally {
       setImageUploading(false);
     }
   };
 
   const handleSettingToggle = (setting) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [setting]: !prev[setting]
+      [setting]: !prev[setting],
     }));
   };
 
@@ -158,33 +181,37 @@ export default function EditProfile() {
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    
+
     // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-    
+
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
-    
+
     return days;
   };
 
   const handleDateSelect = (day) => {
     if (day) {
-      const selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-      setFormData(prev => ({
+      const selectedDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        day
+      );
+      setFormData((prev) => ({
         ...prev,
-        availability: selectedDate.toISOString().split('T')[0]
+        availability: selectedDate.toISOString().split("T")[0],
       }));
       setShowCalendar(false);
     }
   };
 
   const navigateMonth = (direction) => {
-    setCurrentDate(prev => {
+    setCurrentDate((prev) => {
       const newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() + direction);
       return newDate;
@@ -218,6 +245,7 @@ export default function EditProfile() {
       const result = await authAPI.updateProfile(payload);
 
       setSuccess("Profile updated successfully!");
+      router.push("/create-gig");
 
       const cookieOptions = {
         secure: process.env.NODE_ENV === "production",
@@ -228,7 +256,6 @@ export default function EditProfile() {
       if (result.user) {
         Cookies.set("userData", JSON.stringify(result.user), cookieOptions);
       }
-
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
@@ -256,8 +283,13 @@ export default function EditProfile() {
     <div className="min-h-screen bg-[#f5f5f0] p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Edit Profile</h1>
-          <p className="text-gray-600">Lorem ipsum is simply dummy text of the printing and typesetting industry.</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Edit Profile
+          </h1>
+          <p className="text-gray-600">
+            Lorem ipsum is simply dummy text of the printing and typesetting
+            industry.
+          </p>
         </div>
 
         {/* Success/Error Messages */}
@@ -277,7 +309,9 @@ export default function EditProfile() {
           <div className="space-y-6">
             {/* Profile Photo */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Profile Photo
+              </label>
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden relative">
                   {formData.profile_image ? (
@@ -314,7 +348,9 @@ export default function EditProfile() {
 
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Name
+              </label>
               <input
                 type="text"
                 name="name"
@@ -327,7 +363,9 @@ export default function EditProfile() {
 
             {/* Role */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Role
+              </label>
               <input
                 type="text"
                 name="role"
@@ -339,7 +377,9 @@ export default function EditProfile() {
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Location
+              </label>
               <input
                 type="text"
                 name="location"
@@ -351,7 +391,9 @@ export default function EditProfile() {
 
             {/* Bio */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Bio
+              </label>
               <textarea
                 name="bio"
                 value={formData.bio}
@@ -363,7 +405,9 @@ export default function EditProfile() {
 
             {/* Genres */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Genres</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Genres
+              </label>
               <div className="flex flex-wrap gap-2">
                 {genres.map((genre) => (
                   <button
@@ -387,11 +431,15 @@ export default function EditProfile() {
           <div className="space-y-6">
             {/* Social Links */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">Social Links</label>
-              
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                Social Links
+              </label>
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">YouTube</label>
+                  <label className="block text-sm text-gray-600 mb-1">
+                    YouTube
+                  </label>
                   <div className="flex items-center">
                     <input
                       type="url"
@@ -400,14 +448,19 @@ export default function EditProfile() {
                       onChange={handleChange}
                       className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1FB58F] bg-white"
                     />
-                    <button type="button" className="ml-2 p-3 text-gray-400 hover:text-gray-600">
+                    <button
+                      type="button"
+                      className="ml-2 p-3 text-gray-400 hover:text-gray-600"
+                    >
                       🔗
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">SoundCloud</label>
+                  <label className="block text-sm text-gray-600 mb-1">
+                    SoundCloud
+                  </label>
                   <div className="flex items-center">
                     <input
                       type="url"
@@ -416,7 +469,10 @@ export default function EditProfile() {
                       onChange={handleChange}
                       className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1FB58F] bg-white"
                     />
-                    <button type="button" className="ml-2 p-3 text-gray-400 hover:text-gray-600">
+                    <button
+                      type="button"
+                      className="ml-2 p-3 text-gray-400 hover:text-gray-600"
+                    >
                       🔗
                     </button>
                   </div>
@@ -426,16 +482,20 @@ export default function EditProfile() {
 
             {/* Availability */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Availability
+              </label>
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setShowCalendar(!showCalendar)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1FB58F] bg-white text-left"
                 >
-                  {formData.availability ? new Date(formData.availability).toLocaleDateString() : "Select Date"}
+                  {formData.availability
+                    ? new Date(formData.availability).toLocaleDateString()
+                    : "Select Date"}
                 </button>
-                
+
                 {showCalendar && (
                   <div className="absolute z-10 mt-2 p-4 bg-white border border-gray-300 rounded-lg shadow-lg">
                     <div className="flex items-center justify-between mb-4">
@@ -447,7 +507,8 @@ export default function EditProfile() {
                         ❮
                       </button>
                       <h3 className="font-medium">
-                        {months[currentDate.getMonth()]} {currentDate.getFullYear()}
+                        {months[currentDate.getMonth()]}{" "}
+                        {currentDate.getFullYear()}
                       </h3>
                       <button
                         type="button"
@@ -457,15 +518,18 @@ export default function EditProfile() {
                         ❯
                       </button>
                     </div>
-                    
+
                     <div className="grid grid-cols-7 gap-1 mb-2">
-                      {daysOfWeek.map(day => (
-                        <div key={day} className="text-center text-sm font-medium text-gray-500 p-2">
+                      {daysOfWeek.map((day) => (
+                        <div
+                          key={day}
+                          className="text-center text-sm font-medium text-gray-500 p-2"
+                        >
                           {day}
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="grid grid-cols-7 gap-1">
                       {getDaysInMonth(currentDate).map((day, index) => (
                         <button
@@ -488,54 +552,64 @@ export default function EditProfile() {
 
             {/* Settings */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">Settings</label>
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                Settings
+              </label>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-700">Notifications</span>
                   <button
                     type="button"
-                    onClick={() => handleSettingToggle('notifications')}
+                    onClick={() => handleSettingToggle("notifications")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.notifications ? 'bg-[#1FB58F]' : 'bg-gray-200'
+                      settings.notifications ? "bg-[#1FB58F]" : "bg-gray-200"
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                        settings.notifications ? 'translate-x-6' : 'translate-x-1'
+                        settings.notifications
+                          ? "translate-x-6"
+                          : "translate-x-1"
                       }`}
                     />
                   </button>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-700">Dark Mode</span>
                   <button
                     type="button"
-                    onClick={() => handleSettingToggle('darkMode')}
+                    onClick={() => handleSettingToggle("darkMode")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.darkMode ? 'bg-[#1FB58F]' : 'bg-gray-200'
+                      settings.darkMode ? "bg-[#1FB58F]" : "bg-gray-200"
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                        settings.darkMode ? 'translate-x-6' : 'translate-x-1'
+                        settings.darkMode ? "translate-x-6" : "translate-x-1"
                       }`}
                     />
                   </button>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-700">Profile Visibility</span>
+                  <span className="text-sm text-gray-700">
+                    Profile Visibility
+                  </span>
                   <button
                     type="button"
-                    onClick={() => handleSettingToggle('profileVisibility')}
+                    onClick={() => handleSettingToggle("profileVisibility")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.profileVisibility ? 'bg-[#1FB58F]' : 'bg-gray-200'
+                      settings.profileVisibility
+                        ? "bg-[#1FB58F]"
+                        : "bg-gray-200"
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                        settings.profileVisibility ? 'translate-x-6' : 'translate-x-1'
+                        settings.profileVisibility
+                          ? "translate-x-6"
+                          : "translate-x-1"
                       }`}
                     />
                   </button>
