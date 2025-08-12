@@ -1,6 +1,7 @@
 "use client";
 import { Bell } from "lucide-react";
 import React from "react";
+import Link from "next/link";
 
 const notifications = [
   {
@@ -19,12 +20,16 @@ const QuickActionsAndNotifications = () => {
       {/* Quick Actions */}
       <div className="flex flex-wrap md:flex-nowrap justify-start md:justify-between items-center gap-3 mb-6">
         <div className="flex flex-col flex-wrap gap-3">
-          <button className="px-4 py-1.5 bg-[#3F77F6] text-white rounded-full text-sm font-medium">
+           <Link
+            href="/venue-post-gig" className="px-4 py-1.5 bg-[#3F77F6] text-white rounded-full text-sm font-medium">
             Post Gig
-          </button>
-          <button className="px-4 py-1.5 text-black bg-white  border-none text-sm font-medium rounded-full">
+          </Link>
+          <Link 
+            href="/venue-profile-form"
+          
+          className="px-4 py-1.5 text-black bg-white  border-none text-sm font-medium rounded-full">
             Edit Profile
-          </button>
+          </Link>
         </div>
         <button className="bg-[#1BBF81] text-white text-sm font-medium px-5 py-2 rounded-full">
           Browse Artists
