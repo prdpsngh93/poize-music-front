@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import MapLocation from "../VenueComponents/MapComponet";
 import { authAPI } from "../../../lib/api";
 import { FaSort } from "react-icons/fa";
 import Cookies from "js-cookie";
@@ -232,10 +231,7 @@ const MusicLoverProfile = () => {
           />
         </div>
 
-        {/* Uncomment if you want to use the map component */}
-        {/* <div className="mt-4">
-          <MapLocation position={position} setPosition={setPosition} setAddress={setAddress} />
-        </div> */}
+  
 
         <div className="flex flex-col gap-4 mt-8">
           {[

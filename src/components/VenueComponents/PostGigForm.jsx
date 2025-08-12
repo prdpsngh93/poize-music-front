@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FaSort } from "react-icons/fa";
-import Link from "next/link";
 import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
 
