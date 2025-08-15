@@ -92,7 +92,11 @@ const Login = () => {
         if (result.user.role === null) {
           router.push("/role");
         } else if (result.user.role === "contributor" || result.user.role === "producer") {
-          router.push("/contributor-profile");
+           if(result.profile){
+            router.push("/contributor-dashboard")
+           }else{
+            router.push("/contributor-profile");
+           }
         } else if (result.user.role === "artist") {
           router.push("/musician-dashboard");
         } else if (result.user.role === "listener") {

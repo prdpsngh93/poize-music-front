@@ -1,68 +1,19 @@
 'use client';
 import { useState } from 'react';
 
-const gigs = [
-  {
-    gig: 'Summer Music Fest',
-    date: 'July 15, 2024',
-    venue: 'The Grand Hall',
-    musician: 'Ava Carter',
-    status: 'Confirmed',
-    applications: 15,
-    payment: '$500',
-  },
-  {
-    gig: 'Indie Night',
-    date: 'August 20, 2024',
-    venue: 'The Underground',
-    musician: 'Liam Johnson',
-    status: 'Pending',
-    applications: 8,
-    payment: '$300',
-  },
-  {
-    gig: 'Jazz Evening',
-    date: 'September 5, 2024',
-    venue: 'The Blue Note',
-    musician: 'Ethan Davis',
-    status: 'Booked',
-    applications: 12,
-    payment: '$400',
-  },
-  {
-    gig: 'Rock Revival',
-    date: 'October 10, 2024',
-    venue: 'The Arena',
-    musician: 'Olivia Brown',
-    status: 'Confirmed',
-    applications: 20,
-    payment: '$800',
-  },
-  {
-    gig: 'Acoustic Showcase',
-    date: 'November 22, 2024',
-    venue: 'The Cozy Corner',
-    musician: 'Noah Wilson',
-    status: 'Pending',
-    applications: 5,
-    payment: '$250',
-  },
-];
-
-export default function GigList() {
+export default function GigList({ data, onPageChange }) {
   const [activeTab, setActiveTab] = useState('list');
 
   const getStatusClasses = (status) => {
-    if (status === 'Confirmed') return 'bg-green-100 text-green-700';
-    if (status === 'Pending') return 'bg-gray-100 text-gray-700';
-    if (status === 'Booked') return 'bg-blue-100 text-blue-700';
-    return '';
+    if (status === 'published' || status === 'active') return 'bg-green-100 text-green-700';
+    if (status === 'draft') return 'bg-gray-100 text-gray-700';
+    return 'bg-blue-100 text-blue-700';
   };
 
   return (
-    <div className=" text-gray-800">
+    <div className="text-gray-800">
       {/* Toggle Tabs */}
-      <div className="flex justify-start  items-start mb-6 rounded-full bg-white p-1 max-w-3xl">
+      <div className="flex justify-start items-start mb-6 rounded-full bg-white p-1 max-w-3xl">
         <button
           onClick={() => setActiveTab('list')}
           className={`w-1/2 py-2 rounded-full text-sm font-semibold capitalize transition ${
@@ -96,18 +47,17 @@ export default function GigList() {
                 <th className="p-4">Venue</th>
                 <th className="p-4">Musician</th>
                 <th className="p-4">Status</th>
-                <th className="p-4">Applications</th>
                 <th className="p-4">Payment</th>
                 <th className="p-4">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y text-gray-800">
-              {gigs.map((gig, idx) => (
-                <tr key={idx} className="hover:bg-gray-50">
-                  <td className="p-4 break-words">{gig.gig}</td>
+              {data?.items?.map((gig) => (
+                <tr key={gig.id} className="hover:bg-gray-50">
+                  <td className="p-4 break-words">{gig.gig_title}</td>
                   <td className="p-4 break-words">{gig.date}</td>
-                  <td className="p-4 break-words">{gig.venue}</td>
-                  <td className="p-4 break-words">{gig.musician}</td>
+                  <td className="p-4 break-words">{gig.venue_type}</td>
+                  <td className="p-4 break-words">{gig.artist?.name || 'N/A'}</td>
                   <td className="p-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClasses(
@@ -117,8 +67,9 @@ export default function GigList() {
                       {gig.status}
                     </span>
                   </td>
-                  <td className="p-4 break-words">{gig.applications}</td>
-                  <td className="p-4 break-words">{gig.payment}</td>
+                  <td className="p-4 break-words">
+                    {gig.payment === '0.00' ? 'Unpaid' : `$${gig.payment}`}
+                  </td>
                   <td className="p-4 space-x-1 text-blue-600 text-sm break-words">
                     <button className="hover:underline">Edit</button>
                     <button className="hover:underline">View</button>
@@ -132,6 +83,29 @@ export default function GigList() {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          <div className="flex justify-between items-center p-4 text-sm">
+            <span>
+              Page {data?.currentPage} of {data?.totalPages}
+            </span>
+            <div className="space-x-2">
+              <button
+                disabled={data?.currentPage === 1}
+                onClick={() => onPageChange(data.currentPage - 1)}
+                className="px-3 py-1 rounded border disabled:opacity-50 hover:cursor-pointer"
+              >
+                Prev
+              </button>
+              <button
+                disabled={data?.currentPage === data?.totalPages}
+                onClick={() => onPageChange(data.currentPage + 1)}
+                className="px-3 py-1 rounded border disabled:opacity-50 hover:cursor-pointer"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

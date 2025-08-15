@@ -1,22 +1,29 @@
-import React from 'react'
-import { Search } from 'lucide-react';
+"use client"
+import { useState } from "react";
 
-const FindGigsSearchBar = ({placeholder}) => {
+export default function FindGigsSearchBar({ placeholder, onSearch }) {
+  const [value, setValue] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onSearch) onSearch(value);
+  };
+
   return (
-
-      <div className="w-full flex justify-center">
-      <div className="w-full max-w-5xl ">
-        <div className="bg-white rounded-full  shadow-sm border border-gray-300 flex items-center px-4 py-2 transition-all w-full">
-          <Search className="text-gray-400 w-5 h-5 mr-3" />
-          <input
-            type="text"
-            placeholder={placeholder}
-            className="flex-1 text-base text-gray-900 outline-none border-none bg-transparent placeholder-gray-400"
-          />
-        </div>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder={placeholder}
+        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-[#1FB58F]"
+      />
+      <button
+        type="submit"
+        className="px-4 py-2 bg-[#1FB58F] text-white rounded-lg"
+      >
+        Search
+      </button>
+    </form>
   );
-};
-
-export default FindGigsSearchBar
+}

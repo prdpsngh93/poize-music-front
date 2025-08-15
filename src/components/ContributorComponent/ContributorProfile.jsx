@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { FaSort } from 'react-icons/fa';
 import { authAPI } from "../../../lib/api";
+import { toast } from 'sonner';
 
 export default function ContributorProfile() {
   const router = useRouter();
@@ -45,8 +46,8 @@ export default function ContributorProfile() {
           setFormData({
             fullName: result.User.name || "",
             location: result.location || "",
-            role: result.role || "",
-            venueType: result.venueType || "",
+            role: result.contributor_role || "",
+            venueType: result.venue_type || "",
             bio: result.short_bio || "",
             skills: (result.skill_tags || []).join(', '),
             workSamples: result.work_sample || "",
@@ -151,8 +152,8 @@ export default function ContributorProfile() {
       const payload = {
         short_bio: formData.bio.trim(),
         location: formData.location.trim(),
-        role: formData.role,
-        venueType: formData.venueType,
+        contributor_role: formData.role,
+        venue_type: formData.venueType,
         profile_picture: formData.profile_image,
         skill_tags: formData.skills.split(',').map(tag => tag.trim()).filter(Boolean),
         work_sample: formData.workSamples.trim(),
@@ -164,7 +165,8 @@ export default function ContributorProfile() {
 
       setSuccess(isEditing ? "Profile updated successfully!" : "Profile created successfully!");
       setIsEditing(true);
-      router.push("/create-gig");
+      toast.success(isEditing ? "Profile updated successfully!" : "Profile created successfully!");
+      router.push("/contributor-dashboard");
 
 
       const cookieOptions = {
