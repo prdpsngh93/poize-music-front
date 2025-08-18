@@ -1,3 +1,5 @@
+"use client"
+
 import UpcomingGigs from '@/components/MusicianDashboardComponents/UpcomingGigs'
 import React from 'react'
 import NavbarMusician from '@/components/MusicianPageComponents/NavbarMusician'
@@ -5,6 +7,10 @@ import ProfileStats from '@/components/MusicianDashboardComponents/ProfileStats'
 import RecentActivity from '@/components/MusicianDashboardComponents/RecentActivity'
 import Announcements from '@/components/MusicianDashboardComponents/Annoucement'
 import Analytics from '@/components/MusicianDashboardComponents/Analytics'
+import Cookies from 'js-cookie'
+
+const userName = Cookies.get("userName")
+console.log("userName",userName)
 
 const page = () => {
     return (
@@ -13,7 +19,7 @@ const page = () => {
                 <div className="max-w-5xl mx-auto flex flex-col gap-10">
                     {/* Heading */}
                     <div className="text-left">
-                        <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Welcome back, Emily!</h1>
+                        <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Welcome back, {userName ? userName  : "Emily!"} </h1>
                         <p className="text-sm md:text-base text-gray-600 mt-1">
                             Here's a snapshot of your music journey.
                         </p>

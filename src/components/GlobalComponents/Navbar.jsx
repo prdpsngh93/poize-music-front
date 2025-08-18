@@ -9,18 +9,25 @@ import Cookies from "js-cookie";
 export default function Navbar({ variant = "light", isLoggedIn }) {
   const [isOpen, setIsOpen] = useState(false);
 
-
   const isLight = variant === "light";
-  const navItems = ["Home", "Events", "Shop", "Blog", "Work", "Artists"];
 
-const handleLogout = async () => {
-  Cookies.remove("token");
+  // ✅ Updated: navItems now include href
+  const navItems = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Shop", href: "/shop" },
+    { label: "Blog", href: "/blog" },
+    { label: "Work", href: "/work" },
+    { label: "Artists", href: "/artists" },
+  ];
 
-  if (typeof window !== "undefined") {
-    window.location.replace("/login");
-  }
-};
+  const handleLogout = async () => {
+    Cookies.remove("token");
 
+    if (typeof window !== "undefined") {
+      window.location.replace("/login");
+    }
+  };
 
   return (
     <nav
@@ -42,9 +49,9 @@ const handleLogout = async () => {
           {/* Desktop Nav */}
           <ul className="hidden md:flex space-x-6">
             {navItems.map((item) => (
-              <li key={item}>
-                <Link href="/" className="hover:underline">
-                  {item}
+              <li key={item.label}>
+                <Link href={item.href} className="hover:underline">
+                  {item.label}
                 </Link>
               </li>
             ))}
@@ -56,7 +63,10 @@ const handleLogout = async () => {
               Search
             </Link>
             {isLoggedIn ? (
-              <button onClick={handleLogout} className="hover:underline uppercase cursor-pointer">
+              <button
+                onClick={handleLogout}
+                className="hover:underline uppercase cursor-pointer"
+              >
                 Logout
               </button>
             ) : (
@@ -91,11 +101,11 @@ const handleLogout = async () => {
         <div className="md:hidden bg-white/90 px-6 py-4 space-y-4">
           {navItems.map((item) => (
             <Link
-              key={item}
-              href="#"
+              key={item.label}
+              href={item.href}
               className="block border-b border-gray-300 py-2 text-black hover:underline"
             >
-              {item}
+              {item.label}
             </Link>
           ))}
           <Link

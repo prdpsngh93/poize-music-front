@@ -13,16 +13,17 @@ export default function CreateMusicianProfile() {
     availability: "",
     website_url: "",
     social_media_url: "",
-    profile_image: "", // Added profile_image field
+    profile_image: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false); // State for image upload
+  const [imageUploading, setImageUploading] = useState(false);
 
   const cookies = Cookies.get("token");
+  const userId = Cookies.get("id");
 
   const genres = ["Vocals", "Guitar", "Piano", "Drums", "Bass"];
 
@@ -32,28 +33,35 @@ export default function CreateMusicianProfile() {
   }, []);
 
   const fetchUserProfile = async () => {
+    if (!userId) return;
+
     try {
       setLoading(true);
-      const result = await authAPI.getApi();
+      const result = await authAPI.getArtistProfile(userId);
 
-      if (result.user) {
+      if (result) {
         // Map API response to form data
         setFormData({
-          name: result.user.name || "",
-          bio: result.user.bio || "",
-          primary_genre: result.user.primary_genre || "",
-          availability: result.user.availability || "",
-          website_url: result.user.website_url || "",
-          social_media_url: result.user.social_media_url || "",
-          profile_image: result.user.profile_image || "", // Added profile_image
+          name: result.name || "",
+          bio: result.bio || "",
+          primary_genre: result.primary_genre || "",
+          availability: result.availability || "",
+          website_url: result.website_url || "",
+          social_media_url: result.social_media_url || "",
+          profile_image: result.profile_image || "",
         });
 
         // Determine if this is editing an existing profile
-        setIsEditing(result.user.is_profile_complete);
+        setIsEditing(result.is_profile_complete || false);
       }
     } catch (err) {
-      console.error("Error fetching profile:", err);
-      setError("Failed to load profile data");
+      if (err.response?.status === 404) {
+        // Profile doesn't exist yet, this is a new profile
+        setIsEditing(false);
+      } else {
+        console.error("Error fetching profile:", err);
+        setError("Failed to load profile data");
+      }
     } finally {
       setLoading(false);
     }
@@ -148,6 +156,11 @@ export default function CreateMusicianProfile() {
 
     if (!validateForm()) return;
 
+    if (!userId) {
+      setError("User not authenticated");
+      return;
+    }
+
     setLoading(true);
     setError("");
     setSuccess("");
@@ -161,12 +174,12 @@ export default function CreateMusicianProfile() {
         availability: formData.availability.trim(),
         website_url: formData.website_url.trim(),
         social_media_url: formData.social_media_url.trim(),
-        profile_image: formData.profile_image, // Include profile_image in payload
+        profile_image: formData.profile_image,
         is_profile_complete: true,
       };
 
-      // Call update API using your existing structure
-      const result = await authAPI.updateProfile(payload);
+      // Call update API using the new structure matching venue pattern
+      const result = await authAPI.updateArtistProfile(userId, payload);
 
       // Handle successful update
       setSuccess(
@@ -216,7 +229,7 @@ export default function CreateMusicianProfile() {
   return (
     <div className="min-h-screen bg-[#f4f3ee] flex flex-col items-center py-10">
       <h1 className="text-2xl md:text-3xl text-black font-bold text-center mb-6">
-        Create Your Musician Profile
+        {isEditing ? "Update Your Musician Profile" : "Create Your Musician Profile"}
       </h1>
 
       <div className="p-6 sm:p-8 rounded-2xl w-full max-w-md">
@@ -287,6 +300,7 @@ export default function CreateMusicianProfile() {
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full p-3 bg-white text-sm border text-[#222222] rounded-2xl border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1FB58F]"
+                disabled={loading}
                 required
               />
             </div>
@@ -300,6 +314,7 @@ export default function CreateMusicianProfile() {
                 onChange={handleChange}
                 rows={3}
                 className="w-full p-3 bg-white text-sm border text-[#222222] rounded-2xl border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1FB58F]"
+                disabled={loading}
                 required
               />
             </div>
@@ -337,6 +352,7 @@ export default function CreateMusicianProfile() {
                       ? "bg-[#1FB58F] text-white"
                       : "bg-[#E3DFCB] text-gray-700"
                   } hover:bg-green-500 hover:text-white transition`}
+                  disabled={loading}
                 >
                   {genre}
                 </button>
@@ -356,6 +372,7 @@ export default function CreateMusicianProfile() {
               value={formData.availability}
               onChange={handleChange}
               className="w-full p-3 bg-white text-sm border text-[#222222] rounded-2xl border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1FB58F]"
+              disabled={loading}
             />
           </div>
 
@@ -376,6 +393,7 @@ export default function CreateMusicianProfile() {
                 value={formData.website_url}
                 onChange={handleChange}
                 className="w-full p-3 bg-white text-sm border text-[#222222] rounded-2xl border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1FB58F]"
+                disabled={loading}
               />
             </div>
 
@@ -390,6 +408,7 @@ export default function CreateMusicianProfile() {
                 value={formData.social_media_url}
                 onChange={handleChange}
                 className="w-full p-3 bg-white text-sm border text-[#222222] rounded-2xl border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1FB58F]"
+                disabled={loading}
               />
             </div>
           </div>
