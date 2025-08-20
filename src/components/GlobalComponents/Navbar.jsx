@@ -21,9 +21,13 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
     { label: "Artists", href: "/artists" },
   ];
 
-  const handleLogout = async () => {
-    Cookies.remove("token");
-
+  const handleLogout = () => {
+    
+    const allCookies = Cookies.get();
+    Object.keys(allCookies).forEach((cookieName) => {
+      Cookies.remove(cookieName);
+    });
+  
     if (typeof window !== "undefined") {
       window.location.replace("/login");
     }
