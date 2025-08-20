@@ -66,7 +66,7 @@ export default function RoleSelection() {
       console.log("result", result);
 
       if (result.status === "success") {
-        Cookies.set("id", result?.profile?.user_id);
+        Cookies.set("id", result?.profile?.id);
         toast.success("User role updated successfully");
         if (result.user.role === null) {
           router.push("/role");

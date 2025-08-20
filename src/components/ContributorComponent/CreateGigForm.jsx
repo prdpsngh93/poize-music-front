@@ -103,7 +103,7 @@ const CreateGigForm = () => {
         gig_title: title,
         date,
         time: `${time}:00`,
-        venue_type: venue,
+        venue_type: venue.toLowerCase(),
         genre,
         description,
         collaborator_id: id,

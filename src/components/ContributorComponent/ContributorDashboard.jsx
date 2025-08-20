@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PerformanceStats from './PerformanceStats';
 import GigCard from './GigCard';
 import Cookies from 'js-cookie';
@@ -14,6 +14,8 @@ const ContributorDashboard = () => {
       selectedDates: [],
     },
   });
+
+  const [latestGigs , setLatestGigs] = useState(null);
 
   const dummyCard = {
     title: 'Live Music Photography at The Roxy',
@@ -65,8 +67,36 @@ const ContributorDashboard = () => {
     }));
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs/latest-gigs`;
 
-  const userName = Cookies.get("userName")
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include", // ✅ if API needs cookies
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        setLatestGigs(data?.items[0] || []); // adjust depending on your API response
+      } catch (err) {
+        console.error("Error fetching latest gigs:", err);
+      } finally {
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+
+  const userName = Cookies.get("userName");
+  console.log("latestgigs" , latestGigs)
 
 
   return (
@@ -80,7 +110,7 @@ const ContributorDashboard = () => {
         <section className="">
           <h2 className="font-semibold mb-2 text-lg">My Active Gigs</h2>
           <div className="flex flex-col sm:flex-row justify-between gap-4">
-            <GigCard {...dummyCard} />
+          { latestGigs   &&   <GigCard data ={latestGigs} />} 
 
           </div>
         </section>
