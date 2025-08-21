@@ -9,11 +9,11 @@ export default function CreateMusicianProfile() {
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
-    primary_genre: "",
+    genre: "",
     availability: "",
     website_url: "",
-    social_media_url: "",
-    profile_image: "",
+    social_media_link: "",
+    profile_picture: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -38,17 +38,18 @@ export default function CreateMusicianProfile() {
     try {
       setLoading(true);
       const result = await authAPI.getArtistProfile(userId);
+      console.log("result",result)
 
       if (result) {
         // Map API response to form data
         setFormData({
-          name: result.name || "",
+          name: result.User.name || "",
           bio: result.bio || "",
-          primary_genre: result.primary_genre || "",
+          genre: result.genre || "",
           availability: result.availability || "",
           website_url: result.website_url || "",
-          social_media_url: result.social_media_url || "",
-          profile_image: result.profile_image || "",
+          social_media_link: result.social_media_link || "",
+          profile_picture: result.profile_picture || "",
         });
 
         // Determine if this is editing an existing profile
@@ -72,7 +73,7 @@ export default function CreateMusicianProfile() {
   };
 
   const handleGenreClick = (selectedGenre) => {
-    setFormData({ ...formData, primary_genre: selectedGenre });
+    setFormData({ ...formData, genre: selectedGenre });
   };
 
   // Cloudinary image upload handler
@@ -122,7 +123,7 @@ export default function CreateMusicianProfile() {
       // Update form data with the uploaded image URL
       setFormData(prev => ({
         ...prev,
-        profile_image: data.secure_url
+        profile_picture: data.secure_url
       }));
 
       console.log('Image uploaded successfully:', data.secure_url);
@@ -144,7 +145,7 @@ export default function CreateMusicianProfile() {
       setError("Bio is required");
       return false;
     }
-    if (!formData.primary_genre) {
+    if (!formData.genre) {
       setError("Please select a primary genre");
       return false;
     }
@@ -170,11 +171,11 @@ export default function CreateMusicianProfile() {
       const payload = {
         name: formData.name.trim(),
         bio: formData.bio.trim(),
-        primary_genre: formData.primary_genre,
+        genre: formData.genre,
         availability: formData.availability.trim(),
         website_url: formData.website_url.trim(),
-        social_media_url: formData.social_media_url.trim(),
-        profile_image: formData.profile_image,
+        social_media_link: formData.social_media_link.trim(),
+        profile_picture: formData.profile_picture,
         is_profile_complete: true,
       };
 
@@ -228,7 +229,7 @@ export default function CreateMusicianProfile() {
 
   return (
     <div className="min-h-screen bg-[#f4f3ee] flex flex-col items-center py-10">
-      <h1 className="text-2xl md:text-3xl text-black font-bold text-center mb-6">
+      <h1 className="text-2xl md:text-3xl text-black font-bold text-center mb-1">
         {isEditing ? "Update Your Musician Profile" : "Create Your Musician Profile"}
       </h1>
 
@@ -248,9 +249,9 @@ export default function CreateMusicianProfile() {
         {/* Avatar Upload */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-30 h-30 rounded-full bg-gray-200 overflow-hidden border border-gray-300 relative">
-            {formData.profile_image ? (
+            {formData.profile_picture ? (
               <img
-                src={formData.profile_image}
+                src={formData.profile_picture}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
@@ -332,9 +333,9 @@ export default function CreateMusicianProfile() {
               </label>
               <input
                 type="text"
-                name="primary_genre"
+                name="genre"
                 placeholder="Select your main genre"
-                value={formData.primary_genre}
+                value={formData.genre}
                 onChange={handleChange}
                 className="w-full p-3 bg-white text-sm border rounded-2xl text-[#222222] border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1FB58F]"
                 readOnly
@@ -348,7 +349,7 @@ export default function CreateMusicianProfile() {
                   key={genre}
                   onClick={() => handleGenreClick(genre)}
                   className={`px-3 py-1 text-sm rounded-2xl ${
-                    formData.primary_genre === genre
+                    formData.genre === genre
                       ? "bg-[#1FB58F] text-white"
                       : "bg-[#E3DFCB] text-gray-700"
                   } hover:bg-green-500 hover:text-white transition`}
@@ -403,9 +404,9 @@ export default function CreateMusicianProfile() {
               </label>
               <input
                 type="url"
-                name="social_media_url"
+                name="social_media_link"
                 placeholder="Enter your social media profile URL"
-                value={formData.social_media_url}
+                value={formData.social_media_link}
                 onChange={handleChange}
                 className="w-full p-3 bg-white text-sm border text-[#222222] rounded-2xl border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1FB58F]"
                 disabled={loading}
