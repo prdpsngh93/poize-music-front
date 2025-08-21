@@ -99,8 +99,8 @@ const Login = () => {
            }
         } else if (result.user.role === "music_lover") {
           router.push("/musician-dashboard");
-        } else if (result.user.role === "listener") {
-          router.push("/");
+        } else if (result.user.role === "artist") {
+          router.push("/musician-profile");
         } else if (result.user.role === "venue")
         router.push("/venue-dashboard");
       }
