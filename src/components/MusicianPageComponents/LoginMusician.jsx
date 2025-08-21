@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { authAPI } from "../../../lib/api";
+import { toast } from "sonner";
 
 export default function CreateMusicianProfile() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function CreateMusicianProfile() {
   const [imageUploading, setImageUploading] = useState(false);
 
   const cookies = Cookies.get("token");
-  const userId = Cookies.get("id");
+  const userId = Cookies.get("userId");
 
   const genres = ["Vocals", "Guitar", "Piano", "Drums", "Bass"];
 
@@ -38,7 +39,7 @@ export default function CreateMusicianProfile() {
     try {
       setLoading(true);
       const result = await authAPI.getArtistProfile(userId);
-      console.log("result",result)
+      console.log("result", result);
 
       if (result) {
         // Map API response to form data
@@ -82,7 +83,7 @@ export default function CreateMusicianProfile() {
     if (!file) return;
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       setError("Please upload a valid image file (JPEG, PNG, JPG, or WebP)");
       return;
@@ -101,36 +102,41 @@ export default function CreateMusicianProfile() {
     try {
       // Create form data for Cloudinary upload
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET); 
-      formData.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME); 
+      formData.append("file", file);
+      formData.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+      );
+      formData.append(
+        "cloud_name",
+        process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      );
 
       // Upload to Cloudinary
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
         {
-          method: 'POST',
+          method: "POST",
           body: formData,
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to upload image');
+        throw new Error("Failed to upload image");
       }
 
       const data = await response.json();
-      
+
       // Update form data with the uploaded image URL
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        profile_picture: data.secure_url
+        profile_picture: data.secure_url,
       }));
 
-      console.log('Image uploaded successfully:', data.secure_url);
-      
+      console.log("Image uploaded successfully:", data.secure_url);
     } catch (err) {
-      console.error('Error uploading image:', err);
-      setError('Failed to upload image. Please try again.');
+      console.error("Error uploading image:", err);
+      setError("Failed to upload image. Please try again.");
     } finally {
       setImageUploading(false);
     }
@@ -189,6 +195,9 @@ export default function CreateMusicianProfile() {
           : "Profile created successfully!"
       );
       setIsEditing(true);
+      toast.success("Profile updated successfully!");
+         router.push("/musician-dashboard");
+
 
       // Update cookies with new user data
       const cookieOptions = {
@@ -230,7 +239,9 @@ export default function CreateMusicianProfile() {
   return (
     <div className="min-h-screen bg-[#f4f3ee] flex flex-col items-center py-10">
       <h1 className="text-2xl md:text-3xl text-black font-bold text-center mb-1">
-        {isEditing ? "Update Your Musician Profile" : "Create Your Musician Profile"}
+        {isEditing
+          ? "Update Your Musician Profile"
+          : "Create Your Musician Profile"}
       </h1>
 
       <div className="p-6 sm:p-8 rounded-2xl w-full max-w-md">
@@ -268,7 +279,7 @@ export default function CreateMusicianProfile() {
               </div>
             )}
           </div>
-          
+
           <label className="mt-2 cursor-pointer">
             <input
               type="file"

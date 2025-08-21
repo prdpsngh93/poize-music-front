@@ -169,7 +169,7 @@ const ArtistList = () => {
 
         // Fixed URL pattern to match server route
         const res = await fetch(
-          `http://localhost:5000/api/messages/conversation/${selectedArtist.id}`,
+          `https://poize-music-backend-kn0u.onrender.com/api/messages/conversation/${selectedArtist.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

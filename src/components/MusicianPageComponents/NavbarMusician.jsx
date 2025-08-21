@@ -10,7 +10,8 @@ export default function NavbarMusician({ variant = "light" }) {
   const [isOpen, setIsOpen] = useState(false);
   const isLight = variant === "light";
 
-  const [profileImage,setProfileImage] = useState("")
+  const [profileImage, setProfileImage] = useState("");
+  const [userData, setUserData] = useState();
 
   useEffect(() => {
     fetchUserProfile();
@@ -22,12 +23,44 @@ export default function NavbarMusician({ variant = "light" }) {
 
       if (result.user) {
         // Map API response to form data
-        setProfileImage(result.user.profile_image || "",);
+        setProfileImage(
+          result.user.profile_image || result.profile.profile_picture || ""
+        );
+        setUserData(result);
       }
     } catch (err) {
       console.error("Error fetching profile:", err);
     }
   };
+
+  // Get user data from cookie
+
+  let dashboardLink = "/";
+
+  if (userData) {
+    switch (userData.user.role) {
+      case null:
+        dashboardLink = "/role";
+        break;
+      case "contributor":
+      case "producer":
+        dashboardLink = profileId
+          ? "/contributor-dashboard"
+          : "/contributor-profile";
+        break;
+      case "music_lover":
+        dashboardLink = "/music-lover-dashboard";
+        break;
+      case "artist":
+        dashboardLink = "/musician-dashboard";
+        break;
+      case "venue":
+        dashboardLink = "/venue-dashboard";
+        break;
+      default:
+        dashboardLink = "/";
+    }
+  }
 
   const navItems = ["Home", "Events", "Shop", "Blog", "Work", "Artists"];
 
@@ -56,7 +89,7 @@ export default function NavbarMusician({ variant = "light" }) {
             } justify-between items-center py-4`}
           >
             {/* Logo */}
-            <Link className="flex items-center space-x-2" href={'/'}>
+            <Link className="flex items-center space-x-2" href={"/"}>
               <Image
                 src={"/images/logo.png"}
                 alt="Logo"
@@ -82,13 +115,15 @@ export default function NavbarMusician({ variant = "light" }) {
             <div className="hidden md:flex space-x-4 items-center">
               <Search className="w-5 h-5 cursor-pointer" />
               <Bell className="w-5 h-5 cursor-pointer" />
-              <Image
-                src={profileImage || "/images/avatar.png"}
-                alt="Profile"
-                width={32}
-                height={32}
-                className="rounded-full h-8 w-8 object-cover cursor-pointer"
-              />
+              <Link href={dashboardLink}>
+                <Image
+                  src={profileImage || "/images/avatar.png"}
+                  alt="Profile"
+                  width={32}
+                  height={32}
+                  className="rounded-full h-8 w-8 object-cover cursor-pointer"
+                />
+              </Link>
             </div>
 
             {/* Mobile Menu Toggle */}
