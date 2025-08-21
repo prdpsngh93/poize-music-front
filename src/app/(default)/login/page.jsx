@@ -97,7 +97,7 @@ const Login = () => {
            }else{
             router.push("/contributor-profile");
            }
-        } else if (result.user.role === "artist") {
+        } else if (result.user.role === "music_lover") {
           router.push("/musician-dashboard");
         } else if (result.user.role === "listener") {
           router.push("/");

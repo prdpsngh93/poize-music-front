@@ -25,7 +25,7 @@ const ArtistList = () => {
       if (!token) return;
 
       try {
-        const res = await fetch("https://poize-music-backend-kn0u.onrender.com/api/user-info", {
+        const res = await fetch("http://localhost:5000/api/user-info", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -59,7 +59,7 @@ const ArtistList = () => {
     const token = Cookies.get("token");
     if (!token) return;
 
-    const newSocket = io("https://poize-music-backend-kn0u.onrender.com", {
+    const newSocket = io("http://localhost:5000", {
       auth: { token },
       reconnection: true,
     });
@@ -122,7 +122,7 @@ const ArtistList = () => {
       }
 
       try {
-        const res = await fetch("https://poize-music-backend-kn0u.onrender.com/api/artists", {
+        const res = await fetch("http://localhost:5000/api/artists", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -169,7 +169,7 @@ const ArtistList = () => {
 
         // Fixed URL pattern to match server route
         const res = await fetch(
-          `https://poize-music-backend-kn0u.onrender.com/api/messages/conversation/${selectedArtist.id}`,
+          `http://localhost:5000/api/messages/conversation/${selectedArtist.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
