@@ -76,11 +76,11 @@ export default function RoleSelection() {
         ) {
           router.push("/contributor-profile");
         } else if (result.user.role === "artist") {
-          router.push("/musician-dashboard");
+          router.push("/musician-profile");
         } else if (result.user.role === "music_lover") {
           router.push("/music-lover-profile");
         } else if (result.user.role === "venue")
-          router.push("/venue-dashboard");
+          router.push("/venue-profile-form");
       }
     } catch (err) {
       // Handle API errors
