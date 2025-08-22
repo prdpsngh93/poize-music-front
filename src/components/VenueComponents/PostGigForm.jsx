@@ -90,7 +90,7 @@ const PostGigForm = () => {
       console.error("Request failed:", err);
     }
   };
-  
+
 
   const customSelectStyle = "appearance-none pr-8 relative";
 
