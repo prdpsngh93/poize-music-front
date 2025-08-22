@@ -6,6 +6,7 @@ import { FiUpload } from "react-icons/fi";
 import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const MapLocation = dynamic(() => import("./MapComponet"), { ssr: false });
 
@@ -29,6 +30,7 @@ const VenueProfileForm = () => {
     photos: [],
   });
 
+  console.log("formdata", formData)
   const [position, setPosition] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -43,6 +45,8 @@ const VenueProfileForm = () => {
   const userId = Cookies.get("userId");
   const id = Cookies.get("id");
 
+  console.log("userId",userId)
+
   // Fetch existing venue profile data on component mount
   useEffect(() => {
     const fetchVenueProfile = async () => {
@@ -54,7 +58,7 @@ const VenueProfileForm = () => {
 
         // Map API response to form structure
         setFormData({
-          venueName: profileData.venue_name || "",
+          venueName: profileData.User.name || "",
           venueType: profileData.venue_type || "",
           venueDescription: profileData.venue_description || "",
           venueAddress: profileData.venue_address || "",
@@ -245,8 +249,10 @@ const VenueProfileForm = () => {
 
       let response;
       // Update existing profile or create new one
-      response = await authAPI.updateVenueProfile(id, payload);
+      response = await authAPI.updateVenueProfile(userId, payload);
       setMessage(isEditing ? "Venue profile updated successfully!" : "Venue profile created successfully!");
+      toast.success(isEditing ? "Venue profile updated successfully!" : "Venue profile created successfully!")
+      router.push('/venue-dashboard')
       setIsEditing(true);
       console.log("Venue profile saved:", response);
     } catch (error) {

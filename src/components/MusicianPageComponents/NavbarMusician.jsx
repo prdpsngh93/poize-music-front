@@ -44,9 +44,8 @@ export default function NavbarMusician({ variant = "light" }) {
         break;
       case "contributor":
       case "producer":
-        dashboardLink = profileId
-          ? "/contributor-dashboard"
-          : "/contributor-profile";
+        "/contributor-profile";
+
         break;
       case "music_lover":
         dashboardLink = "/music-lover-dashboard";

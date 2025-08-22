@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { FaSort } from "react-icons/fa";
 import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
 
 const MapLocation = dynamic(() => import("./MapComponet"), { ssr: false });
 
@@ -59,46 +60,44 @@ const PostGigForm = () => {
     };
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!venueId) {
-      alert("Unable to get venue information. Please try again.");
-      return;
-    }
 
-    setIsSubmitting(true);
-    
+
+  const handleSave = async () => {
     try {
-      const apiData = formatDataForAPI(formData);
-      const response = await authAPI.postGig(apiData);
-      console.log("Gig posted successfully:", response);
-      
-      // Reset form or redirect as needed
-      alert("Gig posted successfully!");
-      // Optional: Reset form
-      // setFormData({...initial state});
-      
-    } catch (error) {
-      console.error("Error posting gig:", error);
-      alert("Failed to post gig. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/venue-gigs`;
+     const paylaod = formatDataForAPI(formData)
+  
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`, // if your API requires auth
+        },
+        body: JSON.stringify(paylaod),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error:", errorData);
+        return;
+      }
+  
+      const data = await response.json();
+      console.log("Saved Gig:", data);
+  
+      toast.success("Gig is Posted")
+    } catch (err) {
+      console.error("Request failed:", err);
     }
   };
 
-  const handleSaveDraft = async () => {
-    // You might want to implement a separate draft saving logic
-    console.log("Saved draft:", formData);
-    // Optional: Call a draft saving API endpoint
-  };
 
   const customSelectStyle = "appearance-none pr-8 relative";
 
   return (
     <div className="bg-[#F7F6F2] min-h-screen">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSave}
         className="p-6 max-w-5xl mx-auto space-y-10 px-4 md:px-9 lg:px-12 py-10 rounded-lg"
       >
         <h2 className="text-xl font-bold mb-6 text-[#121417]">Post a gig</h2>
@@ -307,15 +306,16 @@ const PostGigForm = () => {
         <div className="flex flex-col sm:flex-row gap-4 w-full md:justify-center">
           <button
             type="button"
-            onClick={handleSaveDraft}
-            className="bg-black text-white px-6 py-2 rounded-full text-sm"
+            onClick={handleSave}
+            className="bg-black text-white px-6 py-2 rounded-full text-sm hover:cursor-pointer"
             disabled={isSubmitting}
           >
             Save Draft
           </button>
           <button
             type="submit"
-            className="bg-[#1BBF81] text-white px-6 py-2 rounded-full text-sm"
+            className="bg-[#1BBF81] text-white px-6 py-2 rounded-full text-sm hover:cursor-pointer"
+            onClick={handleSave}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Posting..." : "Post Gig"}
