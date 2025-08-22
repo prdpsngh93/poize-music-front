@@ -4,6 +4,9 @@ import FindGigsSearchBar from '../FindgigsComponents/FindGigsSearchBar'
 import ContributorGigList from './ContributorGigList'
 import ContributorDropdowns from './ContributorDropdown'
 import Cookies from 'js-cookie'
+import BackButton from '../common/BackButton'
+import { useRouter } from "next/navigation";
+
 
 const ManagedCreatedGigs = () => {
   const [gigs, setGigs] = useState(null);
@@ -12,7 +15,9 @@ const ManagedCreatedGigs = () => {
   const [pageSize] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({ date: "", venue: "", status: "" });
-
+    const router = useRouter();
+  
+     
   const filterOptions = {
     date: ["Today", "This Week", "This Month"],
     venue: ["indoor", "outdoor"],
@@ -68,9 +73,12 @@ const ManagedCreatedGigs = () => {
   return (
     <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
+       <div className='flex gap-1 items-center'>
+        <BackButton route={'/create-gig'}/>
+         <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
           Manage Created Gigs
         </h1>
+       </div>
 
         {/* Search */}
         <FindGigsSearchBar
@@ -105,6 +113,7 @@ const ManagedCreatedGigs = () => {
           </div>
         ) : (
           <ContributorGigList 
+          // editHandler={() => router.push('/')}
             data={gigs} 
             onPageChange={(page) => setCurrentPage(page)} 
           />
