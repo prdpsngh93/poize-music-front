@@ -25,8 +25,8 @@ const MusicLoverProfile = () => {
   const router = useRouter();
 
   // Get user ID from cookies (adjust based on your cookie structure)
-  const userId = Cookies.get("userId")
-  const id = Cookies.get("id")
+  const userId = Cookies.get("userId");
+  const id = Cookies.get("id");
 
   // Fetch existing profile data on component mount
   useEffect(() => {
@@ -105,8 +105,10 @@ const MusicLoverProfile = () => {
 
       let response;
       // Update existing profile
-      response = await authAPI.updateMusicProfile(id, payload);
+      response = await authAPI.updateMusicProfile(userId, payload);
       setMessage("Profile updated successfully!");
+      router.push("/music-lover-dashboard");
+
       console.log("Profile saved:", response.data);
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -230,8 +232,6 @@ const MusicLoverProfile = () => {
             required
           />
         </div>
-
-  
 
         <div className="flex flex-col gap-4 mt-8">
           {[
