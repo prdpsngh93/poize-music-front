@@ -18,14 +18,14 @@ const NoGigsFound = ({ onClear ,heading,para}) => {
       <p className="text-sm md:text-base max-w-lg text-gray-600 mb-4">
         {para}
       </p>
-      <button
+      {/* <button
         onClick={onClear}
         className="text-sm font-semibold text-gray-900 hover:underline"
       >
         Clear Filters
-      </button>
+      </button> */}
     </div>
   );
 };
-
+f
 export default NoGigsFound;

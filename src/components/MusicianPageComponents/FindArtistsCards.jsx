@@ -44,7 +44,7 @@ const FindArtistsCards = ({ artists = [] }) => {
         >
           <div className="w-[100px] h-[100px] relative mb-3">
             <Image
-              src={artist.profile_picture || '/images/avatar.png'}
+              src={artist?.profile_picture || '/images/avatar.png'}
               alt={artist.name}
               fill
               className="object-cover rounded-full"

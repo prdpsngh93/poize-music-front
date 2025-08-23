@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
@@ -11,7 +11,14 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
 
   const isLight = variant === "light";
 
-  // ✅ Updated: navItems now include href
+  // ✅ Role → Dashboard Mapping
+  const roleDashboards = {
+    artist: "/musician-dashboard",
+    music_lover: "/music-lover-dashboard",
+    contributor: "/contributor-dashboard",
+    venue: "/venue-dashboard",
+  };
+
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Events", href: "/event-booking" },
@@ -22,16 +29,27 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
   ];
 
   const handleLogout = () => {
-    
     const allCookies = Cookies.get();
     Object.keys(allCookies).forEach((cookieName) => {
       Cookies.remove(cookieName);
     });
-  
+
     if (typeof window !== "undefined") {
       window.location.replace("/login");
     }
   };
+
+  // ✅ Get user role from cookie
+  const userDataCookie = Cookies.get("userData");
+  const userData = userDataCookie ? JSON.parse(userDataCookie) : null;
+
+  // ✅ Compute dashboard path
+  const dashboardHref = useMemo(() => {
+    if (userData?.role && roleDashboards[userData.role]) {
+      return roleDashboards[userData.role];
+    }
+    return "/login"; // fallback
+  }, [userData]);
 
   return (
     <nav
@@ -63,21 +81,21 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
 
           {/* Desktop Right */}
           <div className="hidden md:flex space-x-4 items-center">
-            <Link href="/search" className="hover:underline">
-              Search
-            </Link>
             {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="hover:underline uppercase cursor-pointer"
-              >
-                Logout
-              </button>
+              <Link href={dashboardHref} className="hover:underline">
+                Dashboard
+              </Link>
             ) : (
               <Link href="/login" className="hover:underline">
                 Login
               </Link>
             )}
+            <button
+              onClick={handleLogout}
+              className="hover:underline uppercase cursor-pointer"
+            >
+              Logout
+            </button>
             <Link href="/cart" className="hover:underline">
               Cart(0)
             </Link>
@@ -112,19 +130,14 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
               {item.label}
             </Link>
           ))}
-          <Link
-            href="/search"
-            className="block border-b border-gray-300 py-2 text-black hover:underline"
-          >
-            Search
-          </Link>
+
           {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="block border-b uppercase cursor-pointer border-gray-300 py-2 text-black hover:underline"
+            <Link
+              href={dashboardHref}
+              className="block border-b border-gray-300 py-2 text-black hover:underline"
             >
-              Logout
-            </button>
+              Dashboard
+            </Link>
           ) : (
             <Link
               href="/login"
@@ -133,6 +146,14 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
               Login
             </Link>
           )}
+
+          <button
+            onClick={handleLogout}
+            className="block border-b uppercase cursor-pointer border-gray-300 py-2 text-black hover:underline"
+          >
+            Logout
+          </button>
+
           <Link
             href="/cart"
             className="block border-b border-gray-300 py-2 text-black hover:underline"
