@@ -50,7 +50,7 @@ export default function CreateMusicianProfile() {
           availability: result.availability || "",
           website_url: result.website_url || "",
           social_media_link: result.social_media_link || "",
-          profile_picture: result.profile_picture || "",
+          profile_picture: result?.profile_picture || "",
         });
 
         // Determine if this is editing an existing profile
@@ -181,7 +181,7 @@ export default function CreateMusicianProfile() {
         availability: formData.availability.trim(),
         website_url: formData.website_url.trim(),
         social_media_link: formData.social_media_link.trim(),
-        profile_picture: formData.profile_picture,
+        profile_picture: formData?.profile_picture,
         is_profile_complete: true,
       };
 

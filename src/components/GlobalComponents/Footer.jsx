@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#f3f2ed] relative border-t border-gray-300 pb-10">
       {/* Navbar with black text */}
-      <Navbar variant="dark" />
+      {/* <Navbar variant="dark" /> */}
 
       {/* Footer Grid */}
       <div className="container mx-auto px-4 md:px-9 lg:px-12 pt-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-black">

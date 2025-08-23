@@ -151,7 +151,7 @@ const MusicLoverDashboard = () => {
         </div>
 
         {/* Notifications */}
-        <div>
+        {/* <div>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Notifications
           </h2>
@@ -175,7 +175,7 @@ const MusicLoverDashboard = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </main>
   );
