@@ -14,18 +14,22 @@ const ManagedCreatedGigs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
+  const [edited,setEdited] = useState(false);
   const [filters, setFilters] = useState({ date: "", venue: "", status: "" });
     const router = useRouter();
   
      
-  const filterOptions = {
-    date: ["Today", "This Week", "This Month"],
-    venue: ["indoor", "outdoor"],
-    status: ["draft", "active"],
-  };
+const filterOptions = {
+  date: [
+    { label: "This Week", value: "1w" },
+    { label: "This Month", value: "1m" },
+    { label: "Last 3 Months", value: "3m" }
+  ],
+  venue: ["indoor", "outdoor"],
+  status: ["draft", "active"],
+};
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
       const id = Cookies.get("id");
       if (!id) {
         console.error("No userId found in cookies");
@@ -61,7 +65,11 @@ const ManagedCreatedGigs = () => {
       }
     };
 
+
+  useEffect(() => {
+    
     fetchData();
+    console.log('hello')
   }, [currentPage, pageSize, searchTerm, filters]);
 
   // 👇 Reset Filters function
@@ -92,12 +100,19 @@ const ManagedCreatedGigs = () => {
         {/* Dropdown Filters + Reset Button */}
         <div className="flex flex-wrap items-center gap-3">
           <ContributorDropdowns 
-            filters={filterOptions} 
-            onFilterChange={(newFilters) => {
-              setCurrentPage(1);
-              setFilters(newFilters);
-            }} 
-          />
+  filters={filterOptions} 
+  onFilterChange={(newFilters) => {
+    setCurrentPage(1);
+
+    // Convert UI labels to API params
+    const mappedFilters = {
+      ...newFilters,
+      date: newFilters.date?.value || "", // Only store value like "1w", "1m", "3m"
+    };
+
+    setFilters(mappedFilters);
+  }} 
+/>
           <button
             onClick={handleResetFilters}
             className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium text-gray-700"
@@ -115,6 +130,7 @@ const ManagedCreatedGigs = () => {
           <ContributorGigList 
           // editHandler={() => router.push('/')}
             data={gigs} 
+            fetchData={fetchData}
             onPageChange={(page) => setCurrentPage(page)} 
           />
         )}

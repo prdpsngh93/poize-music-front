@@ -133,8 +133,10 @@ console.log(gig.attachment_url)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+    console.log('hello submitting form ')
 
-    if (!validateForm()) return;
+
+    // if (!validateForm()) return;
 
     setLoading(true);
     try {
@@ -159,7 +161,7 @@ console.log(gig.attachment_url)
       };
 
       await axios.put(
-        "https://poize-music-backend-kn0u.onrender.com/api/contributor-gigs",
+        `https://poize-music-backend-kn0u.onrender.com/api/contributor-gigs/${gigId}`,
         payload
       );
 
