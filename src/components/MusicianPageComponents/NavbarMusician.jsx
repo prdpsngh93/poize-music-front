@@ -24,7 +24,7 @@ export default function NavbarMusician({ variant = "light" }) {
       if (result.user) {
         // Map API response to form data
         setProfileImage(
-          result.user.profile_image || result.profile.profile_picture || ""
+          result.user?.profile_image || result?.profile?.profile_picture || ""
         );
         setUserData(result);
       }
@@ -45,16 +45,15 @@ export default function NavbarMusician({ variant = "light" }) {
       case "contributor":
       case "producer":
         "/contributor-profile";
-
         break;
       case "music_lover":
-        dashboardLink = "/music-lover-dashboard";
+        dashboardLink = "/music-lover-profile";
         break;
       case "artist":
-        dashboardLink = "/musician-dashboard";
+        dashboardLink = "/musician-profile";
         break;
       case "venue":
-        dashboardLink = "/venue-dashboard";
+        dashboardLink = "/venue-pofile-form";
         break;
       default:
         dashboardLink = "/";

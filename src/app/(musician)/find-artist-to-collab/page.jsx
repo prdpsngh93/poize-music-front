@@ -35,7 +35,7 @@ const FindArtistsPage = () => {
         name: item.User.name,
         email: item.User.email,
         genre: item.genre || "Not specified",
-        profile_picture: item.profile_picture || "/images/avatar.png",
+        profile_picture: item?.profile_picture || "/images/avatar.png",
         location: item.location || "Not specified",
         bio: item.bio || "",
         // Add any other fields you need

@@ -21,12 +21,47 @@ const MusicLoverProfile = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [artists, setArtists] = useState([]); // Dynamic artists state
+  const [artistsLoading, setArtistsLoading] = useState(false);
 
   const router = useRouter();
 
   // Get user ID from cookies (adjust based on your cookie structure)
-  const userId = Cookies.get("userId")
-  const id = Cookies.get("id")
+  const userId = Cookies.get("userId");
+  const id = Cookies.get("id");
+
+  // Fetch artists from API
+  useEffect(() => {
+    const fetchArtists = async () => {
+      const token = Cookies.get("token");
+      if (!token) return;
+
+      try {
+        setArtistsLoading(true);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/artist`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) throw new Error("Failed to fetch artists");
+        const data = await res.json();
+        
+        // Extract artist names from the API response
+        const artistNames = data?.data
+          ?.map((artist) => artist.User?.name)
+          .filter(Boolean) // Remove any null/undefined names
+          .filter((name, index, array) => array.indexOf(name) === index) || []; // Remove duplicates
+        
+        setArtists(artistNames);
+      } catch (error) {
+        console.error("Failed to load artists:", error);
+      } finally {
+        setArtistsLoading(false);
+      }
+    };
+    fetchArtists();
+  }, []);
 
   // Fetch existing profile data on component mount
   useEffect(() => {
@@ -105,8 +140,10 @@ const MusicLoverProfile = () => {
 
       let response;
       // Update existing profile
-      response = await authAPI.updateMusicProfile(id, payload);
+      response = await authAPI.updateMusicProfile(userId, payload);
       setMessage("Profile updated successfully!");
+      router.push("/music-lover-dashboard");
+
       console.log("Profile saved:", response.data);
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -116,7 +153,7 @@ const MusicLoverProfile = () => {
     }
   };
 
-  const renderSelect = (name, value, label, options) => (
+  const renderSelect = (name, value, label, options, isLoading = false) => (
     <div className="relative">
       <label className="block mb-1 font-normal text-[15px] text-[#121217]">
         {label}
@@ -126,9 +163,9 @@ const MusicLoverProfile = () => {
         value={value}
         onChange={handleInputChange}
         className="w-full appearance-none border text-[#121217] text-[15px] border-gray-300 rounded-full px-4 py-2 bg-white focus:ring-0 focus:outline-none"
-        disabled={loading}
+        disabled={loading || isLoading}
       >
-        <option value="">{`Select ${label}`}</option>
+        <option value="">{isLoading ? `Loading ${label}...` : `Select ${label}`}</option>
         {options.map((opt) => (
           <option key={opt} value={opt} className="text-[#121217]">
             {opt}
@@ -197,15 +234,10 @@ const MusicLoverProfile = () => {
             "Country",
             "Electronic",
           ])}
-          {renderSelect("artist", formData.artist, "Favourite Artist", [
-            "Drake",
-            "Adele",
-            "Coldplay",
-            "Ed Sheeran",
-            "Taylor Swift",
-            "John Mayer",
-            "Billie Eilish",
-          ])}
+          
+          {/* Dynamic Artists Dropdown */}
+          {renderSelect("artist", formData.artist, "Favourite Artist", artists, artistsLoading)}
+          
           {renderSelect("preferred", formData.preferred, "Preferred", [
             "Solo",
             "Bands",
@@ -230,8 +262,6 @@ const MusicLoverProfile = () => {
             required
           />
         </div>
-
-  
 
         <div className="flex flex-col gap-4 mt-8">
           {[

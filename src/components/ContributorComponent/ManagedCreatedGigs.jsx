@@ -4,6 +4,9 @@ import FindGigsSearchBar from '../FindgigsComponents/FindGigsSearchBar'
 import ContributorGigList from './ContributorGigList'
 import ContributorDropdowns from './ContributorDropdown'
 import Cookies from 'js-cookie'
+import BackButton from '../common/BackButton'
+import { useRouter } from "next/navigation";
+
 
 const ManagedCreatedGigs = () => {
   const [gigs, setGigs] = useState(null);
@@ -11,16 +14,22 @@ const ManagedCreatedGigs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
+  const [edited,setEdited] = useState(false);
   const [filters, setFilters] = useState({ date: "", venue: "", status: "" });
+    const router = useRouter();
+  
+     
+const filterOptions = {
+  date: [
+    { label: "This Week", value: "1w" },
+    { label: "This Month", value: "1m" },
+    { label: "Last 3 Months", value: "3m" }
+  ],
+  venue: ["indoor", "outdoor"],
+  status: ["draft", "active"],
+};
 
-  const filterOptions = {
-    date: ["Today", "This Week", "This Month"],
-    venue: ["indoor", "outdoor"],
-    status: ["draft", "active"],
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
       const id = Cookies.get("id");
       if (!id) {
         console.error("No userId found in cookies");
@@ -56,7 +65,11 @@ const ManagedCreatedGigs = () => {
       }
     };
 
+
+  useEffect(() => {
+    
     fetchData();
+    console.log('hello')
   }, [currentPage, pageSize, searchTerm, filters]);
 
   // 👇 Reset Filters function
@@ -68,9 +81,12 @@ const ManagedCreatedGigs = () => {
   return (
     <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
+       <div className='flex gap-1 items-center'>
+        <BackButton route={'/create-gig'}/>
+         <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
           Manage Created Gigs
         </h1>
+       </div>
 
         {/* Search */}
         <FindGigsSearchBar
@@ -84,12 +100,19 @@ const ManagedCreatedGigs = () => {
         {/* Dropdown Filters + Reset Button */}
         <div className="flex flex-wrap items-center gap-3">
           <ContributorDropdowns 
-            filters={filterOptions} 
-            onFilterChange={(newFilters) => {
-              setCurrentPage(1);
-              setFilters(newFilters);
-            }} 
-          />
+  filters={filterOptions} 
+  onFilterChange={(newFilters) => {
+    setCurrentPage(1);
+
+    // Convert UI labels to API params
+    const mappedFilters = {
+      ...newFilters,
+      date: newFilters.date?.value || "", // Only store value like "1w", "1m", "3m"
+    };
+
+    setFilters(mappedFilters);
+  }} 
+/>
           <button
             onClick={handleResetFilters}
             className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium text-gray-700"
@@ -105,7 +128,9 @@ const ManagedCreatedGigs = () => {
           </div>
         ) : (
           <ContributorGigList 
+          // editHandler={() => router.push('/')}
             data={gigs} 
+            fetchData={fetchData}
             onPageChange={(page) => setCurrentPage(page)} 
           />
         )}

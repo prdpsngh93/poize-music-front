@@ -4,52 +4,79 @@ import { ChevronDown, X } from 'lucide-react';
 
 const filterData = {
   Genre: ['Rock', 'Jazz', 'Hip-Hop', 'Indie', 'Pop', 'Classical', 'Electronic', 'R&B'],
-  Location: ['New York', 'Los Angeles', 'Chicago', 'Remote', 'London', 'Nashville', 'Austin'],
+  Date: ['Last Week', 'Last Month', 'Last 3 Months'],
+};
+
+// Map for API values
+const dateValueMap = {
+  'Last Week': '1w',
+  'Last Month': '1m',
+  'Last 3 Months': '3m',
 };
 
 const Dropdowns = ({ onFilterChange, filters = {} }) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({
     Genre: '',
-    Location: '',
-    ...filters
+    Date: '',
+    ...filters,
   });
 
-  // Update parent component when filters change
+  // Sync with external filters only when they change
   useEffect(() => {
-    if (onFilterChange) {
-      onFilterChange({
-        genre: selectedFilters.Genre,
-        location: selectedFilters.Location,
-      });
-    }
-  }, [selectedFilters, onFilterChange]);
+    setSelectedFilters(prev => ({
+      Genre: filters.genre || '',
+      Date: filters.date || '',
+    }));
+  }, [filters.genre, filters.date]);
 
   const toggleDropdown = (filterType) => {
     setOpenDropdown(openDropdown === filterType ? null : filterType);
   };
 
   const handleSelect = (filterType, value) => {
-    setSelectedFilters(prev => ({ 
-      ...prev, 
-      [filterType]: prev[filterType] === value ? '' : value 
-    }));
+    const newSelectedFilters = {
+      ...selectedFilters,
+      [filterType]: selectedFilters[filterType] === value ? '' : value,
+    };
+    
+    setSelectedFilters(newSelectedFilters);
     setOpenDropdown(null);
+    
+    if (onFilterChange) {
+      onFilterChange({
+        genre: newSelectedFilters.Genre,
+        date: dateValueMap[newSelectedFilters.Date] || '', // 👈 convert label to API value
+      });
+    }
   };
 
   const clearFilter = (filterType, e) => {
     e.stopPropagation();
-    setSelectedFilters(prev => ({ ...prev, [filterType]: '' }));
+    const newSelectedFilters = { ...selectedFilters, [filterType]: '' };
+    setSelectedFilters(newSelectedFilters);
+    
+    if (onFilterChange) {
+      onFilterChange({
+        genre: newSelectedFilters.Genre,
+        date: dateValueMap[newSelectedFilters.Date] || '',
+      });
+    }
   };
 
   const clearAllFilters = () => {
-    setSelectedFilters({
+    const clearedFilters = {
       Genre: '',
-      Location: '',
-    });
+      Date: '',
+    };
+    setSelectedFilters(clearedFilters);
+    
+    if (onFilterChange) {
+      onFilterChange({ genre: '', date: '' });
+    }
   };
 
-  const hasActiveFilters = Object.values(selectedFilters).some(value => value !== '');
+  const hasActiveFilters = Object.values(selectedFilters).some((value) => value !== '');
 
   return (
     <div className="flex flex-wrap gap-3 items-center">
@@ -64,10 +91,10 @@ const Dropdowns = ({ onFilterChange, filters = {} }) => {
             }`}
           >
             {selectedFilters[filterType] || filterType}
-            
+
             {selectedFilters[filterType] ? (
-              <X 
-                className="w-4 h-4 ml-1" 
+              <X
+                className="w-4 h-4 ml-1"
                 onClick={(e) => clearFilter(filterType, e)}
               />
             ) : (
@@ -95,7 +122,7 @@ const Dropdowns = ({ onFilterChange, filters = {} }) => {
           )}
         </div>
       ))}
-      
+
       {/* Clear All Filters Button */}
       {hasActiveFilters && (
         <button

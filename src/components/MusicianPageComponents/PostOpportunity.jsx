@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { authAPI } from '../../../lib/api'; // Adjust path as needed
+import BackButton from '../GlobalComponents/BackButton';
 
 export default function PostOpportunity() {
   const router = useRouter();
@@ -260,6 +261,8 @@ useEffect(() => {
 
   return (
     <div className='min-h-screen px-4 md:px-9 lg:px-12 py-10 bg-[#f4f3ee]'>
+        <BackButton/>
+
       <div className="flex flex-col max-w-2xl justify-center mx-auto items-center">
         <h1 className="text-2xl md:text-4xl text-[#121217] font-bold mb-8">
           {isEditing ? 'Update Collaboration Opportunity' : 'Post a Collaboration Opportunity'}
