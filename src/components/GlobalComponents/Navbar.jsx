@@ -90,12 +90,14 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
                 Login
               </Link>
             )}
-            <button
-              onClick={handleLogout}
-              className="hover:underline uppercase cursor-pointer"
-            >
-              Logout
-            </button>
+            {isLoggedIn && (
+              <button
+                onClick={handleLogout}
+                className="hover:underline uppercase cursor-pointer"
+              >
+                Logout
+              </button>
+            )}
             <Link href="/cart" className="hover:underline">
               Cart(0)
             </Link>

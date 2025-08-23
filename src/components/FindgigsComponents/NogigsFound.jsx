@@ -27,5 +27,5 @@ const NoGigsFound = ({ onClear ,heading,para}) => {
     </div>
   );
 };
-f
+
 export default NoGigsFound;
