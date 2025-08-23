@@ -206,7 +206,6 @@ const FindGigsPage = () => {
             Explore opportunities to perform and connect with audiences.
           </p>
         </div>
-
         {/* Search */}
         <FindGigsSearchBar placeholder="Find gigs" onSearch={handleSearch} />
 
