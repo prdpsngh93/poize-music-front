@@ -17,7 +17,7 @@ const Cards = ({ gigs }) => {
     setIsModalOpen(true);
   };
 
-  const musicianId = Cookies.get("id")
+  const musicianId = Cookies.get("id");
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -56,11 +56,15 @@ const Cards = ({ gigs }) => {
       };
 
       // Replace with your actual API endpoint
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/venue-gig-requests`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/venue-gig-requests`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status === 200 || response.status === 201) {
         toast.success("Gig Request sent successfully!");
@@ -124,7 +128,7 @@ const Cards = ({ gigs }) => {
             {/* Image placeholder since API has no image */}
             <div className="w-full max-w-[270px] h-28 md:h-32 lg:h-36 overflow-hidden rounded-md flex items-center justify-center bg-gray-200 text-gray-500">
               <img
-                src="/images/cards1.png"
+                src={gig.gig_image || `/images/cards1.png`}
                 alt={gig.gig_title}
                 className="w-full h-full object-cover rounded-md"
               />

@@ -10,7 +10,7 @@ const MusicLoverProfile = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     genre: "",
-    artist: "",
+    artist: "", // This will now store the artist ID
     preferred: "",
     location: "",
     gigsNearby: false,
@@ -21,7 +21,7 @@ const MusicLoverProfile = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [artists, setArtists] = useState([]); // Dynamic artists state
+  const [artists, setArtists] = useState([]); // This will now store objects with id and name
   const [artistsLoading, setArtistsLoading] = useState(false);
 
   const router = useRouter();
@@ -46,14 +46,20 @@ const MusicLoverProfile = () => {
         );
         if (!res.ok) throw new Error("Failed to fetch artists");
         const data = await res.json();
+
         
-        // Extract artist names from the API response
-        const artistNames = data?.data
-          ?.map((artist) => artist.User?.name)
-          .filter(Boolean) // Remove any null/undefined names
-          .filter((name, index, array) => array.indexOf(name) === index) || []; // Remove duplicates
+        // Extract artist objects with id and name from the API response
+        const artistOptions = data?.data
+          ?.map((artist) => ({
+            id: artist.id, // Use the artist's ID
+            name: artist.User?.name
+          }))
+          .filter((artist) => artist.name) // Remove any entries without names
+          .filter((artist, index, array) => 
+            array.findIndex(a => a.name === artist.name) === index
+          ) || []; // Remove duplicates based on name
         
-        setArtists(artistNames);
+        setArtists(artistOptions);
       } catch (error) {
         console.error("Failed to load artists:", error);
       } finally {
@@ -76,7 +82,7 @@ const MusicLoverProfile = () => {
         setFormData({
           fullName: profileData.full_name || "",
           genre: profileData.favourite_genre || "",
-          artist: profileData.favourite_artist || "",
+          artist: profileData.favourite_artist || "", // This should be the artist ID from the API
           preferred: profileData.preferred || "",
           location: profileData.location || "",
           gigsNearby: profileData.gigs_near_me || false,
@@ -131,7 +137,7 @@ const MusicLoverProfile = () => {
       const payload = {
         full_name: formData.fullName,
         favourite_genre: formData.genre,
-        favourite_artist: formData.artist,
+        favourite_artist: formData.artist, // This will now send the artist ID
         preferred: formData.preferred,
         location: formData.location,
         gigs_near_me: formData.gigsNearby,
@@ -142,9 +148,9 @@ const MusicLoverProfile = () => {
       // Update existing profile
       response = await authAPI.updateMusicProfile(userId, payload);
       setMessage("Profile updated successfully!");
+      Cookies.set("favourite_artist",formData.artist)
       router.push("/music-lover-dashboard");
 
-      console.log("Profile saved:", response.data);
     } catch (error) {
       console.error("Error saving profile:", error);
       setMessage("Failed to save profile. Please try again.");
@@ -167,8 +173,8 @@ const MusicLoverProfile = () => {
       >
         <option value="">{isLoading ? `Loading ${label}...` : `Select ${label}`}</option>
         {options.map((opt) => (
-          <option key={opt} value={opt} className="text-[#121217]">
-            {opt}
+          <option key={opt.id || opt} value={opt.id || opt} className="text-[#121217]">
+            {opt.name || opt}
           </option>
         ))}
       </select>
@@ -235,7 +241,7 @@ const MusicLoverProfile = () => {
             "Electronic",
           ])}
           
-          {/* Dynamic Artists Dropdown */}
+          {/* Dynamic Artists Dropdown - now uses artist objects with id and name */}
           {renderSelect("artist", formData.artist, "Favourite Artist", artists, artistsLoading)}
           
           {renderSelect("preferred", formData.preferred, "Preferred", [

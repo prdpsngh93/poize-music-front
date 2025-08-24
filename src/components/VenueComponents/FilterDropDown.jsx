@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { ChevronDown, X } from "lucide-react";
 
 // Filter options
@@ -26,59 +26,88 @@ const FilterDropdown = ({ onChange, filters = {} }) => {
     "Venue Type": "",
     Price: "",
     Status: "",
-    ...filters,
   });
 
+  // Create a stable reference for the initial filters
+  const initialFilters = useMemo(() => ({
+    Genre: filters.genre || "",
+    Date: filters.date || "",
+    "Venue Type": filters.venueType || "",
+    Price: filters.price || "",
+    Status: filters.status || "",
+  }), [filters.genre, filters.date, filters.venueType, filters.price, filters.status]);
+
+  // Only update when the actual filter values change, not the filters object reference
   useEffect(() => {
-    setSelectedFilters({
-      Genre: filters.genre || "",
-      Date: filters.date || "",
-      "Venue Type": filters.venueType || "",
-      Price: filters.price || "",
-      Status: filters.status || "",
+    setSelectedFilters(prevFilters => {
+      const newFilters = {
+        Genre: filters.genre || "",
+        Date: filters.date || "",
+        "Venue Type": filters.venueType || "",
+        Price: filters.price || "",
+        Status: filters.status || "",
+      };
+
+      // Only update if the values are actually different
+      const hasChanged = Object.keys(newFilters).some(key => 
+        newFilters[key] !== prevFilters[key]
+      );
+
+      return hasChanged ? newFilters : prevFilters;
     });
-  }, [filters]);
+  }, [filters.genre, filters.date, filters.venueType, filters.price, filters.status]);
 
-  const toggleDropdown = (filterType) => {
-    setOpenDropdown(openDropdown === filterType ? null : filterType);
-  };
+  const toggleDropdown = useCallback((filterType) => {
+    setOpenDropdown(prev => prev === filterType ? null : filterType);
+  }, []);
 
-  const handleSelect = (filterType, value) => {
+  const handleSelect = useCallback((filterType, value) => {
     const newSelected = {
       ...selectedFilters,
       [filterType]: selectedFilters[filterType] === value ? "" : value,
     };
+    
     setSelectedFilters(newSelected);
     setOpenDropdown(null);
 
     if (onChange) {
-      onChange({
+      // Create the callback data
+      const callbackData = {
         genre: newSelected.Genre,
         date: dateValueMap[newSelected.Date] || "",
         venueType: newSelected["Venue Type"],
         price: newSelected.Price,
         status: newSelected.Status.toLowerCase(),
-      });
+      };
+      
+      onChange(callbackData);
     }
-  };
+  }, [selectedFilters, onChange]);
 
-  const clearFilter = (filterType, e) => {
+  const clearFilter = useCallback((filterType, e) => {
     e.stopPropagation();
-    const newSelected = { ...selectedFilters, [filterType]: "" };
+    
+    const newSelected = { 
+      ...selectedFilters, 
+      [filterType]: "" 
+    };
+    
     setSelectedFilters(newSelected);
 
     if (onChange) {
-      onChange({
+      const callbackData = {
         genre: newSelected.Genre,
         date: dateValueMap[newSelected.Date] || "",
         venueType: newSelected["Venue Type"],
         price: newSelected.Price,
         status: newSelected.Status.toLowerCase(),
-      });
+      };
+      
+      onChange(callbackData);
     }
-  };
+  }, [selectedFilters, onChange]);
 
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     const cleared = {
       Genre: "",
       Date: "",
@@ -86,14 +115,25 @@ const FilterDropdown = ({ onChange, filters = {} }) => {
       Price: "",
       Status: "",
     };
+    
     setSelectedFilters(cleared);
 
     if (onChange) {
-      onChange({ genre: "", date: "", venueType: "", price: "", status: "" });
+      onChange({ 
+        genre: "", 
+        date: "", 
+        venueType: "", 
+        price: "", 
+        status: "" 
+      });
     }
-  };
+  }, [onChange]);
 
-  const hasActive = Object.values(selectedFilters).some((v) => v !== "");
+  // Memoize the check for active filters
+  const hasActive = useMemo(() => 
+    Object.values(selectedFilters).some((v) => v !== ""), 
+    [selectedFilters]
+  );
 
   return (
     <div className="flex flex-wrap gap-3 items-center">

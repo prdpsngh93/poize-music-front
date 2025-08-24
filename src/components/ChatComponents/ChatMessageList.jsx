@@ -9,9 +9,6 @@ const ChatMessageList = () => {
   const { messages, currentUser, selectedArtist } = useContext(ChatContext);
   const messageEndRef = useRef(null);
 
-  console.log("currentUser",currentUser)
-  console.log("messages",messages)
-
   // Scroll to bottom on messages update
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });

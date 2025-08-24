@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 const events = [
   {
@@ -86,9 +87,11 @@ export default function ListenToTheCollective() {
 
         {/* View More Button */}
         <div className="text-center mt-16">
-          <button className="px-6 sm:px-8 py-3 text-sm font-bold uppercase tracking-widest bg-black text-white rounded-full hover:bg-gray-800 transition">
+          <Link
+          href="/venue-find-musician"
+          className="px-6 sm:px-8 py-3 text-sm font-bold uppercase tracking-widest bg-black text-white rounded-full hover:bg-gray-800 transition">
             View More Artists
-          </button>
+          </Link>
         </div>
       </div>
     </section>

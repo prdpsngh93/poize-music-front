@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 const artists = [
   {
@@ -71,9 +72,12 @@ export default function MeetOurArtistsTwo() {
       </div>
 
       <div className="flex justify-center">
-        <button className="px-8 py-3 text-sm md:text-base font-bold font-anton uppercase bg-black text-white rounded-full hover:opacity-80 transition">
+        <Link
+          href="/venue-find-musician"
+          className="px-8 py-3 text-sm md:text-base font-bold font-anton uppercase bg-black text-white rounded-full hover:opacity-80 transition"
+        >
           View More Artists
-        </button>
+        </Link>
       </div>
     </section>
   );

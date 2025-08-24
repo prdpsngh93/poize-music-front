@@ -39,7 +39,6 @@ export default function CreateMusicianProfile() {
     try {
       setLoading(true);
       const result = await authAPI.getArtistProfile(userId);
-      console.log("result", result);
 
       if (result) {
         // Map API response to form data
