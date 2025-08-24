@@ -52,7 +52,7 @@ export default function ContributorProfile() {
             skills: (result.skill_tags || []).join(', '),
             workSamples: result.work_sample || "",
             socialLinks: result.social_media_link || "",
-            profile_image: result.profile_picture || "",
+            profile_image: result?.profile_picture || "",
           });
 
           setIsEditing(true);

@@ -11,13 +11,11 @@ const ContributorDropdowns = ({ filters, onFilterChange }) => {
     setOpenDropdown(openDropdown === filterType ? null : filterType);
   };
 
-  const handleSelect = (filterType, value) => {
-    const updatedFilters = { ...selectedFilters, [filterType]: value };
+  const handleSelect = (filterType, option) => {
+    const updatedFilters = { ...selectedFilters, [filterType]: option };
     setSelectedFilters(updatedFilters);
 
-    if (onFilterChange) {
-      onFilterChange(updatedFilters); // Notify parent
-    }
+    if (onFilterChange) onFilterChange(updatedFilters);
 
     setOpenDropdown(null);
   };
@@ -40,35 +38,34 @@ const ContributorDropdowns = ({ filters, onFilterChange }) => {
           <button
             onClick={() => toggleDropdown(filterType)}
             className="flex items-center gap-1 px-4 py-2 rounded-full bg-[#E3DFCB] text-black text-sm font-medium border border-gray-300 shadow-sm hover:bg-gray-100 transition"
-            aria-haspopup="listbox"
-            aria-expanded={openDropdown === filterType}
           >
-            {selectedFilters[filterType] || filterType}
+            {selectedFilters[filterType]?.label || filterType}
             <ChevronDown className="w-4 h-4" />
           </button>
 
           {openDropdown === filterType && (
-            <div
-              className="absolute mt-2 w-44 bg-white rounded-md shadow-lg border z-10 max-h-56 overflow-y-auto"
-              role="listbox"
-            >
+            <div className="absolute mt-2 w-44 bg-white rounded-md shadow-lg border z-10 max-h-56 overflow-y-auto">
               <div
                 onClick={() => handleSelect(filterType, null)}
                 className="px-4 py-2 text-sm text-gray-500 hover:bg-red-100 cursor-pointer"
               >
                 All
               </div>
-              {filters[filterType].map((item) => (
-                <div
-                  key={item}
-                  onClick={() => handleSelect(filterType, item)}
-                  className={`px-4 py-2 text-sm cursor-pointer hover:bg-green-100 ${
-                    selectedFilters[filterType] === item ? 'bg-green-200 font-medium' : 'text-black'
-                  }`}
-                >
-                  {item}
-                </div>
-              ))}
+
+              {filters[filterType].map((item) => {
+                const option = typeof item === "string" ? { label: item, value: item } : item;
+                return (
+                  <div
+                    key={option.value}
+                    onClick={() => handleSelect(filterType, option)}
+                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-green-100 ${
+                      selectedFilters[filterType]?.value === option.value ? 'bg-green-200 text-black font-medium' : ' text-black'
+                    }`}
+                  >
+                    {option.label}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
