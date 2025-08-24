@@ -16,6 +16,7 @@ const ContributorDashboard = () => {
   });
 
   const [latestGigs , setLatestGigs] = useState(null);
+  const [requests , setRequests] = useState(null);
 
   const dummyCard = {
     title: 'Live Music Photography at The Roxy',
@@ -94,10 +95,36 @@ const ContributorDashboard = () => {
   }, []);
 
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const id = Cookies.get('id')
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs-requests?collaborator_id=${id}`;
+
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("data",data);
+        setRequests(data?.data[0] || []); 
+      } catch (err) {
+        console.error("Error fetching latest gigs:", err);
+      } finally {
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const userName = Cookies.get("userName");
-  console.log("latestgigs" , latestGigs)
-
+  console.log("requests" , requests);
 
   return (
     <main className="bg-[#F1F0EA]  min-h-screen py-8 px-4 sm:px-12">
@@ -120,7 +147,6 @@ const ContributorDashboard = () => {
           <h2 className="font-semibold mb-2 text-lg">Collaboration Requests</h2>
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <GigCard {...suggestedCard} />
-
           </div>
         </section>
 
