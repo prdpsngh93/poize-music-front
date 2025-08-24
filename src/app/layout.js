@@ -4,7 +4,6 @@ import "@/app/globals.css";
 import Footer from "@/components/GlobalComponents/Footer";
 import { Toaster } from 'sonner';
 
-
 const anton = Anton({
   subsets: ['latin'],
   weight: ['400'],
