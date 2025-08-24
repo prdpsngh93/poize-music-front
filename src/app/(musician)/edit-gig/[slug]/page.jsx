@@ -5,6 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
+import BackButton from "@/components/common/BackButton";
 
 const EditGigForm = () => {
   const [title, setTitle] = useState("");
@@ -181,8 +182,8 @@ console.log(gig.attachment_url)
       className="mx-auto p-4 md:p-8 bg-[#F3F2ED] min-h-screen"
     >
       <div className="max-w-5xl flex justify-center flex-col mx-auto">
-        <h1 className="text-2xl font-bold text-[#121417] mb-6">Edit Gig</h1>
-
+      <div className="flex gap-2  mb-6 items-center"><BackButton route={'/manage-created-gigs'} /> <h1 className="text-2xl font-bold text-[#121417] ">Edit Gig</h1>
+</div>  
         {message && (
           <p className="mb-4 text-sm font-medium text-center text-red-600">
             {message}
