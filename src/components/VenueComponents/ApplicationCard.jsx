@@ -41,7 +41,7 @@ const ApplicationCard = ({ applicant, onStatusUpdate }) => {
       } else if (type === 'reject') {
         // Call reject API
         const response = await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/venue-gig-requests/requests-status/${applicant.id}`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/venue-gig-requests/requests-status/${applicant.id}`,
           { status: 'rejected' }
         );
 
