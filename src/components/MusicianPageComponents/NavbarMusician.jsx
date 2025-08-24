@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Menu, X, Search, Bell } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { authAPI } from "../../../lib/api";
 
@@ -44,7 +44,7 @@ export default function NavbarMusician({ variant = "light" }) {
         break;
       case "contributor":
       case "producer":
-        "/contributor-profile";
+        dashboardLink = "/contributor-profile";
         break;
       case "music_lover":
         dashboardLink = "/music-lover-profile";
@@ -60,7 +60,14 @@ export default function NavbarMusician({ variant = "light" }) {
     }
   }
 
-  const navItems = ["Home", "Events", "Shop", "Blog", "Work", "Artists"];
+  const navItems = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Shop", href: "/shop" },
+    { label: "Blog", href: "/blog" },
+    { label: "Work", href: "/work" },
+    { label: "Artists", href: "/artists" },
+  ];
 
   return (
     <div
@@ -100,19 +107,17 @@ export default function NavbarMusician({ variant = "light" }) {
             {/* Desktop Nav Links */}
             <ul className="hidden md:flex space-x-6">
               {navItems.map((item) => (
-                <li key={item} className="group flex flex-col items-center">
-                  <Link href="/" className="hover:text-white">
-                    {item}
+                <li key={item.label} className="group flex flex-col items-center">
+                  <Link href={item.href} className="hover:text-white">
+                    {item.label}
                   </Link>
                   <span className="w-3 h-[2px] bg-white mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </li>
               ))}
             </ul>
 
-            {/* Desktop Right Side */}
-            <div className="hidden md:flex space-x-4 items-center">
-              <Search className="w-5 h-5 cursor-pointer" />
-              <Bell className="w-5 h-5 cursor-pointer" />
+            {/* Desktop Right Side - Only Profile Image */}
+            <div className="hidden md:flex items-center">
               <Link href={dashboardLink}>
                 <Image
                   src={profileImage || "/images/avatar.png"}
@@ -137,13 +142,13 @@ export default function NavbarMusician({ variant = "light" }) {
         {/* Mobile Dropdown */}
         {isOpen && (
           <div className="md:hidden bg-white/90 px-6 py-4 space-y-4 text-black z-50">
-            {[...navItems].map((item) => (
+            {navItems.map((item) => (
               <Link
-                key={item}
-                href="#"
+                key={item.label}
+                href={item.href}
                 className="block border-b border-gray-300 py-2 hover:underline"
               >
-                {item}
+                {item.label}
               </Link>
             ))}
           </div>

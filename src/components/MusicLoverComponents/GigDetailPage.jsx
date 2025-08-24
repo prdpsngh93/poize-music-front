@@ -1,14 +1,19 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { MapPin, Calendar, Share2 } from "lucide-react";
 import PaymentButton from "@/components/GlobalComponents/PaymentButton";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
+import BackButton from "../GlobalComponents/BackButton";
 
 const GigDetailDynamicPage = () => {
   const { id } = useParams(); // dynamic id from route
   const [gig, setGig] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAlreadyBooked, setIsAlreadyBooked] = useState(false);
+  const [bookingCheckLoading, setBookingCheckLoading] = useState(true);
+  const router = useRouter();
 
   // Fetch gig data
   useEffect(() => {
@@ -17,7 +22,6 @@ const GigDetailDynamicPage = () => {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs/${id}`
         );
-        if (!res.ok) throw new Error("Failed to fetch gig");
         const data = await res.json();
         setGig(data);
       } catch (err) {
@@ -31,43 +35,91 @@ const GigDetailDynamicPage = () => {
     if (id) fetchGig();
   }, [id]);
 
+  // Check if user has already booked this gig
+  useEffect(() => {
+    const checkExistingBooking = async () => {
+      const musicLoverId = Cookies.get("userId");
+      if (!musicLoverId || !id) {
+        setBookingCheckLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs-requests?music_lover_id=${musicLoverId}`
+        );
+        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+
+        const data = await res.json();
+        const bookings = data?.data || [];
+
+        // Check if current gig is already booked by this user
+        const existingBooking = bookings.find(
+          (booking) => booking.gig_id === id
+        );
+
+        if (existingBooking) {
+          setIsAlreadyBooked(true);
+          console.log("Gig already booked:", existingBooking);
+        }
+      } catch (err) {
+        console.error("Error checking existing bookings:", err);
+      } finally {
+        setBookingCheckLoading(false);
+      }
+    };
+
+    checkExistingBooking();
+  }, [id]);
+
   // Book gig API (for free gigs)
   const handleBook = async () => {
     try {
       const musicLoverId = Cookies.get("userId");
-      
+
       if (!musicLoverId) {
         alert("Please login to book this gig");
+        return;
+      }
+
+      if (isAlreadyBooked) {
+        toast("You have already booked this gig!");
         return;
       }
 
       const bookingData = {
         gigId: gig.id,
         music_lover_id: musicLoverId,
-        payment_id: null
+        payment_id: null,
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/contributor-gigs-requests`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingData),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/contributor-gigs-requests`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bookingData),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to book gig");
-      
-      alert("Gig booked successfully!");
+
+      setIsAlreadyBooked(true); // Update local state
+      toast("Gig booked successfully!");
+      router.push("/music-lover-myevent");
     } catch (err) {
       console.error("Booking failed", err);
       alert("Failed to book gig. Please try again.");
     }
   };
 
-  if (loading) return <p className="p-10">Loading...</p>;
+  if (loading || bookingCheckLoading) return <p className="p-10">Loading...</p>;
   if (!gig) return <p className="p-10">Gig not found</p>;
 
   return (
     <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
       <div className="max-w-5xl mx-auto flex flex-col gap-10">
+        <BackButton/>
         {/* Title */}
         <h1 className="text-2xl font-bold">{gig.gig_title}</h1>
 
@@ -104,22 +156,39 @@ const GigDetailDynamicPage = () => {
           <p className="text-sm text-gray-600">{gig.description}</p>
         </section>
 
+        {/* Booking Status Banner */}
+        {isAlreadyBooked && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+            ✅ You have already booked this gig!
+          </div>
+        )}
+
         {/* Payment/Book Button */}
-        <div className="flex gap-4">
-          {gig.payment > 0 ? (
-            <PaymentButton 
-              amount={gig.payment} 
-              gigId={gig.id}
-            />
-          ) : (
-            <button
-              onClick={handleBook}
-              className="bg-[#5925DC] text-white rounded-full px-6 py-2 font-medium hover:bg-[#4a1fb8] transition-colors"
-            >
-              Book Gig
-            </button>
-          )}
-        </div>
+        {!isAlreadyBooked && (
+          <div className="flex gap-4">
+            {gig.payment > 0 ? (
+              // For paid gigs - pass the booking status to PaymentButton
+              <PaymentButton
+                amount={gig.payment}
+                gigId={gig.id}
+                isAlreadyBooked={isAlreadyBooked}
+              />
+            ) : (
+              // For free gigs
+              <button
+                onClick={handleBook}
+                disabled={isAlreadyBooked}
+                className={`rounded-full px-6 py-2 font-medium transition-colors ${
+                  isAlreadyBooked
+                    ? "bg-gray-400 text-white cursor-not-allowed"
+                    : "bg-[#5925DC] text-white hover:bg-[#4a1fb8]"
+                }`}
+              >
+                {isAlreadyBooked ? "Already Booked" : "Book Gig"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );
