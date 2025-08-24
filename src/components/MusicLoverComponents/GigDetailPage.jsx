@@ -60,7 +60,6 @@ const GigDetailDynamicPage = () => {
 
         if (existingBooking) {
           setIsAlreadyBooked(true);
-          console.log("Gig already booked:", existingBooking);
         }
       } catch (err) {
         console.error("Error checking existing bookings:", err);

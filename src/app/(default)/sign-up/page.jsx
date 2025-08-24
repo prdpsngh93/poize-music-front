@@ -80,7 +80,7 @@ const SignUp = () => {
       if (result.status === "success") {
         toast.success("Account created successfully!")
         sessionStorage.setItem("authToken", result.token);
-        setTimeout(() => router.push("/login"), 1000); // 1 sec delay
+        setTimeout(() => router.push("/login"), 0); 
       }
 
     } catch (err) {

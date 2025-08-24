@@ -63,7 +63,6 @@ export default function RoleSelection() {
       };
 
       const result = await authAPI.updateRole(payload);
-      console.log("result", result);
 
       if (result.status === "success") {
         Cookies.set("id", result?.profile?.id);

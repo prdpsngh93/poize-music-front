@@ -1,8 +1,14 @@
+// pages/BookingTerms.js
 'use client';
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
 
 const BookingTerms = () => {
+  const params = useParams();
+  const router = useRouter();
+  const applicationId = params?.id;
+
   const [terms, setTerms] = useState({
     policy: false,
     contract: false,
@@ -12,6 +18,19 @@ const BookingTerms = () => {
   const handleToggle = (key) => {
     setTerms((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const handleNext = () => {
+    const allTermsAccepted = Object.values(terms).every(term => term);
+    
+    if (!allTermsAccepted) {
+      alert('Please accept all terms and conditions to proceed.');
+      return;
+    }
+
+    router.push(`/venue-optional-payment/${applicationId}`);
+  };
+
+  const allTermsAccepted = Object.values(terms).every(term => term);
 
   return (
     <main className="bg-[#F9F9F7] min-h-screen px-4 md:px-10 py-8">
@@ -69,7 +88,7 @@ const BookingTerms = () => {
                 className="mt-1 accent-black"
               />
               <span>
-                I agree to abide by the platform’s rules and guidelines during the session.
+                I agree to abide by the platform's rules and guidelines during the session.
               </span>
             </label>
           </div>
@@ -77,7 +96,15 @@ const BookingTerms = () => {
 
         {/* Next button */}
         <div className="flex justify-end">
-          <button className="bg-[#1FB58F] hover:bg-[#17a57e] text-white font-medium px-8 py-2 rounded-full transition">
+          <button 
+            onClick={handleNext}
+            disabled={!allTermsAccepted}
+            className={`font-medium px-8 py-2 rounded-full transition ${
+              allTermsAccepted 
+                ? 'bg-[#1FB58F] hover:bg-[#17a57e] text-white' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
             Next
           </button>
         </div>

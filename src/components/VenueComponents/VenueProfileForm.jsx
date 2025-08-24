@@ -30,7 +30,6 @@ const VenueProfileForm = () => {
     photos: [],
   });
 
-  console.log("formdata", formData)
   const [position, setPosition] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -253,7 +252,6 @@ const VenueProfileForm = () => {
       toast.success(isEditing ? "Venue profile updated successfully!" : "Venue profile created successfully!")
       router.push('/venue-dashboard')
       setIsEditing(true);
-      console.log("Venue profile saved:", response);
     } catch (error) {
       console.error("Error saving venue profile:", error);
       setMessage("Failed to save venue profile. Please try again.");

@@ -17,7 +17,6 @@ export default function GigList({ data, onPageChange, fetchData }) {
   const [gigToUpdate, setGigToUpdate] = useState(null);
   const router = useRouter();
 
-  console.log(data)
   const getStatusClasses = (status) => {
     if (status === "published" || status === "active")
       return "bg-green-100 text-green-700";

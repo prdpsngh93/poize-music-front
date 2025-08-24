@@ -39,7 +39,7 @@ const page = () => {
           </div>
 
           <ProfileStats />
-          <RecentActivity />
+          {/* <RecentActivity /> */}
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-6 items-center">

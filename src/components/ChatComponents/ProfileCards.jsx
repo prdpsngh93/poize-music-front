@@ -39,7 +39,6 @@ const ProfileCards = () => {
   }, []);
 
   const handleMessageClick = (artist) => {
-    console.log("artst", artist);
     setSelectedArtist(artist);
     try {
       localStorage.setItem("selectedArtist", JSON.stringify(artist));

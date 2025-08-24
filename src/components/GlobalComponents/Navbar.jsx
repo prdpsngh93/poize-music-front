@@ -25,7 +25,7 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
     { label: "Shop", href: "/shop" },
     { label: "Blog", href: "/blog" },
     { label: "Work", href: "/work" },
-    { label: "Artists", href: "/artists" },
+    { label: "Artists", href: "/venue-find-musician" },
   ];
 
   const handleLogout = () => {
@@ -101,13 +101,13 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
             <Link href="/cart" className="hover:underline">
               Cart(0)
             </Link>
-
+{/* 
             <Image
               src={isLight ? "/images/menu.png" : "/images/menu2.png"}
               alt="menu"
               width={30}
               height={30}
-            />
+            /> */}
           </div>
 
           {/* Mobile Toggle */}

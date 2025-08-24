@@ -53,7 +53,7 @@ export default function NavbarMusician({ variant = "light" }) {
         dashboardLink = "/musician-profile";
         break;
       case "venue":
-        dashboardLink = "/venue-pofile-form";
+        dashboardLink = "/venue-profile-form";
         break;
       default:
         dashboardLink = "/";
@@ -66,7 +66,7 @@ export default function NavbarMusician({ variant = "light" }) {
     { label: "Shop", href: "/shop" },
     { label: "Blog", href: "/blog" },
     { label: "Work", href: "/work" },
-    { label: "Artists", href: "/artists" },
+    { label: "Artists", href: "/venue-find-musician" },
   ];
 
   return (

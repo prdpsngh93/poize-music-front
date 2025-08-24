@@ -44,7 +44,6 @@ const EditGigForm = () => {
           `https://poize-music-backend-kn0u.onrender.com/api/contributor-gigs/${gigId}`
         );
         const gig = res.data;
-console.log(gig.attachment_url)
         setTitle(gig.gig_title);
         setDate(gig.date);
         setTime(gig.time?.slice(0, 5)); // Format HH:MM
@@ -305,13 +304,17 @@ console.log(gig.attachment_url)
         </div>
          <div className="mt-6">
           <label className="text-sm font-medium text-[#121417]">Payment (Optional)</label>
-          <input
-            type="number"
-            placeholder="Enter payment amount"
-            value={payment}
-            onChange={(e) => setPayment(e.target.value)}
-            className="rounded-full px-4 py-2 border border-gray-300 bg-white text-sm text-[#121417] w-full outline-none"
-          />
+         <input
+  type="number"
+  placeholder="Enter payment amount"
+  value={payment}
+  onChange={(e) => {
+    const value = Math.max(0, Number(e.target.value)); 
+    setPayment(value);
+  }}
+  className="rounded-full px-4 py-2 border border-gray-300 bg-white text-sm text-[#121417] w-full outline-none"
+/>
+
         </div>
            <div className="mt-6">
   <label className="text-sm font-medium text-[#121417]">Attachments</label>

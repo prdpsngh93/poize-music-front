@@ -1,12 +1,13 @@
-'use client';
+"use client";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function NewsSection() {
   const news = [
     {
       id: 1,
       title: "Sustainability in Music Festivals: How We’re Going Green",
-      image: "/images/HomePage/newsSectionOne.png", 
+      image: "/images/HomePage/newsSectionOne.png",
     },
     {
       id: 2,
@@ -23,7 +24,9 @@ export default function NewsSection() {
   return (
     <section className="bg-white py-16 px-4 md:px-9 lg:px-12">
       <div className="container mx-auto ">
-        <p className="text-[24px] font-semibold uppercase text-gray-800">Stay in the know</p>
+        <p className="text-[24px] font-semibold uppercase text-gray-800">
+          Stay in the know
+        </p>
         <h2 className="text-[30px] lg:text-[60px] md:text-5xl font-extrabold mt-2 mb-12 text-gray-900">
           Latest News & Updates
         </h2>
@@ -43,7 +46,9 @@ export default function NewsSection() {
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div className="absolute bottom-10 left-6 right-6 text-white">
-                <p className="font-anton font-semibold text-[24px] tracking-[0%]  text-center">{item.title}</p>
+                <p className="font-anton font-semibold text-[24px] tracking-[0%]  text-center">
+                  {item.title}
+                </p>
                 <button className="px-4 flex hover:cursor-pointer mx-auto py-1 text-[16px] uppercase border mt-[17px] border-white rounded-full text-sm font-bold hover:bg-white hover:text-black transition">
                   Buy Tickets
                 </button>
@@ -54,9 +59,12 @@ export default function NewsSection() {
 
         {/* Button */}
         <div className="mt-12  flex justify-center">
-          <button className="bg-black text-[18px] uppercase text-white px-[30px] hover:cursor-pointer py-3 rounded-full font-semibold hover:bg-gray-800 transition">
+          <Link
+            href="/venue-find-musician"
+            className="bg-black text-[18px] uppercase text-white px-[30px] hover:cursor-pointer py-3 rounded-full font-semibold hover:bg-gray-800 transition"
+          >
             View More Artists
-          </button>
+          </Link>
         </div>
       </div>
     </section>
