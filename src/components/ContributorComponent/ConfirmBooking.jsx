@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
+import BackButton from '../common/BackButton';
 
 export default function ConfirmBookingPage() {
   const [agreed, setAgreed] = useState(false);
@@ -32,18 +33,21 @@ export default function ConfirmBookingPage() {
     fetchGig();
   }, [gigId]);
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) return <div className="flex   justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#1FB58F] border-solid"></div>
+          </div>;
   if (!gig) return <div className="p-6">Gig not found.</div>;
 
   return (
     <div className="bg-[#F3F2EB] min-h-screen text-[#121212] font-sans">
       <div className="max-w-5xl mx-auto px-4 md:px-9 lg:px-12 py-10 space-y-10">
         {/* Title */}
-        <h1 className="text-2xl md:text-3xl font-bold">Confirm Booking</h1>
+<div className='flex items-center gap-2'>        <BackButton route={'/manage-created-gigs'} /><h1 className="text-2xl md:text-3xl font-bold">Confirm Booking</h1>
 
+  </div>
         {/* Gig Details */}
         <div>
-          <h2 className="font-semibold mb-3">Gig Details</h2>
+          <h2 className="font-semibold pl-3 mb-3">Gig Details</h2>
           <div className="rounded-md text-sm">
             {[
               ['Gig Title', gig.gig_title],

@@ -9,7 +9,7 @@ const BackButton = ({ route, label = "Back" }) => {
   return (
     <button
       onClick={() => router.push(route)}
-      className=" py-2 flex items-center rounded-lg text-sm font-medium text-black"
+      className=" py-2 flex items-center cursor-pointer rounded-lg text-sm font-medium text-black"
     >
      <ChevronLeft/> 
     </button>
