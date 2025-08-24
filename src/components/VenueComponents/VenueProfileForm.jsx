@@ -45,7 +45,6 @@ const VenueProfileForm = () => {
   const userId = Cookies.get("userId");
   const id = Cookies.get("id");
 
-  console.log("userId",userId)
 
   // Fetch existing venue profile data on component mount
   useEffect(() => {

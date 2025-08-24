@@ -2,10 +2,12 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const PaymentButton = ({ amount, gigId }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
+  const router = useRouter()
 
   // Book gig API after payment
   const bookGig = async (paymentId) => {
@@ -32,6 +34,9 @@ const PaymentButton = ({ amount, gigId }) => {
       if (!res.ok) throw new Error("Failed to book gig");
       
       toast.success("🎉 Gig booked successfully!");
+      router.push("/music-lover-myevent")
+      
+
       setIsBooked(true);
     } catch (err) {
       console.error("Booking failed", err);
@@ -95,7 +100,7 @@ const PaymentButton = ({ amount, gigId }) => {
       <button
         onClick={handlePayment}
         disabled={isProcessing || isBooked}
-        className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+        className={`w-full px-4 py-2 cursor-pointer rounded-lg font-medium transition-colors ${
           isBooked 
             ? "bg-green-600 text-white cursor-not-allowed" 
             : isProcessing 

@@ -75,37 +75,43 @@ const Login = () => {
       const result = await authAPI.login(payload);
 
       const cookieOptions = {
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
         expires: formData.rememberMe ? 30 : undefined,
       };
 
-      if (result.token) Cookies.set('token', result.token, cookieOptions);
+      if (result.token) Cookies.set("token", result.token, cookieOptions);
       if (result.user) {
-        Cookies.set('userData', JSON.stringify(result.user), cookieOptions);
-        Cookies.set('userId', result.user.id.toString(), cookieOptions);
-        Cookies.set('userName', result.user.name, cookieOptions);
-        Cookies.set('userEmail', result.user.email, cookieOptions);
-        Cookies.set('id', result?.profile?.id, cookieOptions);
+        Cookies.set("userData", JSON.stringify(result.user), cookieOptions);
+        Cookies.set("userId", result.user.id.toString(), cookieOptions);
+        Cookies.set("userName", result.user.name, cookieOptions);
+        Cookies.set("userEmail", result.user.email, cookieOptions);
+        Cookies.set(
+          "id",
+          result?.profile?.id || result?.user?.id,
+          cookieOptions
+        );
+
         toast.success("Login successful!");
         setSuccess("Login successful!");
         if (result.user.role === null) {
           router.push("/role");
-        } else if (result.user.role === "contributor" || result.user.role === "producer") {
-           if(result.profile){
-            router.push("/contributor-dashboard")
-           }else{
+        } else if (
+          result.user.role === "contributor" ||
+          result.user.role === "producer"
+        ) {
+          if (result.profile) {
+            router.push("/contributor-dashboard");
+          } else {
             router.push("/contributor-profile");
-           }
+          }
         } else if (result.user.role === "music_lover") {
           router.push("/music-lover-profile");
         } else if (result.user.role === "artist") {
           router.push("/musician-profile");
         } else if (result.user.role === "venue")
-        router.push("/venue-dashboard");
+          router.push("/venue-dashboard");
       }
-
-   
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
@@ -198,7 +204,11 @@ const Login = () => {
               >
                 {loading ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none">
+                    <svg
+                      className="animate-spin h-5 w-5 mr-2"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
                       <circle
                         className="opacity-25"
                         cx="12"
@@ -281,43 +291,41 @@ const Login = () => {
           </div>
         </div>
 
-    {/* Right: Image Section with Background */}
-<div className="w-full lg:w-1/2 bg-[#1FB58F] relative flex items-end justify-center   px-6 py-12 md:py-18">
-  {/* Main Content */}
-  <div  className="relative z- w-full max-w-[400px] md:max-w-[450px] h-[100%] md:h-[90%] bg-[#FFFFFF]/30 rounded-xl p-6 md:p-10 text-center ">
+        {/* Right: Image Section with Background */}
+        <div className="w-full lg:w-1/2 bg-[#1FB58F] relative flex items-end justify-center   px-6 py-12 md:py-18">
+          {/* Main Content */}
+          <div className="relative z- w-full max-w-[400px] md:max-w-[450px] h-[100%] md:h-[90%] bg-[#FFFFFF]/30 rounded-xl p-6 md:p-10 text-center ">
+            {/* Music Notes Background */}
+            <img
+              src="/images/loginbg.png"
+              alt="Music Notes Background"
+              className="absolute inset-0 left-20 h-full object-cover z-0 opacity-70"
+            />
 
-    {/* Music Notes Background */}
-    <img
-      src="/images/loginbg.png"
-      alt="Music Notes Background"
-      className="absolute inset-0 left-20 h-full object-cover z-0 opacity-70"
-    />
+            {/* Gradient Overlay */}
+            <img
+              src="/images/login-gradient.png"
+              alt="Gradient Overlay"
+              className="absolute inset-0 left-10 h-full z-0 object-cover  mix-blend-plus-lighter "
+            />
 
-    {/* Gradient Overlay */}
-    <img
-      src="/images/login-gradient.png"
-      alt="Gradient Overlay"
-      className="absolute inset-0 left-10 h-full z-0 object-cover  mix-blend-plus-lighter "
-    />
+            {/* Headphone Image */}
+            <img
+              src="/images/headphone.png"
+              alt="Live Music"
+              className="absolute -top-[10%] left-[56%]  -translate-x-1/2 w-[90%] md:w-[100%] z-10"
+            />
 
-    {/* Headphone Image */}
-    <img
-      src="/images/headphone.png"
-      alt="Live Music"
-      className="absolute -top-[10%] left-[56%]  -translate-x-1/2 w-[90%] md:w-[100%] z-10"
-    />
-
-    {/* Text */}
-    <div className="mt-[230px] md:mt-[350px] z-20 relative">
-      <p className="text-[20px] md:text-[26px] mt-8 text-black font-bold">
-        Seamless
-        <br />
-        work experience
-      </p>
-    </div>
-  </div>
-</div>
-
+            {/* Text */}
+            <div className="mt-[230px] md:mt-[350px] z-20 relative">
+              <p className="text-[20px] md:text-[26px] mt-8 text-black font-bold">
+                Seamless
+                <br />
+                work experience
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
