@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { FaSort } from 'react-icons/fa';
 import { authAPI } from "../../../lib/api";
 import { toast } from 'sonner';
+import BackButton from '../common/BackButton';
 
 export default function ContributorProfile() {
   const router = useRouter();
@@ -204,8 +205,8 @@ export default function ContributorProfile() {
   return (
     <div className="min-h-screen bg-[#f3f1e9] py-16 px-4 md:px-9 lg:px-12">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold text-[#121417] mb-6">
-          {isEditing ? "Edit Your Contributor Profile" : "Create Your Contributor Profile"}
+        <h2 className="text-2xl font-bold text-[#121417] mb-6 flex items-center">
+        <BackButton route={'/contributor-dashboard'}/>  {isEditing ? "Edit Your Contributor Profile" : "Create Your Contributor Profile"}
         </h2>
 
         {success && <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-2xl">{success}</div>}

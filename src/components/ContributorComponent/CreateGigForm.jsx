@@ -5,6 +5,7 @@ import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import BackButton from "../common/BackButton";
 
 const CreateGigForm = () => {
   const [title, setTitle] = useState("");
@@ -131,7 +132,7 @@ const CreateGigForm = () => {
       className="mx-auto p-4 md:p-8 bg-[#F3F2ED] min-h-screen"
     >
       <div className="max-w-5xl flex justify-center flex-col mx-auto">
-        <h1 className="text-2xl font-bold text-[#121417] mb-6">Create Gig</h1>
+        <h1 className="text-2xl font-bold text-[#121417] mb-6 flex  items-center" ><BackButton route={'/contributor-dashboard'}/>  Create Gig</h1>
         {message && (
           <p className="mb-4 text-sm font-medium text-center text-red-600">
             {message}

@@ -201,12 +201,12 @@ const ContributorDashboard = () => {
           <div className="flex flex-col  justify-between gap-4 items-center">
             <GigCard {...suggestedCard} />
             <div className="flex gap-3">
-              <button className="bg-black text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-800 hover:cursor-pointer">
-                View Portfolio
-              </button>
-              <button className="bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600 hover:cursor-pointer">
+              <Link className="bg-black text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-800 hover:cursor-pointer" href={'/contributor-profile'}>
+                View Profile 
+              </Link>
+              {/* <button className="bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600 hover:cursor-pointer">
                 Contact Me
-              </button>
+              </button> */}
               <Link className='bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600  hover:cursor-pointer'
                 href={"/create-gig"}  >
                 Create Gig
