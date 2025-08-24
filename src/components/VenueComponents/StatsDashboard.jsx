@@ -1,20 +1,45 @@
 import React from 'react';
 
-const statsData = [
-  { label: 'Active Gigs', value: 3 },
-  { label: 'Booking Requests', value: 12 },
-  { label: 'Profile Views', value: 250 },
-  { label: 'Average Rating', value: 4.7 },
-  { label: 'Average Rating', value: 4.7 }, // You can replace or remove duplicates
-];
+const StatsDashboard = ({ dashboardData }) => {
+  // Create dynamic stats data based on dashboardData
+  const getStatsData = () => {
+    if (!dashboardData) {
+      return [
+        { label: 'Active Gigs', value: '-' },
+        { label: 'Draft Gigs', value: '-' },
+        { label: 'Total Requests', value: '-' },
+        { label: 'Interested Artists', value: '-' },
+      ];
+    }
 
-const StatsDashboard = () => {
+    return [
+      { 
+        label: 'Active Gigs', 
+        value: dashboardData.activeGigsCount || 0 
+      },
+      { 
+        label: 'Draft Gigs', 
+        value: dashboardData.draftGigsCount || 0 
+      },
+      { 
+        label: 'Total Requests', 
+        value: dashboardData.totalRequestsCount || 0 
+      },
+      { 
+        label: 'Interested Artists', 
+        value: dashboardData.artists ? dashboardData.artists.length : 0 
+      },
+    ];
+  };
+
+  const statsData = getStatsData();
+
   return (
     <div className="flex flex-wrap gap-4">
       {statsData.map((stat, index) => (
         <div
           key={index}
-          className="bg-white rounded-xl shadow-sm px-6 py-4 w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(20%-0.8rem)]"
+          className="bg-white rounded-xl shadow-sm px-6 py-4 w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)]"
         >
           <p className="text-sm text-gray-600">{stat.label}</p>
           <p className="text-xl font-bold text-[#121417] mt-1">{stat.value}</p>

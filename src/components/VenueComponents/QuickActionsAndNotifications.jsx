@@ -31,9 +31,11 @@ const QuickActionsAndNotifications = () => {
             Edit Profile
           </Link>
         </div>
-        <button className="bg-[#1BBF81] text-white text-sm font-medium px-5 py-2 rounded-full">
+        <Link
+        href="/venue-find-musician"
+        className="bg-[#1BBF81] text-white text-sm font-medium px-5 py-2 rounded-full">
           Browse Artists
-        </button>
+        </Link>
       </div>
 
       {/* Notifications */}

@@ -15,7 +15,6 @@ const ChatPage = () => {
   // Consume context to get selectedArtist and loading
   const { selectedArtist, loading } = useContext(ChatContext);
 
-  console.log("selectedArtist",selectedArtist)
 
   if (loading) {
     return (

@@ -112,7 +112,6 @@ const ContributorDashboard = () => {
         }
 
         const data = await res.json();
-        console.log("data",data);
         setRequests(data?.data[0] || []); 
       } catch (err) {
         console.error("Error fetching latest gigs:", err);
@@ -124,7 +123,6 @@ const ContributorDashboard = () => {
   }, []);
 
   const userName = Cookies.get("userName");
-  console.log("requests" , requests);
 
   return (
     <main className="bg-[#F1F0EA]  min-h-screen py-8 px-4 sm:px-12">

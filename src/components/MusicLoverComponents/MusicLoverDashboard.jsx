@@ -11,35 +11,8 @@ const MusicLoverDashboard = () => {
   const router = useRouter();
   const [upcomingBooking, setUpcomingBooking] = useState(null);
   const [loading, setLoading] = useState(false);
-
-
-  const updates = [
-    {
-      image: "/images/upcominggig2.png",
-      name: "New Album Release",
-      role: "The Indie Rockers",
-    },
-    {
-      image: "/images/upcominggig1.png",
-      name: "Tour Announcement",
-      role: "The Pop Sensations",
-    },
-    {
-      image: "/images/upcominggig3.png",
-      name: "Live Stream Event",
-      role: "The Electronic Beats",
-    },
-    {
-      image: "/images/upcominggig2.png",
-      name: "Behind the Scenes",
-      role: "The Acoustic Duo",
-    },
-    {
-      image: "/images/upcominggig1.png",
-      name: "Live Stream Event",
-      role: "The Electronic Beats",
-    },
-  ];
+  const [artistUpdates, setArtistUpdates] = useState([]);
+  const [updatesLoading, setUpdatesLoading] = useState(false);
 
   const userName = Cookies.get("userName");
 
@@ -63,28 +36,100 @@ const MusicLoverDashboard = () => {
     });
   };
 
+  // Fetch artist updates from collaboration API
+  useEffect(() => {
+    const fetchArtistUpdates = async () => {
+      const token = Cookies.get("token");
+      
+      setUpdatesLoading(true);
+      try {
+        const artistId = Cookies.get("favourite_artist"); 
+        
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+        
+        // Add Authorization header if token exists
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/collaboration?artist_id=${artistId}`,
+          {
+            headers: headers,
+          }
+        );
+        
+        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+        const data = await res.json();
+
+        // Transform API data to match the component structure
+        const transformedUpdates = data?.data?.map((collaboration) => ({
+          image: collaboration.media || "/images/upcominggig1.png", // Use media field or fallback
+          name: collaboration.project_title || "New Project",
+          role: collaboration.User?.name || "Unknown Artist",
+          genre: collaboration.genre,
+          location: collaboration.location,
+          description: collaboration.project_description,
+          collaborationFormat: collaboration.collaboration_format,
+        })) || [];
+
+        setArtistUpdates(transformedUpdates);
+      } catch (err) {
+        console.error("Error fetching artist updates:", err);
+        // Fallback to static data if API fails
+        setArtistUpdates([
+          {
+            image: "/images/upcominggig2.png",
+            name: "New Album Release",
+            role: "The Indie Rockers",
+          },
+          {
+            image: "/images/upcominggig1.png",
+            name: "Tour Announcement",
+            role: "The Pop Sensations",
+          },
+          {
+            image: "/images/upcominggig3.png",
+            name: "Live Stream Event",
+            role: "The Electronic Beats",
+          },
+        ]);
+      } finally {
+        setUpdatesLoading(false);
+      }
+    };
+
+    fetchArtistUpdates();
+  }, []);
+
   // Fetch upcoming booking from API
   useEffect(() => {
     const fetchUpcomingBooking = async () => {
       const musicLoverId = Cookies.get("userId");
-      if (!musicLoverId) return;
+      const token = Cookies.get("token");
+      
+      if (!musicLoverId || !token) return;
 
       setLoading(true);
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs-requests?music_lover_id=${musicLoverId}`
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs-requests?music_lover_id=${musicLoverId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
         );
         if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
         const data = await res.json();
 
-        console.log("data>>>",data)
-
         // Get the most recent upcoming booking (first one from the API)
         const bookings = data?.data || [];
         if (bookings.length > 0) {
-
           const booking = bookings[0]; // Get the first booking
-          console.log("booking>>",booking)
           setUpcomingBooking({
             id: booking.gig_id,
             title: booking.gig?.gig_title || "Untitled Event",
@@ -133,16 +178,28 @@ const MusicLoverDashboard = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Updates from Artists You Follow
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {updates.map((item, idx) => (
-              <MusicianCard
-                key={idx}
-                image={item.image}
-                name={item.name}
-                role={item.role}
-              />
-            ))}
-          </div>
+          {updatesLoading ? (
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <p className="text-gray-500">Loading artist updates...</p>
+            </div>
+          ) : artistUpdates.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {artistUpdates.map((item, idx) => (
+                <MusicianCard
+                  key={idx}
+                  image={item.image}
+                  name={item.name}
+                  role={item.role}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              <div className="text-center py-8">
+                <p className="text-gray-500">No artist updates available at the moment.</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Upcoming Bookings */}

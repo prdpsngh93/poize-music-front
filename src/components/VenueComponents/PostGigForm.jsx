@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 const MapLocation = dynamic(() => import("./MapComponet"), { ssr: false });
 
 const PostGigForm = () => {
-
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
@@ -29,11 +28,10 @@ const PostGigForm = () => {
 
   const [position, setPosition] = useState(null);
   const [address, setAddress] = useState("");
+  const [attachment, setAttachment] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-  const venueId = Cookies.get("id")
-  
+  const venueId = Cookies.get("id");
 
   useEffect(() => {
     if (address) {
@@ -46,9 +44,34 @@ const PostGigForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const formatDataForAPI = (data, status) => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAttachment(file);
+    }
+  };
+
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+    );
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    const data = await res.json();
+    return data.secure_url;
+  };
+
+  const formatDataForAPI = (data, status, gigImageUrl) => {
     return {
-      venue_id: venueId, 
+      venue_id: venueId,
       gig_title: data.title,
       duration: data.duration,
       date_time: data.datetime,
@@ -60,49 +83,57 @@ const PostGigForm = () => {
       payment_option: data.payment,
       perks: data.perks,
       booking_details: data.bookingDeadline,
-      status: status, 
+      status: status,
+      gig_image: gigImageUrl || "",
     };
   };
 
   const handleSave = async (status) => {
     try {
+      setIsSubmitting(true);
+      
+      let gigImageUrl = "";
+      if (attachment) {
+        gigImageUrl = await uploadToCloudinary(attachment);
+      }
+
       const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/venue-gigs`;
-     const paylaod = formatDataForAPI(formData , status)
-  
+      const payload = formatDataForAPI(formData, status, gigImageUrl);
+
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("token")}`, // if your API requires auth
+          Authorization: `Bearer ${Cookies.get("token")}`,
         },
-        body: JSON.stringify(paylaod),
+        body: JSON.stringify(payload),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error:", errorData);
+        toast.error("Failed to post gig");
         return;
       }
-  
+
       const data = await response.json();
       console.log("Saved Gig:", data);
-  
-      toast.success("Gig is Posted")
-      router.push('/venue-dashboard')
+
+      toast.success("Gig is Posted");
+      router.push('/venue-dashboard');
     } catch (err) {
       console.error("Request failed:", err);
+      toast.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
 
   const customSelectStyle = "appearance-none pr-8 relative";
 
   return (
     <div className="bg-[#F7F6F2] min-h-screen">
-      <form
-        onSubmit={handleSave}
-        className="p-6 max-w-5xl mx-auto space-y-10 px-4 md:px-9 lg:px-12 py-10 rounded-lg"
-      >
+      <form className="p-6 max-w-5xl mx-auto space-y-10 px-4 md:px-9 lg:px-12 py-10 rounded-lg">
         <h2 className="text-xl font-bold mb-6 text-[#121417]">Post a gig</h2>
 
         {/* Title & Duration */}
@@ -305,20 +336,49 @@ const PostGigForm = () => {
           />
         </div>
 
+        {/* Attachments */}
+        <div className="mt-6">
+          <label className="text-sm font-medium text-[#121417]">Attachments</label>
+          <div className="border-dashed border-2 border-gray-300 bg-white rounded-2xl py-8 px-6 text-center">
+            <p className="text-sm text-[#121417] font-semibold mb-1">
+              Upload Poster or Rider
+            </p>
+            <p className="text-xs text-gray-500 mb-4">
+              Drag and drop or browse files
+            </p>
+            <label className="cursor-pointer">
+              <span className="px-4 py-2 bg-[#1FB58F] text-white rounded-full text-sm hover:bg-green-600 inline-block">
+                Upload
+              </span>
+              <input 
+                type="file" 
+                onChange={handleFileChange} 
+                className="hidden" 
+                accept="image/*,.pdf"
+              />
+            </label>
+            {attachment && (
+              <p className="mt-2 text-sm text-gray-600">
+                Selected: {attachment.name}
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full md:justify-center">
           <button
             type="button"
-            onClick={()=>{handleSave('draft')}}
-            className="bg-black text-white px-6 py-2 rounded-full text-sm hover:cursor-pointer"
+            onClick={() => { handleSave('draft') }}
+            className="bg-black text-white px-6 py-2 rounded-full text-sm hover:cursor-pointer disabled:opacity-50"
             disabled={isSubmitting}
           >
             Save Draft
           </button>
           <button
-            type="submit"
-            className="bg-[#1BBF81] text-white px-6 py-2 rounded-full text-sm hover:cursor-pointer"
-            onClick={()=>{handleSave('active')}}
+            type="button"
+            className="bg-[#1BBF81] text-white px-6 py-2 rounded-full text-sm hover:cursor-pointer disabled:opacity-50"
+            onClick={() => { handleSave('active') }}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Posting..." : "Post Gig"}

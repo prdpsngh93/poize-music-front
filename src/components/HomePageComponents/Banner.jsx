@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import React from 'react'
 import { Stardos_Stencil } from 'next/font/google';
+import Link from 'next/link';
 const stencil = Stardos_Stencil({
   weight: '400',
   subsets: ['latin'],
@@ -33,9 +34,11 @@ export default function Banner() {
                     Uniting artists, events, and fans in one immersive experience.
                 </p>
                 <div className="flex gap-4  flex-wrap justify-center">
-                    <button className="bg-black cursor-pointer text-white px-[45px] py-3 rounded-full font-bold border  border-white   transition font-anton  xl:text-3xl leading-[28px] tracking-[0px] uppercase">
+                    <Link
+                href="/venue-find-musician"
+                    className="bg-black cursor-pointer text-white px-[45px] py-3 rounded-full font-bold border  border-white   transition font-anton  xl:text-3xl leading-[28px] tracking-[0px] uppercase">
                         EXPLORE OUR ARTISTS
-                    </button>
+                    </Link>
                     <button className="bg-black border  cursor-pointer flex gap-x-7  items-center border-white text-white px-[45px] py-3 rounded-full font-bold   transition">
                         <Image src={'/images/voice.png'} width={45} height={35} className='w-9' alt='voice' />
                         <p className='font-anton   font-bold xl:text-3xl leading-[28px] tracking-[0px] uppercase'>
