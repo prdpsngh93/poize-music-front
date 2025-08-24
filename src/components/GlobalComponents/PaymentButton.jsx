@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 const PaymentButton = ({ amount, gigId }) => {
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
   const router = useRouter()
