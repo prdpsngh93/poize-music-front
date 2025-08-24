@@ -1,9 +1,8 @@
 import { Poppins, Anton, Roboto } from "next/font/google";
 import "@/app/globals.css";
 import Footer from "@/components/GlobalComponents/Footer";
+import { Toaster } from 'sonner';
 import ClientWrapper from "@/components/GlobalComponents/ClientWrapper";
-
-// Fonts
 const anton = Anton({
   subsets: ["latin"],
   weight: ["400"],
