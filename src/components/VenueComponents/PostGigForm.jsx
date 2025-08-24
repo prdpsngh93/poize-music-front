@@ -6,10 +6,13 @@ import { FaSort } from "react-icons/fa";
 import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const MapLocation = dynamic(() => import("./MapComponet"), { ssr: false });
 
 const PostGigForm = () => {
+
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
     duration: "",
@@ -43,7 +46,7 @@ const PostGigForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const formatDataForAPI = (data) => {
+  const formatDataForAPI = (data, status) => {
     return {
       venue_id: venueId, 
       gig_title: data.title,
@@ -57,15 +60,14 @@ const PostGigForm = () => {
       payment_option: data.payment,
       perks: data.perks,
       booking_details: data.bookingDeadline,
+      status: status, 
     };
   };
 
-
-
-  const handleSave = async () => {
+  const handleSave = async (status) => {
     try {
       const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/venue-gigs`;
-     const paylaod = formatDataForAPI(formData)
+     const paylaod = formatDataForAPI(formData , status)
   
       const response = await fetch(url, {
         method: "POST",
@@ -86,6 +88,7 @@ const PostGigForm = () => {
       console.log("Saved Gig:", data);
   
       toast.success("Gig is Posted")
+      router.push('/venue-dashboard')
     } catch (err) {
       console.error("Request failed:", err);
     }
@@ -306,7 +309,7 @@ const PostGigForm = () => {
         <div className="flex flex-col sm:flex-row gap-4 w-full md:justify-center">
           <button
             type="button"
-            onClick={handleSave}
+            onClick={()=>{handleSave('draft')}}
             className="bg-black text-white px-6 py-2 rounded-full text-sm hover:cursor-pointer"
             disabled={isSubmitting}
           >
@@ -315,7 +318,7 @@ const PostGigForm = () => {
           <button
             type="submit"
             className="bg-[#1BBF81] text-white px-6 py-2 rounded-full text-sm hover:cursor-pointer"
-            onClick={handleSave}
+            onClick={()=>{handleSave('active')}}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Posting..." : "Post Gig"}
