@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
-const PaymentButton = ( {amount, gigId, agreed, performanceTerms, cancellationPolicy, paymentTerms }) => {
+const PaymentButton = ( {amount, gigId, agreed, performanceTerms, cancellationPolicy, paymentTerms,musicianId }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
   const router = useRouter();
@@ -13,23 +13,19 @@ const PaymentButton = ( {amount, gigId, agreed, performanceTerms, cancellationPo
   // Update gig status API after payment
   const updateGigStatus = async () => {
     try {
-      const artistId = Cookies.get("id");
-      if (!artistId) {
+      // const artistId = Cookies.get("id");
+      if (!musicianId) {
         toast.error("No artist ID found");
         return;
       }
 
-      console.log("Updating gig status", {
-        artist_id: artistId,
-        gig_id: gigId,
-        status: "completed",
-      });
+     
 
       await axios.post(
         `https://poize-music-backend-kn0u.onrender.com/api/venue-gigs/status`,
         {
-          artist_id: `${artistId}`,
-          gig_id: `${gigId}`,
+          artist_id: musicianId,
+          gig_id: gigId,
           status: "completed",
            performance_terms: performanceTerms,
         cancellation_policy: cancellationPolicy,

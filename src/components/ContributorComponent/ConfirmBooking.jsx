@@ -161,6 +161,7 @@ export default function ConfirmBookingPage() {
                   agreed={agreed} 
                   amount={gig.payment} 
                   gigId={gigId} 
+                  musicianId={gig.musician_id}
                   performanceTerms={performanceTerms}
                   cancellationPolicy={cancellationPolicy}
                   paymentTerms={paymentTerms}

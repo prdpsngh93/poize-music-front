@@ -6,7 +6,6 @@ import axios from "axios";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 
-
 export default function GigList({ data, onPageChange, fetchData }) {
   const [activeTab, setActiveTab] = useState("list");
   const [selectedGig, setSelectedGig] = useState(null);
@@ -17,16 +16,16 @@ export default function GigList({ data, onPageChange, fetchData }) {
   const [gigToUpdate, setGigToUpdate] = useState(null);
   const router = useRouter();
 
+  console.log("data ", data);
   const getStatusClasses = (status) => {
     if (status === "published" || status === "active")
       return "bg-green-100 text-green-700";
     if (status === "draft") return "bg-gray-100 text-gray-700";
     return "bg-blue-100 text-blue-700";
   };
-const collaboratorId = Cookies.get("id");
+  const collaboratorId = Cookies.get("id");
   const handleStatusChange = async (newStatus) => {
     if (!gigToUpdate) return;
-    
 
     setLoading(true);
     try {
@@ -147,7 +146,7 @@ const collaboratorId = Cookies.get("id");
                         Status
                       </button>
 
-                       <button
+                      <button
                         onClick={() => router.push(`/edit-gig/${gig.id}`)}
                         className="hover:underline"
                       >
@@ -159,14 +158,16 @@ const collaboratorId = Cookies.get("id");
                       >
                         View
                       </button>
-                      {gig.status !== "Booked" && (
-  <button
-    onClick={() => router.push(`/confirm-booking/${gig.id}`)}
-    className="hover:underline"
-  >
-    Confirm
-  </button>
-)}
+                      {gig.status !== "completed" && (
+                        <button
+                          onClick={() =>
+                            router.push(`/confirm-booking/${gig.id}`)
+                          }
+                          className="hover:underline"
+                        >
+                          Confirm
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setGigToDelete(gig);
@@ -193,32 +194,39 @@ const collaboratorId = Cookies.get("id");
           </table>
 
           {/* Pagination */}
-        {data?.totalPages > 1 && (
-  <div className="flex justify-between items-center p-4 text-sm">
-    <span>
-      Page {data?.currentPage} of {data?.totalPages}
-    </span>
-    <div className="space-x-2">
-      <button
-        disabled={data?.currentPage === 1}
-        onClick={() => onPageChange(data.currentPage - 1)}
-        className="px-3 py-1 rounded border disabled:opacity-50"
-      >
-        Prev
-      </button>
-      <button
-        disabled={data?.currentPage === data?.totalPages}
-        onClick={() => onPageChange(data.currentPage + 1)}
-        className="px-3 py-1 rounded border disabled:opacity-50"
-      >
-        Next
-      </button>
-    </div>
-  </div>
-)}
-
+          {data?.totalPages > 1 && (
+            <div className="flex justify-between items-center p-4 text-sm">
+              <span>
+                Page {data?.currentPage} of {data?.totalPages}
+              </span>
+              <div className="space-x-2">
+                <button
+                  disabled={data?.currentPage === 1}
+                  onClick={() => onPageChange(data.currentPage - 1)}
+                  className="px-3 py-1 rounded border disabled:opacity-50"
+                >
+                  Prev
+                </button>
+                <button
+                  disabled={data?.currentPage === data?.totalPages}
+                  onClick={() => onPageChange(data.currentPage + 1)}
+                  className="px-3 py-1 rounded border disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
+
+      {
+        activeTab === 'calendar' && (
+          <p className="text-gray-700 text-center py-4">
+    The Calendar view is under development and will be available soon. Stay tuned!
+  </p>
+        )
+      }
 
       {/* Modal for Viewing Gig */}
       <Modal
@@ -289,48 +297,47 @@ const collaboratorId = Cookies.get("id");
           </button>
         </div>
       </Modal>
-   <Modal
-  isOpen={statusModalOpen}
-  onClose={() => !loading && setStatusModalOpen(false)}
-  title="Change Gig Status"
->
-  {gigToUpdate && (
-    <>
-      <p className="mb-4 text-gray-700">
-        Select a new status for <strong>{gigToUpdate.gig_title}</strong>:
-      </p>
+      <Modal
+        isOpen={statusModalOpen}
+        onClose={() => !loading && setStatusModalOpen(false)}
+        title="Change Gig Status"
+      >
+        {gigToUpdate && (
+          <>
+            <p className="mb-4 text-gray-700">
+              Select a new status for <strong>{gigToUpdate.gig_title}</strong>:
+            </p>
 
-      <div className="flex flex-col gap-3">
-        {["active", "draft"].map((status) => {
-          const isCurrent = gigToUpdate.status === status;
-          return (
-            <button
-              key={status}
-              onClick={() => handleStatusChange(status)}
-              disabled={loading}
-              className={`px-4 py-2 rounded-full border transition relative
+            <div className="flex flex-col gap-3">
+              {["active", "draft"].map((status) => {
+                const isCurrent = gigToUpdate.status === status;
+                return (
+                  <button
+                    key={status}
+                    onClick={() => handleStatusChange(status)}
+                    disabled={loading}
+                    className={`px-4 py-2 rounded-full border transition relative
                 ${
                   isCurrent
                     ? "bg-[#1FB58F] text-white font-semibold"
                     : "bg-gray-100 hover:bg-[#1FB58F] hover:text-white"
                 }
                 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {loading && isCurrent ? (
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 animate-spin rounded-full h-4 w-4 border-t-2 border-white"></span>
-              ) : null}
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-              {isCurrent && !loading && (
-                <span className="ml-2 text-xs">(Current)</span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </>
-  )}
-</Modal>
-
+                  >
+                    {loading && isCurrent ? (
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 animate-spin rounded-full h-4 w-4 border-t-2 border-white"></span>
+                    ) : null}
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                    {isCurrent && !loading && (
+                      <span className="ml-2 text-xs">(Current)</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

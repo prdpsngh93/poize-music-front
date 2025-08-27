@@ -1,7 +1,7 @@
 import React from "react";
 import { FaMapMarkerAlt, FaCalendarAlt, FaMusic, FaDollarSign } from "react-icons/fa";
 
-const GigsGridCard = ({ image, title, location, date, artist, price, description }) => {
+const GigsGridCard = ({onClick, image, title, location, date, artist, price, description,footerButton }) => {
   return (
     <div className="bg-white shadow-md rounded-lg p-4 sm:p-5 w-full max-w-full md:max-w-md transition hover:shadow-lg">
       
@@ -41,10 +41,10 @@ const GigsGridCard = ({ image, title, location, date, artist, price, description
       </p>
 
       <div className="flex flex-wrap gap-3">
-        <button className="border border-gray-400 text-gray-800 px-4 py-2 rounded hover:bg-gray-100 w-full sm:w-auto">
+        <button onClick={onClick} className="border border-gray-400 text-gray-800 px-4 py-2 rounded hover:bg-gray-100 w-full sm:w-auto">
           View Details
         </button>
-        <button className="bg-[#1FB58F] text-white px-6 py-2 rounded hover:bg-green-600 w-full sm:w-auto">
+        <button onClick={footerButton} className="bg-[#1FB58F] text-white px-6 py-2 rounded hover:bg-green-600 w-full sm:w-auto">
           Apply
         </button>
       </div>

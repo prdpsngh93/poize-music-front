@@ -4,6 +4,7 @@ import FindGigsSearchBar from '../FindgigsComponents/FindGigsSearchBar';
 import MusicianCard from './MusicianCard';
 import FilterDropdown from './FilterDropDown';
 import { authAPI } from '../../../lib/api';
+import BackButton from '../common/BackButton';
 
 const filters = {
   Genre: ['Rock', 'Pop', 'Metal', 'Jazz', 'Blues'],
@@ -280,7 +281,7 @@ const VenueFindMusicians = () => {
     <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
         <div className="text-left">
-          <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Find Musicians!</h1>
+          <div className='flex  items-center gap-2' ><BackButton route={'/venue-dashboard'} /><h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Find Musicians!</h1></div>
           <p className="text-sm md:text-base text-gray-600 mt-1">
             Discover talented musicians for your venue. Use filters to refine your search and find the perfect match for your event.
           </p>

@@ -7,6 +7,7 @@ import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import BackButton from "../common/BackButton";
 
 const MapLocation = dynamic(() => import("./MapComponet"), { ssr: false });
 
@@ -134,7 +135,9 @@ const PostGigForm = () => {
   return (
     <div className="bg-[#F7F6F2] min-h-screen">
       <form className="p-6 max-w-5xl mx-auto space-y-10 px-4 md:px-9 lg:px-12 py-10 rounded-lg">
-        <h2 className="text-xl font-bold mb-6 text-[#121417]">Post a gig</h2>
+       <div className="flex gap-2 mb-6 items-center"   >
+         <BackButton route={'/venue-dashboard'} /><h2 className="text-xl font-bold  text-[#121417]">Post a gig</h2>
+       </div>
 
         {/* Title & Duration */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
