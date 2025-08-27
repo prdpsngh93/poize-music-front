@@ -20,7 +20,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
       ></div>
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-lg p-6 animate-fadeIn">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-lg p-6 animate-fadeIn">
         {/* Header */}
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-800">{title}</h2>

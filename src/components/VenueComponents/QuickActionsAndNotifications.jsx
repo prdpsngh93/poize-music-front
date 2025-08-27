@@ -39,7 +39,7 @@ const QuickActionsAndNotifications = () => {
       </div>
 
       {/* Notifications */}
-      <div>
+      {/* <div>
         <h3 className="text-sm font-semibold text-[#121417] mb-4">Notifications</h3>
         <div className="flex flex-col gap-4">
           {notifications.map((notification, index) => (
@@ -52,7 +52,7 @@ const QuickActionsAndNotifications = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

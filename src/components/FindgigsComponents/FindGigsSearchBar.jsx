@@ -35,7 +35,7 @@ export default function FindGigsSearchBar({ placeholder, onSearch }) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-10 pr-10 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-[#1FB58F] focus:border-[#1FB58F] transition-colors"
+          className="w-full pl-10 pr-10 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-[#1FB58F] text-black focus:border-[#1FB58F] transition-colors"
         />
         {value && (
           <button

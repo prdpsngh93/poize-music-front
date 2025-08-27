@@ -105,7 +105,7 @@ const VenueDashboard = () => {
 
         <InterestedArtists artists={dashboardData?.artists || []} />
         <EngagementOverview dashboardData={dashboardData} />
-        {/* <QuickActionsAndNotifications /> */}
+        <QuickActionsAndNotifications />
       </div>
     </main>
   );

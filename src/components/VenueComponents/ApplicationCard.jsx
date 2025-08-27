@@ -32,7 +32,6 @@ const ApplicationCard = ({ applicant, onStatusUpdate }) => {
   const handleConfirmAction = async () => {
     const { type } = modalConfig;
     setModalConfig(prev => ({ ...prev, loading: true }));
-
     try {
       if (type === 'accept') {
         // Navigate to booking summary instead of calling API

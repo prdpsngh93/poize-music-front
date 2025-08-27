@@ -73,7 +73,7 @@ const ManagedCreatedGigs = () => {
 
   useEffect(() => {
     fetchData(); // Call without parameters to use current state
-  }, [currentPage, pageSize, searchTerm, filters]);
+  }, [ pageSize, searchTerm, filters]);
 
   // Handle page change - this is the key fix
   const handlePageChange = useCallback((newPage) => {
