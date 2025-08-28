@@ -23,7 +23,7 @@ const ManagedCreatedGigs = () => {
       { label: "Last 3 Months", value: "3m" }
     ],
     venue: ["indoor", "outdoor"],
-    status: ["draft", "active"],
+    status: ["draft", "active","completed"],
   };
 
   // Memoize fetchData to prevent unnecessary re-renders
