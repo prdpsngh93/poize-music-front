@@ -186,7 +186,15 @@ export default function GigList({ data, onPageChange, fetchData }) {
                     colSpan="7"
                     className="text-center py-10 text-gray-500 font-medium"
                   >
-                    No gigs found
+                   <div className="flex flex-col items-center justify-center ">
+    <p className="text-gray-600 text-lg mb-4">No gigs found</p>
+    <button
+      onClick={() => router.push("/create-gig")}
+      className="px-6 py-2 bg-[#1FB58F] hover:bg-[#17a07c] text-white rounded-lg font-medium transition"
+    >
+      Create Gig
+    </button>
+  </div>
                   </td>
                 </tr>
               )}
