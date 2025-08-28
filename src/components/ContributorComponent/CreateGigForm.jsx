@@ -16,7 +16,9 @@ const CreateGigForm = () => {
   const [genre, setGenre] = useState("");
   const [payment, setPayment] = useState("");
   const [attachment, setAttachment] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+const [savingDraft, setSavingDraft] = useState(false);
+
   const [status, setStatus] = useState("active");
   const [message, setMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,46 +87,52 @@ const CreateGigForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
+  const handleSubmit = async (e, action) => {
+  e.preventDefault();
+  setMessage("");
 
-    if (!validateForm()) {
-      return;
+  if (!validateForm()) return;
+
+  if (action === "publish") {
+    setPublishing(true);
+    setStatus("active");
+  } else {
+    setSavingDraft(true);
+    setStatus("draft");
+  }
+
+  try {
+    let attachmentUrl = "";
+    if (attachment) {
+      attachmentUrl = await uploadToCloudinary(attachment);
     }
 
-    setLoading(true);
-    try {
-      let attachmentUrl = "";
-      if (attachment) {
-        attachmentUrl = await uploadToCloudinary(attachment);
-      }
+    const payload = {
+      gig_title: title,
+      date,
+      time: `${time}:00`,
+      venue_type: venue.toLowerCase(),
+      genre,
+      description,
+      collaborator_id: id,
+      musician_id: selectedArtist?.id,
+      payment: Number(payment),
+      attachment_url: attachmentUrl,
+      status,
+    };
 
-      const payload = {
-        gig_title: title,
-        date,
-        time: `${time}:00`,
-        venue_type: venue.toLowerCase(),
-        genre,
-        description,
-        collaborator_id: id,
-        musician_id: selectedArtist?.id,
-        payment: Number(payment),
-        attachment_url: attachmentUrl,
-        status,
-      };
+    await authAPI.createGig(payload);
+    toast.success("Gig created successfully!");
+    router.push("/manage-created-gigs");
+  } catch (err) {
+    console.error("Error creating gig:", err);
+    setMessage("Failed to create gig. Please try again.");
+  } finally {
+    setPublishing(false);
+    setSavingDraft(false);
+  }
+};
 
-      await authAPI.createGig(payload);
-      setMessage("Gig created successfully!");
-      toast.success("Gig created successfully!");
-      router.push("/manage-created-gigs");
-    } catch (err) {
-      console.error("Error creating gig:", err);
-      setMessage("Failed to create gig. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <form
@@ -351,24 +359,26 @@ const CreateGigForm = () => {
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mt-8">
-          <button
-            type="submit"
-            onClick={() => setStatus("active")}
-            className="px-6 py-2 rounded-full bg-black text-white text-sm hover:opacity-80 transition"
-            disabled={loading}
-          >
-            {loading ? "Publishing..." : "Publish"}
-          </button>
-          <button
-            type="submit"
-            onClick={() => setStatus("draft")}
-            className="px-6 py-2 rounded-full bg-[#1FB58F] text-white text-sm hover:bg-green-600 transition"
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save as Draft"}
-          </button>
-        </div>
+       <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mt-8">
+  <button
+    type="button"
+    onClick={(e) => handleSubmit(e, "publish")}
+    className="px-6 py-2 rounded-full bg-black text-white text-sm hover:opacity-80 transition"
+    disabled={publishing || savingDraft}
+  >
+    {publishing ? "Publishing..." : "Publish"}
+  </button>
+
+  <button
+    type="button"
+    onClick={(e) => handleSubmit(e, "draft")}
+    className="px-6 py-2 rounded-full bg-[#1FB58F] text-white text-sm hover:bg-green-600 transition"
+    disabled={publishing || savingDraft}
+  >
+    {savingDraft ? "Saving..." : "Save as Draft"}
+  </button>
+</div>
+
       </div>
     </form>
   );

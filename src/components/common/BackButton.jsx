@@ -6,13 +6,22 @@ import { ChevronLeft } from "lucide-react";
 const BackButton = ({ route, label = "Back" }) => {
   const router = useRouter();
 
+  const handleClick = () => {
+    if (route) {
+      router.push(route);
+    } else {
+      router.back();
+    }
+  };
+
   return (
     <button
       type="button"
-      onClick={() => router.push(route)}
-      className=" py-2 flex items-center cursor-pointer rounded-lg text-sm font-medium text-black"
+      onClick={handleClick}
+      className="py-2 flex items-center cursor-pointer rounded-lg text-sm font-medium text-black"
     >
-     <ChevronLeft/> 
+      <ChevronLeft className="mr-1" />
+     
     </button>
   );
 };

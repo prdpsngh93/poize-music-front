@@ -106,7 +106,7 @@ const ManagedCreatedGigs = () => {
     <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
         <div className='flex gap-1 items-center'>
-          <BackButton route={'/create-gig'} />
+          <BackButton  />
           <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
             Manage Created Gigs
           </h1>
@@ -114,7 +114,7 @@ const ManagedCreatedGigs = () => {
 
         {/* Search */}
         <FindGigsSearchBar
-          placeholder="Search gigs..."
+          placeholder="Search gigs by name..."
           onSearch={handleSearch}
         />
 

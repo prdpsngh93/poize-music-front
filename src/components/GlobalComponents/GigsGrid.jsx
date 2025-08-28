@@ -148,7 +148,7 @@ const GigsGrid = () => {
                     footerButton={() => {
                           setApplyGigId(gig.id);
                           setApplyModalOpen(true);
-                        }}
+                        }}  
                         
                   />
                 ))}
