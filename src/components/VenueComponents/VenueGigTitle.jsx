@@ -32,7 +32,6 @@ const VenueGigTitle = () => {
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/venue-gig-requests/get-by-gig/${gigId}`
         );
         
-        console.log("API Response:", response.data);
         setGigData(response.data.gig);
         
         // Map the applications data to the format expected by ApplicationCard

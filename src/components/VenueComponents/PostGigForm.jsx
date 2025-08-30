@@ -336,7 +336,6 @@ const PostGigForm = () => {
       }
 
       const data = await response.json();
-      console.log("Saved Gig:", data);
 
       const message =
         status === "draft" ? "Gig saved as draft" : "Gig posted successfully";

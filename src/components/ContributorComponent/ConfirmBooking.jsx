@@ -1,20 +1,22 @@
-'use client';
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import axios from 'axios';
-import BackButton from '../common/BackButton';
-import PaymentButton from '../common/PaymentButton';
+"use client";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import axios from "axios";
+import BackButton from "../common/BackButton";
+import StripePaymentButton from "../common/StripePaymentButton"; // ✅ New Stripe button
+import { authAPI } from "../../../lib/api";
+import StripePaymentForm from "../common/StripePaymentButton";
 
 export default function ConfirmBookingPage() {
   const [agreed, setAgreed] = useState(false);
   const [gig, setGig] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // New states for input fields
-  const [performanceTerms, setPerformanceTerms] = useState('');
-  const [cancellationPolicy, setCancellationPolicy] = useState('');
-  const [paymentTerms, setPaymentTerms] = useState('');
+  const [performanceTerms, setPerformanceTerms] = useState("");
+  const [cancellationPolicy, setCancellationPolicy] = useState("");
+  const [paymentTerms, setPaymentTerms] = useState("");
+  const [artistInformation, setArtistInformation] = useState();
 
   const params = useParams();
   const gigId = params?.slug;
@@ -26,9 +28,11 @@ export default function ConfirmBookingPage() {
         const res = await axios.get(
           `https://poize-music-backend-kn0u.onrender.com/api/contributor-gigs/${gigId}`
         );
+        const artist = await authAPI.getArtistProfile(res.data.musician_id);
         setGig(res.data);
+        setArtistInformation(artist);
       } catch (error) {
-        console.error('Error fetching gig details:', error);
+        console.error("Error fetching gig details:", error);
       } finally {
         setLoading(false);
       }
@@ -39,9 +43,9 @@ export default function ConfirmBookingPage() {
   return (
     <div className="bg-[#F3F2EB] min-h-screen text-[#121212] font-sans">
       <div className="max-w-5xl mx-auto px-4 md:px-9 lg:px-12 py-10 space-y-10">
-        {/* Page Heading */}
+        {/* Heading */}
         <div className="flex items-center gap-2 mb-6">
-          <BackButton route={'/manage-created-gigs'} />
+          <BackButton route={"/manage-created-gigs"} />
           <h1 className="text-2xl md:text-3xl font-bold">Confirm Booking</h1>
         </div>
 
@@ -52,60 +56,63 @@ export default function ConfirmBookingPage() {
           </div>
         )}
 
-        {/* If no gig and not loading */}
+        {/* Gig not found */}
         {!loading && !gig && (
           <div className="p-6 text-center text-gray-600">Gig not found.</div>
         )}
 
-        {/* Show Gig Details once loaded */}
+        {/* Gig details */}
         {!loading && gig && (
           <>
-            {/* Gig Details */}
+            {/* Gig Info */}
             <div>
               <h2 className="font-semibold pl-3 mb-3">Gig Details</h2>
               <div className="rounded-md text-sm">
                 {[
-                  ['Gig Title', gig.gig_title],
-                  ['Date', gig.date],
-                  ['Time', gig.time],
-                  ['Pay', `$${gig.payment}`],
-                  ['Venue', gig.venue_type],
-                ].map(([label, value], index) => (
+                  ["Gig Title", gig.gig_title],
+                  ["Date", gig.date],
+                  ["Time", gig.time],
+                  ["Pay", `₹${gig.payment}`],
+                  ["Venue", gig.venue_type],
+                ].map(([label, value], idx) => (
                   <div
-                    key={index}
+                    key={idx}
                     className="grid grid-cols-2 md:grid-cols-5 border-b last:border-none border-gray-300"
                   >
-                    <div className="col-span-2 px-4 py-3 font-medium">{label}</div>
+                    <div className="col-span-2 px-4 py-3 font-medium">
+                      {label}
+                    </div>
                     <div className="col-span-3 text-end px-4 py-3">{value}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Artist Information */}
+            {/* Artist Info */}
             <div>
               <h2 className="font-semibold mb-4">Artist Information</h2>
               <div className="flex items-center gap-4">
                 <Image
-                  src={gig.artist?.image_url || '/images/avatar.png'}
-                  alt={gig.artist?.name || 'Artist'}
+                  src={
+                    artistInformation?.profile_picture || "/images/avatar.png"
+                  }
+                  alt={artistInformation?.User?.name || "Artist"}
                   width={80}
                   height={80}
                   className="rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold">{gig.artist?.name || 'Unknown'}</p>
-                  <p className="text-sm text-gray-500">{gig.genre || 'No genre info'}</p>
+                  <p className="font-semibold">
+                    {artistInformation?.User?.name || "Unknown"}
+                  </p>
                   <p className="text-sm text-gray-500">
-                    {gig.artist?.rating
-                      ? `${gig.artist.rating} • ${gig.artist.total_gigs} gigs`
-                      : 'No rating'}
+                    {artistInformation?.genre || gig.genre || "No genre info"}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Review Terms */}
+            {/* Terms */}
             <div>
               <h2 className="font-semibold mb-4">Review and Confirm Terms</h2>
               <div className="flex flex-col md:flex-row gap-6">
@@ -117,7 +124,9 @@ export default function ConfirmBookingPage() {
                 />
                 <div className="flex flex-col w-full md:w-1/2 gap-4">
                   <div>
-                    <label className="text-sm block mb-1 font-medium">Cancellation Policy</label>
+                    <label className="text-sm block mb-1 font-medium">
+                      Cancellation Policy
+                    </label>
                     <input
                       type="text"
                       value={cancellationPolicy}
@@ -127,7 +136,9 @@ export default function ConfirmBookingPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm block mb-1 font-medium">Payment Terms</label>
+                    <label className="text-sm block mb-1 font-medium">
+                      Payment Terms
+                    </label>
                     <input
                       type="text"
                       value={paymentTerms}
@@ -153,21 +164,16 @@ export default function ConfirmBookingPage() {
               </label>
             </div>
 
-            {/* Final Confirmation */}
-            <div>
-              <p className="text-sm text-gray-700 mb-4">Notify artist upon confirmation</p>
-              <div className="flex items-end justify-end w-full">
-                <PaymentButton  
-                  agreed={agreed} 
-                  amount={gig.payment} 
-                  gigId={gigId} 
-                  musicianId={gig.musician_id}
-                  performanceTerms={performanceTerms}
-                  cancellationPolicy={cancellationPolicy}
-                  paymentTerms={paymentTerms}
-                  key={gigId} 
-                />
-              </div>
+            <div className="flex">
+              <StripePaymentForm
+                amount={gig.payment}
+                gigId={gigId}
+                musicianId={gig.musician_id}
+                agreed={agreed}
+                userEmail={
+                  artistInformation?.User?.email || "guest@example.com"
+                }
+              />
             </div>
           </>
         )}
