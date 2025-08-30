@@ -1,32 +1,32 @@
 // pages/BookingSummary.js
-'use client';
-import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import axios from 'axios';
+"use client";
+import Image from "next/image";
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
 
 const BookingSummary = () => {
   const params = useParams();
   const router = useRouter();
   const [applicationData, setApplicationData] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   const applicationId = params?.id;
 
   useEffect(() => {
     const fetchApplicationData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch application details
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/venue-gig-requests/${applicationId}`
         );
-        
+
         setApplicationData(response.data);
       } catch (error) {
         console.error("Error fetching application data:", error);
-        
+
         // Fallback mock data for development
         setApplicationData({
           id: applicationId,
@@ -35,7 +35,7 @@ const BookingSummary = () => {
             role: "Saxophonist",
             experience: "5 years experience",
             image: "/images/avatar.png",
-            rate: 300
+            rate: 300,
           },
           gig: {
             title: "Evening Jazz at The Blue Note",
@@ -43,9 +43,10 @@ const BookingSummary = () => {
             time: "8:00 PM – 10:00 PM",
             venue: "The Blue Note, New York",
             genre: "Jazz",
-            image: "/images/nogigs.png"
+            image: "/images/nogigs.png",
           },
-          message: "Please arrive 30 minutes before the performance for setup. Ensure all equipment is in good working order. Dress code is smart casual."
+          message:
+            "Please arrive 30 minutes before the performance for setup. Ensure all equipment is in good working order. Dress code is smart casual.",
         });
       } finally {
         setLoading(false);
@@ -86,11 +87,15 @@ const BookingSummary = () => {
     );
   }
 
+  console.log("applicationData", applicationData);
+
   return (
     <main className="bg-white min-h-screen px-4 md:px-10 py-8">
       {/* Step Header */}
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-semibold text-black mb-2">Booking Summary</h1>
+        <h1 className="text-2xl font-semibold text-black mb-2">
+          Booking Summary
+        </h1>
         <p className="text-sm text-gray-500 mb-3">Step 1 of 4</p>
         <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden mb-8">
           <div className="h-full w-1/4 bg-black"></div>
@@ -113,24 +118,32 @@ const BookingSummary = () => {
               {applicationData.gig?.title || "Evening Jazz at The Blue Note"}
             </h2>
             <p className="text-sm text-gray-700">
-              {applicationData.gig?.date || "Saturday, July 20, 2024"} • {applicationData.gig?.time || "8:00 PM – 10:00 PM"} • {applicationData.gig?.venue || "The Blue Note, New York"}
+              {applicationData.gig?.date || "Saturday, July 20, 2024"} •{" "}
+              {applicationData.gig?.time || "8:00 PM – 10:00 PM"} •{" "}
+              {applicationData.gig?.venue || "The Blue Note, New York"}
             </p>
-            <p className="text-sm text-gray-500 mt-1">{applicationData.gig?.genre || "Jazz"}</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {applicationData.gig?.genre || "Jazz"}
+            </p>
           </div>
         </div>
 
         {/* Musician Info */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-          <div className='flex flex-col gap-3'>
-            <h3 className="text-base font-semibold text-black mb-1">Musician</h3>
+          <div className="flex flex-col gap-3">
+            <h3 className="text-base font-semibold text-black mb-1">
+              Musician
+            </h3>
             <p className="text-sm font-medium text-gray-900">
               {applicationData.artist?.name || "Sophia Reed"}
             </p>
             <p className="text-sm text-gray-600">
-              {applicationData.artist?.role || "Saxophonist"} · {applicationData.artist?.experience || "5 years experience"}
+              {applicationData.artist?.bio || "Saxophonist"}
             </p>
-            <button 
-              onClick={() => {/* Navigate to profile */}}
+            <button
+              onClick={() => {
+                /* Navigate to profile */
+              }}
               className="mt-2 bg-[#1FB58F] text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-green-600 transition"
             >
               View Profile
@@ -138,7 +151,9 @@ const BookingSummary = () => {
           </div>
 
           <Image
-            src={applicationData.artist?.image || "/images/avatar.png"}
+            src={
+              applicationData.artist?.profile_picture || "/images/avatar.png"
+            }
             alt={applicationData.artist?.name || "Musician"}
             width={250}
             height={120}
@@ -152,7 +167,7 @@ const BookingSummary = () => {
           <div className="rounded-xl overflow-hidden">
             <div className="relative w-full h-28 md:h-32 bg-black">
               <Image
-                src="/images/live-band.png"
+                src={applicationData.gig.gig_image || "/images/live-band.png"}
                 alt="Rate"
                 fill
                 className="object-cover"
@@ -170,13 +185,14 @@ const BookingSummary = () => {
         <div className="mb-10">
           <h3 className="text-base font-semibold text-black mb-2">Notes</h3>
           <p className="text-sm text-gray-700">
-            {applicationData.message || "Please arrive 30 minutes before the performance for setup. Ensure all equipment is in good working order. Dress code is smart casual."}
+            {applicationData.message ||
+              "Please arrive 30 minutes before the performance for setup. Ensure all equipment is in good working order. Dress code is smart casual."}
           </p>
         </div>
 
         {/* Next Button */}
         <div className="flex justify-end">
-          <button 
+          <button
             onClick={handleNext}
             className="bg-[#1FB58F] hover:bg-[#17a57e] text-white font-medium px-8 py-2 rounded-full transition"
           >

@@ -126,7 +126,7 @@ const UpcomingGigs = ({ limit = 5 }) => {
           >
             <div className="w-full h-[150px] md:h-[130px] lg:h-[100px] rounded-lg relative">
               <Image
-                src={gig.image || gig.imageUrl || '/images/cards1.png'}
+                src={gig.gig_image || gig.imageUrl || '/images/cards1.png'}
                 alt={gig.title || gig.name || 'Gig'}
                 fill
                 className="object-cover rounded-xl"

@@ -45,9 +45,9 @@ const InterestedArtists = ({ artists = [] }) => {
             <p className="text-xs text-gray-500">
               {artist.genre || "Mixed Genre"}
             </p>
-            <p className="text-xs text-blue-600 mt-1">
+            {/* <p className="text-xs text-blue-600 mt-1">
               {artist.gigs_completed || 0} gigs completed
-            </p>
+            </p> */}
           
           </div>
         ))}

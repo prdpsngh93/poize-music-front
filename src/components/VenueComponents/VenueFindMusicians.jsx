@@ -113,7 +113,7 @@ const VenueFindMusicians = () => {
         image: item.profile_picture || item.User?.profile_picture || '/images/avatar.png',
         featured: item.featured || false,
         bio: item.bio,
-        gigsCompleted: item.gigs_completed || 0,
+        gigsCompleted: item?.gigs_completed || 0,
       }));
       
       setMusicians(transformedMusicians);
