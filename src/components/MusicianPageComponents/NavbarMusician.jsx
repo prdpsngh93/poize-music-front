@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { authAPI } from "../../../lib/api";
+import Cookies from "js-cookie";
 
 export default function NavbarMusician({ variant = "light" }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +27,7 @@ export default function NavbarMusician({ variant = "light" }) {
         setProfileImage(
           result.user?.profile_image || result?.profile?.profile_picture || ""
         );
+        Cookies.set("gig_completed",result.profile?.gigs_completed)
         setUserData(result);
       }
     } catch (err) {

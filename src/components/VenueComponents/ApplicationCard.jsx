@@ -15,7 +15,6 @@ const ApplicationCard = ({ applicant, onStatusUpdate }) => {
   });
   const router = useRouter();
 
-  console.log("applicant", applicant);
 
   const handleClick = (buttonName) => {
     if (buttonName === 'Accept' || buttonName === 'Reject') {
@@ -74,6 +73,7 @@ const ApplicationCard = ({ applicant, onStatusUpdate }) => {
   // Don't show Accept/Reject buttons if already processed
   const showActionButtons = !applicant.status || applicant.status === 'pending';
 
+
   return (
     <>
       <div className="bg-[#f4f3ee]">
@@ -94,14 +94,14 @@ const ApplicationCard = ({ applicant, onStatusUpdate }) => {
                 </span>
               )}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">{applicant.name}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{applicant.artist.name ||  applicant.name}</h3>
             <p className="text-sm text-gray-700">{applicant.role}</p>
 
-            <div className="mt-2">
+            {/* <div className="mt-2">
               <button className="bg-[#1FB58F] text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-green-600 transition">
                 View Profile
               </button>
-            </div>
+            </div> */}
 
             <div className="mt-3 flex flex-wrap gap-2">
               {showActionButtons ? (
@@ -124,12 +124,14 @@ const ApplicationCard = ({ applicant, onStatusUpdate }) => {
                   </button>
                 ))
               ) : (
-                <button
-                  onClick={() => handleClick('Message')}
-                  className="bg-[#E3DFCB] text-black text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#d6d3be] transition"
-                >
-                  Message
-                </button>
+                <>
+                </>
+                // <button
+                //   onClick={() => handleClick('Message')}
+                //   className="bg-[#E3DFCB] text-black text-sm font-medium px-4 py-1.5 rounded-full hover:bg-[#d6d3be] transition"
+                // >
+                //   Message
+                // </button>
               )}
             </div>
 

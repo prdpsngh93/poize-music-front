@@ -1,10 +1,14 @@
 'use client';
 import React from 'react';
 import dynamic from 'next/dynamic';
+import Cookies from 'js-cookie';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const Analytics = () => {
+
+    const gigCompleted = Cookies.get("gig_completed")
+
   const streamData = [20, 18, 22, 24, 19, 30];
 
   const start = streamData[0];

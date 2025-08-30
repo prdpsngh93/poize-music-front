@@ -66,7 +66,7 @@ const page = () => {
           </div>
 
           <Announcements />
-          <Analytics />
+          <Analytics  />
         </div>
       </main>
     </>
