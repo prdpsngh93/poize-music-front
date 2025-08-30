@@ -22,7 +22,6 @@ const MusicConnect = () => {
   const showOptions = [10, 20, 30];
 
   const handleSelection = (value) => {
-    console.log("Selected:", value);
   };
 
   return (

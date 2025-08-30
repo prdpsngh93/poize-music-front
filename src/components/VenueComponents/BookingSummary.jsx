@@ -87,8 +87,6 @@ const BookingSummary = () => {
     );
   }
 
-  console.log("applicationData", applicationData);
-
   return (
     <main className="bg-white min-h-screen px-4 md:px-10 py-8">
       {/* Step Header */}

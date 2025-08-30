@@ -148,8 +148,6 @@ const EngagementOverview = ({ dashboardData }) => {
   const activeGigsGrowth = calculateActiveGigsGrowth();
   const requestsGrowth = calculateRequestsGrowth();
 
-  console.log("dashboard data>>>>>", dashboardData);
-
   return (
     <div className="w-full">
       <h2 className="text-base md:text-lg font-semibold text-[#121417] mb-6">
