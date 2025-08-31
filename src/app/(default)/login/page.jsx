@@ -37,7 +37,7 @@ const Login = () => {
     setError("");
     setSuccess("");
     try {
-      await signIn("google", { callbackUrl: "/musician-dashboard" });
+      await signIn("google", { callbackUrl: "/" });
     } catch (err) {
       console.error("Google sign-in error:", err);
       setError(err.message || "Google sign-in failed. Please try again.");
