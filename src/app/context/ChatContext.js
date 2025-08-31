@@ -3,6 +3,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import io from "socket.io-client";
 import Cookies from "js-cookie";
+import { authAPI } from "../../../lib/api";
 
 export const ChatContext = createContext();
 
@@ -126,29 +127,24 @@ export const ChatProvider = ({ children }) => {
   }, [socket, currentUser, selectedArtist]);
 
   // Fetch artists
-  useEffect(() => {
-    const fetchArtists = async () => {
-      const token = Cookies.get("token");
-      if (!token) return;
+// Fetch artists
+useEffect(() => {
+  const fetchArtists = async () => {
+    const token = Cookies.get("token");
+    if (!token) return;
 
-      try {
-        const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/artists`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch artists");
-        const data = await res.json();
-        setArtists(data.artists || []);
-      } catch (error) {
-        console.error("Failed to load artists:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArtists();
-  }, []);
+    try {
+      const res = await authAPI.getArtist();  // ✅ use your new API wrapper
+      setArtists(res?.artists || []);
+    } catch (error) {
+      console.error("Failed to load artists:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchArtists();
+}, []);
 
   // Fetch messages on selectedArtist change
   useEffect(() => {

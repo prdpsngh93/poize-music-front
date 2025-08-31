@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import PerformanceStats from './PerformanceStats';
-import GigCard from './GigCard';
-import Cookies from 'js-cookie';
-import Link from 'next/link';
+import React, { useEffect, useState } from "react";
+import PerformanceStats from "./PerformanceStats";
+import GigCard from "./GigCard";
+import Cookies from "js-cookie";
+import Link from "next/link";
 
 const ContributorDashboard = () => {
   const [filters, setFilters] = useState({
@@ -15,22 +15,21 @@ const ContributorDashboard = () => {
     },
   });
 
-  const [latestGigs , setLatestGigs] = useState(null);
-  const [requests , setRequests] = useState(null);
+  const [latestGigs, setLatestGigs] = useState(null);
+  const [requests, setRequests] = useState(null);
 
   const dummyCard = {
-    title: 'Live Music Photography at The Roxy',
-    subtitle: 'Photography | Photograph',
-    image: '/images/avatar.png',
-    text: 'View Details'
+    title: "Live Music Photography at The Roxy",
+    subtitle: "Photography | Photograph",
+    image: "/images/avatar.png",
+    text: "View Details",
   };
 
   const suggestedCard = {
-    title: 'Acoustic Set by Steve Benoit',
-    subtitle: 'Acoustic Music | August 1, 2025 - 7:00 PM',
-    image: '/images/avatar.png',
-    text: 'View Request'
-
+    title: "Acoustic Set by Steve Benoit",
+    subtitle: "Acoustic Music | August 1, 2025 - 7:00 PM",
+    image: "/images/avatar.png",
+    text: "View Request",
   };
 
   const getDaysInMonth = (month, year) => new Date(year, month, 0).getDate();
@@ -94,10 +93,9 @@ const ContributorDashboard = () => {
     fetchData();
   }, []);
 
-
   useEffect(() => {
     const fetchData = async () => {
-      const id = Cookies.get('id')
+      const id = Cookies.get("id");
       const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs-requests?collaborator_id=${id}`;
 
       try {
@@ -112,7 +110,7 @@ const ContributorDashboard = () => {
         }
 
         const data = await res.json();
-        setRequests(data?.data[0] || []); 
+        setRequests(data?.data[0] || []);
       } catch (err) {
         console.error("Error fetching latest gigs:", err);
       } finally {
@@ -126,7 +124,7 @@ const ContributorDashboard = () => {
 
   return (
     <main className="bg-[#F1F0EA]  min-h-screen py-8 px-4 sm:px-12">
-      <div className='max-w-5xl flex  flex-col justify-center  mx-auto'>
+      <div className="max-w-5xl flex  flex-col justify-center  mx-auto">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 ">
           Welcome back, {userName ? userName : "Sophia"}
         </h1>
@@ -135,8 +133,9 @@ const ContributorDashboard = () => {
         <section className="">
           <h2 className="font-semibold mb-2 text-lg">My Active Gigs</h2>
           <div className="flex flex-col sm:flex-row justify-between gap-4">
-          { latestGigs   &&   <GigCard data ={latestGigs} />} 
-
+            {latestGigs && (
+              <GigCard linkTo="/manage-created-gigs" data={latestGigs} />
+            )}
           </div>
         </section>
 
@@ -159,7 +158,7 @@ const ContributorDashboard = () => {
           <h2 className="font-semibold mb-2 text-lg">Upcoming Gigs</h2>
           <div className="bg-white rounded-xl shadow-sm p-6 w-fit">
             <div className="grid grid-cols-7 gap-2 text-center font-medium text-gray-500 text-sm mb-2">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+              {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
                 <div key={`${day}-${index}`}>{day}</div>
               ))}
             </div>
@@ -167,7 +166,8 @@ const ContributorDashboard = () => {
               {generateCalendarDays().map((day, index) => {
                 if (day === null) return <div key={index}></div>;
                 const dateKey = `${filters.availability.year}-${filters.availability.month}-${day}`;
-                const isSelected = filters.availability.selectedDates.includes(dateKey);
+                const isSelected =
+                  filters.availability.selectedDates.includes(dateKey);
                 const isToday =
                   day === new Date().getDate() &&
                   filters.availability.month === new Date().getMonth() + 1 &&
@@ -178,12 +178,13 @@ const ContributorDashboard = () => {
                     key={index}
                     onClick={() => handleDateToggle(day)}
                     className={`w-8 h-8 flex items-center justify-center rounded-full text-sm transition-all duration-200
-                    ${isSelected
-                        ? 'bg-[#1FB58F] text-white'
+                    ${
+                      isSelected
+                        ? "bg-[#1FB58F] text-white"
                         : isToday
-                          ? 'bg-blue-500 text-white'
-                          : 'hover:bg-gray-200 text-black'
-                      }`}
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-gray-200 text-black"
+                    }`}
                   >
                     {day}
                   </button>
@@ -195,18 +196,25 @@ const ContributorDashboard = () => {
 
         {/* Suggested Opportunities */}
         <section className="">
-          <h2 className="font-semibold mb-2 text-lg">Suggested Opportunities</h2>
+          <h2 className="font-semibold mb-2 text-lg">
+            Suggested Opportunities
+          </h2>
           <div className="flex flex-col  justify-between gap-4 items-center">
             <GigCard {...suggestedCard} />
             <div className="flex gap-3">
-              <Link className="bg-black text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-800 hover:cursor-pointer" href={'/contributor-profile'}>
-                View Profile 
+              <Link
+                className="bg-black text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-800 hover:cursor-pointer"
+                href={"/contributor-profile"}
+              >
+                View Profile
               </Link>
               {/* <button className="bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600 hover:cursor-pointer">
                 Contact Me
               </button> */}
-              <Link className='bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600  hover:cursor-pointer'
-                href={"/create-gig"}  >
+              <Link
+                className="bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600  hover:cursor-pointer"
+                href={"/create-gig"}
+              >
                 Create Gig
               </Link>
             </div>

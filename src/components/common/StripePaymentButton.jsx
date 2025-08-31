@@ -4,9 +4,17 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import CheckoutForm from "./StripeCheckoutForm";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+);
 
-export default function StripePaymentForm({ amount, gigId,musicianId, userEmail,agreed }) {
+export default function StripePaymentForm({
+  amount,
+  gigId,
+  musicianId,
+  userEmail,
+  agreed,
+}) {
   const [clientSecret, setClientSecret] = useState("");
   useEffect(() => {
     const createPaymentIntent = async () => {
@@ -20,6 +28,7 @@ export default function StripePaymentForm({ amount, gigId,musicianId, userEmail,
               amount: amount * 100, // Stripe needs amount in cents
               gigId,
               userEmail,
+              currency: "usd",
             }),
           }
         );
@@ -40,13 +49,7 @@ export default function StripePaymentForm({ amount, gigId,musicianId, userEmail,
 
   return (
     <Elements stripe={stripePromise} options={{ clientSecret }}>
-      <CheckoutForm 
-      
-      agreed={agreed}
-      gigId={gigId}
-      musicianId={musicianId}
-      
-      />
+      <CheckoutForm agreed={agreed} gigId={gigId} musicianId={musicianId} />
     </Elements>
   );
 }
