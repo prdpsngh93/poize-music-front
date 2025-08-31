@@ -6,6 +6,9 @@ import PaymentButton from "@/components/GlobalComponents/PaymentButton";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import BackButton from "../GlobalComponents/BackButton";
+import StripeCheckoutForm from "@/app/(musician)/music-lover-gigs-detail/StripeCheckoutForm";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 const GigDetailDynamicPage = () => {
   const { id } = useParams(); // dynamic id from route
@@ -13,6 +16,7 @@ const GigDetailDynamicPage = () => {
   const [loading, setLoading] = useState(true);
   const [isAlreadyBooked, setIsAlreadyBooked] = useState(false);
   const [bookingCheckLoading, setBookingCheckLoading] = useState(true);
+  const [stripeOptions, setStripeOptions] = useState(null);
   const router = useRouter();
 
   // Fetch gig data
@@ -24,6 +28,15 @@ const GigDetailDynamicPage = () => {
         );
         const data = await res.json();
         setGig(data);
+        
+        // Set Stripe options based on gig payment amount
+        if (data.payment > 0) {
+          setStripeOptions({
+            mode: "payment",
+            currency: "inr", // ✅ Ensure this matches your backend
+            amount: data.payment * 100,
+          });
+        }
       } catch (err) {
         console.error("Error fetching gig:", err);
         setGig(null);
@@ -115,10 +128,12 @@ const GigDetailDynamicPage = () => {
   if (loading || bookingCheckLoading) return <p className="p-10">Loading...</p>;
   if (!gig) return <p className="p-10">Gig not found</p>;
 
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+
   return (
     <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
       <div className="max-w-5xl mx-auto flex flex-col gap-10">
-        <BackButton/>
+        <BackButton />
         {/* Title */}
         <h1 className="text-2xl font-bold">{gig.gig_title}</h1>
 
@@ -164,16 +179,21 @@ const GigDetailDynamicPage = () => {
 
         {/* Payment/Book Button */}
         {!isAlreadyBooked && (
-          <div className="flex gap-4">
-            {gig.payment > 0 ? (
-              // For paid gigs - pass the booking status to PaymentButton
-              <PaymentButton
-                amount={gig.payment}
-                gigId={gig.id}
-                isAlreadyBooked={isAlreadyBooked}
-              />
+          <div className="flex gap-4 w-full">
+            {gig.payment > 0 && stripeOptions ? (
+              <Elements stripe={stripePromise} options={stripeOptions}>
+                <StripeCheckoutForm 
+                  amount={gig.payment} 
+                  gigId={gig.id} 
+                  userEmail={Cookies.get("userEmail")} 
+                />
+              </Elements>
+            ) : gig.payment > 0 ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#5925DC]"></div>
+                <span className="ml-2 text-sm text-gray-600">Loading payment...</span>
+              </div>
             ) : (
-              // For free gigs
               <button
                 onClick={handleBook}
                 disabled={isAlreadyBooked}

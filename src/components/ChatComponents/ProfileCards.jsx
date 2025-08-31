@@ -18,7 +18,7 @@ const ProfileCards = () => {
       try {
         const token = localStorage.getItem("token") || ""; // Replace with Cookie approach if needed
         const res = await fetch(
-          "https://poize-music-backend-kn0u.onrender.com/api/artists",
+          "https://poize-music-backend-kn0u.onrender.com/api/artist",
           {
             headers: { Authorization: `Bearer ${token}` },
           }

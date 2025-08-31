@@ -14,6 +14,8 @@ export default function BookingConfirmed() {
   const [loading, setLoading] = useState(true);
   const [statusUpdated, setStatusUpdated] = useState(false);
 
+  console.log('eventData',eventData)
+
   useEffect(() => {
     const updateStatusAndFetchData = async () => {
       try {
@@ -149,7 +151,7 @@ export default function BookingConfirmed() {
             {/* Event Image */}
             <div className="md:w-1/2">
               <img
-                src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop"
+                src={ eventData.gig.gig_image ||"https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop"}
                 alt="Live Performance"
                 className="w-full h-48 md:h-full object-cover"
               />
@@ -168,9 +170,9 @@ export default function BookingConfirmed() {
                     the event details below.
                   </p>
                 </div>
-                <button className="bg-[#1FB58F] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition">
+                {/* <button className="bg-[#1FB58F] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition">
                   View Event
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
@@ -194,21 +196,21 @@ export default function BookingConfirmed() {
                 Date & Time
               </h4>
               <p className="text-sm text-gray-900">
-                {eventData?.date || "Saturday, March 15, 2025"} •{" "}
+                {eventData?.date_time || "Saturday, March 15, 2025"} •{" "}
                 {eventData?.time || "8:00 PM - 11:00 PM"}
               </p>
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-1">Venue</h4>
               <p className="text-sm text-gray-900">
-                {eventData?.venue || "The Music Hall"}
+                {eventData?.location || "The Music Hall"}
               </p>
             </div>
           </div>
         </div>
 
         {/* Gig Details */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        {/* <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             Performance Details
           </h3>
@@ -231,64 +233,10 @@ export default function BookingConfirmed() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Manager Contact */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Manager Contact
-          </h3>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1494790108755-2616b332c108?w=50&h=50&fit=crop&crop=face"
-                  alt="Manager"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-800">
-                  {eventData?.manager?.name || "Sophia Carter"}
-                </h4>
-                <p className="text-sm text-gray-600">
-                  {eventData?.manager?.role || "Event Manager"}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleCall}
-                className="bg-[#1FB58F] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition"
-              >
-                Call
-              </button>
-              <button
-                onClick={handleMessage}
-                className="bg-[#2196F3] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-600 transition"
-              >
-                Message
-              </button>
-              <button className="p-2 text-gray-400 hover:text-gray-600">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
+      
 
         {/* Next Steps */}
         <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -317,10 +265,10 @@ export default function BookingConfirmed() {
         {/* Back to Gigs Button */}
         <div className="text-center mt-8">
           <Link
-          href="/"
+          href="/venue-dashboard"
             className="bg-[#1FB58F] text-white px-8 py-3 rounded-full font-medium hover:bg-green-600 transition"
           >
-            Back to Gigs
+            Back to Dashboard
           </Link>
         </div>
       </div>
