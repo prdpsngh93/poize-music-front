@@ -67,9 +67,11 @@ const ContributorDashboard = () => {
     }));
   };
 
+  const id = Cookies.get("id")
+
   useEffect(() => {
     const fetchData = async () => {
-      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs/latest-gigs`;
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs/latest-gigs?id=${id}`;
 
       try {
         const res = await fetch(url, {
@@ -83,7 +85,7 @@ const ContributorDashboard = () => {
         }
 
         const data = await res.json();
-        setLatestGigs(data?.items[0] || []); // adjust depending on your API response
+        setLatestGigs(data?.items?.slice(0, 2) || []);
       } catch (err) {
         console.error("Error fetching latest gigs:", err);
       } finally {
@@ -131,95 +133,62 @@ const ContributorDashboard = () => {
 
         {/* My Active Gigs */}
         <section className="">
-          <h2 className="font-semibold mb-2 text-lg">My Active Gigs</h2>
-          <div className="flex flex-col sm:flex-row justify-between gap-4">
-            {latestGigs && (
-              <GigCard linkTo="/manage-created-gigs" data={latestGigs} />
-            )}
-          </div>
+          <h2 className="font-semibold my-2 text-lg">My Active Gigs</h2>
+
+          {latestGigs && latestGigs.length > 0 ? (
+            <div className="flex flex-col gap-6">
+              {latestGigs.map((gig, idx) => (
+                <GigCard
+                  key={gig.id || idx}
+                  linkTo="/manage-created-gigs"
+                  data={gig}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-300 rounded-xl">
+              <p className="text-gray-500 mb-4">No active gigs yet</p>
+              <Link
+                href="/create-gig"
+                className="px-6 py-2 bg-[#1FB58F] text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
+                Create Gig
+              </Link>
+            </div>
+          )}
         </section>
 
         {/* Collaboration Requests */}
-        <section className="">
+        {/* <section className="">
           <h2 className="font-semibold mb-2 text-lg">Collaboration Requests</h2>
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <GigCard {...suggestedCard} />
           </div>
-        </section>
+        </section> */}
 
         {/* Performance Stats */}
         <section className="">
           <h2 className="font-semibold mb-2 text-lg">Performance Stats</h2>
           <PerformanceStats />
         </section>
-
-        {/* Upcoming Gigs Calendar */}
-        <section className="">
-          <h2 className="font-semibold mb-2 text-lg">Upcoming Gigs</h2>
-          <div className="bg-white rounded-xl shadow-sm p-6 w-fit">
-            <div className="grid grid-cols-7 gap-2 text-center font-medium text-gray-500 text-sm mb-2">
-              {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-                <div key={`${day}-${index}`}>{day}</div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-2">
-              {generateCalendarDays().map((day, index) => {
-                if (day === null) return <div key={index}></div>;
-                const dateKey = `${filters.availability.year}-${filters.availability.month}-${day}`;
-                const isSelected =
-                  filters.availability.selectedDates.includes(dateKey);
-                const isToday =
-                  day === new Date().getDate() &&
-                  filters.availability.month === new Date().getMonth() + 1 &&
-                  filters.availability.year === new Date().getFullYear();
-
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleDateToggle(day)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-full text-sm transition-all duration-200
-                    ${
-                      isSelected
-                        ? "bg-[#1FB58F] text-white"
-                        : isToday
-                        ? "bg-blue-500 text-white"
-                        : "hover:bg-gray-200 text-black"
-                    }`}
-                  >
-                    {day}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Suggested Opportunities */}
-        <section className="">
-          <h2 className="font-semibold mb-2 text-lg">
-            Suggested Opportunities
-          </h2>
-          <div className="flex flex-col  justify-between gap-4 items-center">
-            <GigCard {...suggestedCard} />
-            <div className="flex gap-3">
-              <Link
-                className="bg-black text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-800 hover:cursor-pointer"
-                href={"/contributor-profile"}
-              >
-                View Profile
-              </Link>
-              {/* <button className="bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600 hover:cursor-pointer">
+        <div className="flex justify-center mt-10 gap-3">
+          <Link
+            className="bg-black text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-800 hover:cursor-pointer"
+            href={"/contributor-profile"}
+          >
+            View Profile
+          </Link>
+          {/* <button className="bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600 hover:cursor-pointer">
                 Contact Me
               </button> */}
-              <Link
-                className="bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600  hover:cursor-pointer"
-                href={"/create-gig"}
-              >
-                Create Gig
-              </Link>
-            </div>
-          </div>
-        </section>
+          <Link
+            className="bg-[#1FB58F] text-white px-4 py-2 rounded-xl text-sm hover:bg-green-600  hover:cursor-pointer"
+            href={"/create-gig"}
+          >
+            Create Gig
+          </Link>
+                    
+        </div>
       </div>
     </main>
   );

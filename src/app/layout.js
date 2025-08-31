@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import Footer from "@/components/GlobalComponents/Footer";
 import { Toaster } from 'sonner';
 import ClientWrapper from "@/components/GlobalComponents/ClientWrapper";
+import { AppProvider } from "@/context/AppContext";
 const anton = Anton({
   subsets: ["latin"],
   weight: ["400"],
@@ -35,12 +36,14 @@ export default function RootLayout({ children }) {
       <body
         className={`${poppins.variable} ${roboto.variable} ${anton.variable} antialiased`}
       >
+        <AppProvider>
         <ClientWrapper>
           <div className="flex flex-col min-h-screen">
             {children}
             <Footer />
           </div>
         </ClientWrapper>
+        </AppProvider>
       </body>
     </html>
   );

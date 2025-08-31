@@ -92,7 +92,6 @@ const VenueGigTitle = () => {
 
   const handleFilterChange = (updatedFilters) => {
     setFilters(updatedFilters);
-    console.log("Filters:", updatedFilters);
     // You can filter the applications here if needed
   };
 

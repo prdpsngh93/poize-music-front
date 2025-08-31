@@ -62,7 +62,6 @@ const ManagedCreatedGigs = () => {
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
       const data = await res.json();
-      console.log('API Response for page', pageToUse, ':', data); // Debug log
       setGigs(data);
     } catch (error) {
       console.error("Error fetching gigs:", error);

@@ -8,6 +8,8 @@ const ChatInput = () => {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
 
+  console.log("selectedArtist",selectedArtist)
+
   if (!selectedArtist) return null;
 
   const handleSend = async () => {
@@ -40,7 +42,7 @@ const ChatInput = () => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={`Message ${selectedArtist.name}`}
+            placeholder={`Message ${selectedArtist.User.name}`}
             className="flex-1 resize-none outline-none bg-transparent text-sm md:text-base placeholder-gray-400 rounded-md p-2"
             rows={2}
             disabled={isSending}

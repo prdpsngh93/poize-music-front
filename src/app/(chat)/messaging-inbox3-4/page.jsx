@@ -34,7 +34,7 @@ const page = () => {
             </div>
 
             {/* User Header */}
-            <UserHeaderBar />
+            {/* <UserHeaderBar /> */}
 
             {/* Chat Messages */}
             <ChatMessageList />

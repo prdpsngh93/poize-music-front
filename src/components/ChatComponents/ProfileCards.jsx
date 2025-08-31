@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Plus, Heart, MessageSquare } from "lucide-react";
 import { ChatContext } from "@/app/context/ChatContext";
+import Cookies from "js-cookie";
 
 const ProfileCards = () => {
   const [artists, setArtists] = useState([]);
@@ -16,7 +17,7 @@ const ProfileCards = () => {
   useEffect(() => {
     const fetchArtists = async () => {
       try {
-        const token = localStorage.getItem("token") || ""; // Replace with Cookie approach if needed
+        const token = Cookies.get("token") || ""; 
         const res = await fetch(
           "https://poize-music-backend-kn0u.onrender.com/api/artist",
           {
@@ -28,7 +29,7 @@ const ProfileCards = () => {
           throw new Error(errorData.error || "Failed to fetch artists");
         }
         const data = await res.json();
-        setArtists(data.artists || []);
+        setArtists(data.data || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -57,15 +58,15 @@ const ProfileCards = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 justify-items-center py-10 px-4 bg-[#f3f3ef]">
       {artists.length === 0 && <p>No artists found.</p>}
-      {artists.map((artist) => (
+      {artists && artists.length>0 && artists.map((artist) => (
         <div
           key={artist.id}
           className="w-full max-w-[240px] flex flex-col gap-4 items-center text-center"
         >
           <div className="w-[160px] h-[160px] relative">
             <Image
-              src={artist.avatar || artist.image || "/images/avatar.png"}
-              alt={artist.name || "Artist"}
+              src={artist.profile_picture || artist.image || "/images/avatar.png"}
+              alt={artist.User.name || "Artist"}
               fill
               className="object-cover rounded-full"
               unoptimized
@@ -74,7 +75,7 @@ const ProfileCards = () => {
 
           <div className="w-full flex flex-col items-start justify-start text-left px-2">
             <h3 className="text-[15px] font-semibold text-gray-900">
-              {artist.name || "Unknown Artist"}
+              {artist.User.name || "Unknown Artist"}
             </h3>
             <p className="text-[10px] text-gray-600 mt-1 leading-snug">
               {artist.genre || artist.bio?.substring(0, 60) + "..."}

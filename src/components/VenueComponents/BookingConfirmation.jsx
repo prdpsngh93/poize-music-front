@@ -14,7 +14,6 @@ export default function BookingConfirmed() {
   const [loading, setLoading] = useState(true);
   const [statusUpdated, setStatusUpdated] = useState(false);
 
-  console.log('eventData',eventData)
 
   useEffect(() => {
     const updateStatusAndFetchData = async () => {

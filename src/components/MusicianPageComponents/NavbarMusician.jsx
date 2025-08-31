@@ -6,13 +6,14 @@ import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
+import { useAppContext } from "@/context/AppContext";
 
 export default function NavbarMusician({ variant = "light" }) {
   const [isOpen, setIsOpen] = useState(false);
   const isLight = variant === "light";
 
   const [profileImage, setProfileImage] = useState("");
-  const [userData, setUserData] = useState();
+  const { userData, setUserData } = useAppContext();
 
   useEffect(() => {
     fetchUserProfile();
@@ -27,7 +28,7 @@ export default function NavbarMusician({ variant = "light" }) {
         setProfileImage(
           result.user?.profile_image || result?.profile?.profile_picture || ""
         );
-        Cookies.set("gig_completed",result.profile?.gigs_completed)
+        Cookies.set("gig_completed", result.profile?.gigs_completed);
         setUserData(result);
       }
     } catch (err) {
@@ -109,7 +110,10 @@ export default function NavbarMusician({ variant = "light" }) {
             {/* Desktop Nav Links */}
             <ul className="hidden md:flex space-x-6">
               {navItems.map((item) => (
-                <li key={item.label} className="group flex flex-col items-center">
+                <li
+                  key={item.label}
+                  className="group flex flex-col items-center"
+                >
                   <Link href={item.href} className="hover:text-white">
                     {item.label}
                   </Link>

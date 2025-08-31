@@ -288,9 +288,9 @@ const VenueFindMusicians = () => {
         </div>
 
         <FindGigsSearchBar
-          placeholder="Search by name, genre, or skill"
+          placeholder="Search by name"
           value={searchQuery}
-          onChange={handleSearchChange}
+          onSearch={handleSearchChange}
         />
 
         {/* <FilterDropdown filterData={filters} onChange={handleFilterChange} /> */}

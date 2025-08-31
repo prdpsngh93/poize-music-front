@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useAppContext } from '@/context/AppContext';
 
 const UpcomingGigs = ({ limit = 5 }) => {
   const [gigs, setGigs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const {setGigsTotalCount}= useAppContext()
 
   // Fetch gigs from API
   useEffect(() => {
@@ -33,6 +36,8 @@ const UpcomingGigs = ({ limit = 5 }) => {
 
         const data = await response.json();
         setGigs(data?.items || []);
+        setGigsTotalCount(data.totalItems)
+      
       } catch (err) {
         console.error('Error fetching upcoming gigs:', err);
         setError(err.message);

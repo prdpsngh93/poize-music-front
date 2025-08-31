@@ -11,7 +11,6 @@ const CustomDropdown = ({ label = "Sort By", options = [], value, onChange }) =>
   }, [value, options]);
 
   const handleSelect = (option) => {
-    console.log('Dropdown selection:', option); // Debug log
     setSelected(option);
     setOpen(false);
     if (onChange) {

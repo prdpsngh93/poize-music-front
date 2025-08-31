@@ -34,8 +34,8 @@ const ChatMessageList = () => {
           >
             {!isMe && (
               <Image
-                src={selectedArtist.avatar || "/images/avatar.png"}
-                alt={`${selectedArtist.name} Avatar`}
+                src={selectedArtist.profile_picture || "/images/avatar.png"}
+                alt={`${selectedArtist.User.name} Avatar`}
                 width={32}
                 height={32}
                 className="rounded-full mr-2 mt-1"
