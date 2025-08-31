@@ -15,8 +15,13 @@ export default function NavbarMusician({ variant = "light" }) {
   const [profileImage, setProfileImage] = useState("");
   const { userData, setUserData } = useAppContext();
 
+  const token = Cookies.get("token")
+
   useEffect(() => {
+    if(token){
     fetchUserProfile();
+
+    }
   }, []);
 
   const fetchUserProfile = async () => {

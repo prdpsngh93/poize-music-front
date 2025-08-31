@@ -6,6 +6,8 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import BackButton from "../common/BackButton";
+import { postNotification } from "@/utils/notifications";
+// Import the notification utility
 
 const CreateGigForm = () => {
   const [title, setTitle] = useState("");
@@ -17,7 +19,7 @@ const CreateGigForm = () => {
   const [payment, setPayment] = useState("");
   const [attachment, setAttachment] = useState(null);
   const [publishing, setPublishing] = useState(false);
-const [savingDraft, setSavingDraft] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
 
   const [status, setStatus] = useState("active");
   const [message, setMessage] = useState("");
@@ -87,52 +89,79 @@ const [savingDraft, setSavingDraft] = useState(false);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Function to send notification to musician
+  const sendGigNotification = async () => {
+    try {
+      const collaboratorName = Cookies.get("userName") || "Collaborator";
+      const currentUserId = Cookies.get("userId");
+      
+      const notificationPayload = {
+        user_id: currentUserId,           // Current user ID from cookies
+        type: "gig_created",             // Notification type
+        reference_id: selectedArtist.id, // Selected artist ID as reference
+        message: `New gig opportunity: "${title}" by ${collaboratorName} on ${date} at ${venue} venue`
+      };
+
+      await postNotification(notificationPayload);
+      console.log("Notification sent successfully to musician");
+    } catch (error) {
+      console.error("Failed to send notification:", error);
+      // Don't throw error here as gig creation was successful
+      // Just log the error
+    }
+  };
+
   const handleSubmit = async (e, action) => {
-  e.preventDefault();
-  setMessage("");
+    e.preventDefault();
+    setMessage("");
 
-  if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  if (action === "publish") {
-    setPublishing(true);
-    setStatus("active");
-  } else {
-    setSavingDraft(true);
-    setStatus("draft");
-  }
-
-  try {
-    let attachmentUrl = "";
-    if (attachment) {
-      attachmentUrl = await uploadToCloudinary(attachment);
+    if (action === "publish") {
+      setPublishing(true);
+      setStatus("active");
+    } else {
+      setSavingDraft(true);
+      setStatus("draft");
     }
 
-    const payload = {
-      gig_title: title,
-      date,
-      time: `${time}:00`,
-      venue_type: venue.toLowerCase(),
-      genre,
-      description,
-      collaborator_id: id,
-      musician_id: selectedArtist?.id,
-      payment: Number(payment),
-      attachment_url: attachmentUrl,
-      status,
-    };
+    try {
+      let attachmentUrl = "";
+      if (attachment) {
+        attachmentUrl = await uploadToCloudinary(attachment);
+      }
 
-    await authAPI.createGig(payload);
-    toast.success("Gig created successfully!");
-    router.push("/manage-created-gigs");
-  } catch (err) {
-    console.error("Error creating gig:", err);
-    setMessage("Failed to create gig. Please try again.");
-  } finally {
-    setPublishing(false);
-    setSavingDraft(false);
-  }
-};
+      const payload = {
+        gig_title: title,
+        date,
+        time: `${time}:00`,
+        venue_type: venue.toLowerCase(),
+        genre,
+        description,
+        collaborator_id: id,
+        musician_id: selectedArtist?.id,
+        payment: Number(payment),
+        attachment_url: attachmentUrl,
+        status,
+      };
 
+      const gigResponse = await authAPI.createGig(payload);
+      
+      // Send notification only if gig is published (not draft)
+      if (action === "publish" && selectedArtist) {
+        await sendGigNotification();
+      }
+
+      toast.success("Gig created successfully!");
+      router.push("/manage-created-gigs");
+    } catch (err) {
+      console.error("Error creating gig:", err);
+      setMessage("Failed to create gig. Please try again.");
+    } finally {
+      setPublishing(false);
+      setSavingDraft(false);
+    }
+  };
 
   return (
     <form

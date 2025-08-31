@@ -85,7 +85,7 @@ const GigDetailDynamicPage = () => {
   }, [id]);
 
   // Book gig API (for free gigs)
-  const handleBook = async () => {
+  const handleBook = async (id) => {
     try {
       const musicLoverId = Cookies.get("userId");
 
@@ -100,13 +100,13 @@ const GigDetailDynamicPage = () => {
       }
 
       const bookingData = {
-        gigId: gig.id,
+        gig_id: gig.id,
         music_lover_id: musicLoverId,
-        payment_id: null,
+        payment_id: id,
       };
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/contributor-gigs-requests`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contributor-gigs-requests`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -185,6 +185,7 @@ const GigDetailDynamicPage = () => {
                 <StripeCheckoutForm 
                   amount={gig.payment} 
                   gigId={gig.id} 
+                  onSuccess={handleBook}
                   userEmail={Cookies.get("userEmail")} 
                 />
               </Elements>

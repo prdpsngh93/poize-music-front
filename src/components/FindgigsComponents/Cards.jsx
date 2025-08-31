@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { postNotification } from "@/utils/notifications";
+// Import the notification utility
 
 const Cards = ({ gigs }) => {
   const [selectedGig, setSelectedGig] = useState(null);
@@ -19,6 +21,8 @@ const Cards = ({ gigs }) => {
 
   const musicianId = Cookies.get("id");
 
+  const userId=Cookies.get("userId")
+
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedGig(null);
@@ -35,6 +39,26 @@ const Cards = ({ gigs }) => {
 
   const handleReset = () => {
     setRequestForm({ title: "", message: "" });
+  };
+
+  // Function to send gig request notification
+  const sendGigRequestNotification = async () => {
+    try {
+      const musicianName = Cookies.get("name") || "Musician";
+      
+      const notificationPayload = {
+        user_id: userId,                    
+        type: "gig_request",                  
+        reference_id: selectedGig.venue_id,   
+        message: `New gig request from ${musicianName}: "${requestForm.title}" for "${selectedGig.gig_title}"`
+      };
+
+      await postNotification(notificationPayload);
+      console.log("Gig request notification sent successfully");
+    } catch (error) {
+      console.error("Failed to send notification:", error);
+      // Don't throw error here as gig request was successful
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -67,6 +91,9 @@ const Cards = ({ gigs }) => {
       );
 
       if (response.status === 200 || response.status === 201) {
+        // Send notification after successful gig request
+        await sendGigRequestNotification();
+        
         toast.success("Gig Request sent successfully!");
         closeModal();
       } else {
