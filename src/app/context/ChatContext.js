@@ -189,7 +189,7 @@ useEffect(() => {
     
     // Only emit the message - no local state update
     socket.emit("send_message", {
-      receiver_id: selectedArtist.id,
+      receiver_id: selectedArtist.user_id,
       content,
     });
   };

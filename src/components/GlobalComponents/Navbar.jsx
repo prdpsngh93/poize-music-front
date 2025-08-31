@@ -28,16 +28,46 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
     { label: "Artists", href: "/venue-find-musician" },
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+  try {
+    // Check if there's an active NextAuth session
+    const session = await getSession();
+    
+    // Clear all cookies
     const allCookies = Cookies.get();
     Object.keys(allCookies).forEach((cookieName) => {
       Cookies.remove(cookieName);
+      // Also try to remove with different path options in case they were set with specific paths
+      Cookies.remove(cookieName, { path: '/' });
+      Cookies.remove(cookieName, { path: '', domain: window.location.hostname });
     });
 
+    // Clear browser storage
     if (typeof window !== "undefined") {
-      window.location.replace("/login");
+      sessionStorage.clear();
+      localStorage.clear();
     }
-  };
+
+    // If there's a NextAuth session, sign out properly
+    if (session) {
+      await signOut({ 
+        redirect: false,
+        callbackUrl: '/login'
+      });
+    }
+
+    // Redirect with a parameter to indicate logout
+    if (typeof window !== "undefined") {
+      window.location.replace("/login?from=logout");
+    }
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Fallback: just redirect even if there was an error
+    if (typeof window !== "undefined") {
+      window.location.replace("/login?from=logout");
+    }
+  }
+};
 
   // ✅ Get user role from cookie
   const userDataCookie = Cookies.get("userData");

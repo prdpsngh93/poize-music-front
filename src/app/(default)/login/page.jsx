@@ -3,15 +3,16 @@
 import Hero from "@/components/GlobalComponents/Hero";
 import Navbar from "@/components/GlobalComponents/Navbar";
 import Link from "next/link";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signIn, getSession } from "next-auth/react";
 import Cookies from "js-cookie";
 import { authAPI } from "../../../../lib/api";
 import { toast } from "sonner";
 
 const Login = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -22,6 +23,84 @@ const Login = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    // Handle logout message
+    if (searchParams.get('from') === 'logout') {
+      toast.success("Logged out successfully!");
+    }
+
+    // Handle OAuth error messages
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'EmailExists') {
+      setError("This email is already registered with a password. Please log in with your email and password instead.");
+    } else if (errorParam === 'OAuthError') {
+      setError("Google sign-in failed. Please try again or contact support.");
+    }
+
+    // Check for existing OAuth session
+    checkOAuthSession();
+  }, [searchParams]);
+
+  const checkOAuthSession = async () => {
+    try {
+      const session = await getSession();
+      if (session && session.provider === "google" && session.user.dbUser) {
+        await handleOAuthSuccess(session);
+      }
+    } catch (error) {
+      console.error("Session check error:", error);
+    }
+  };
+
+  const handleOAuthSuccess = async (session) => {
+    try {
+      const user = session.user.dbUser;
+      if (!user) return;
+
+      // Set cookies for authenticated user
+      const cookieOptions = {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        expires: 30,
+        path: '/',
+      };
+
+      // You might want to get a proper token from your backend
+      // For now, using the session token
+      if (session.accessToken) {
+        Cookies.set("token", session.accessToken, cookieOptions);
+      }
+      
+      Cookies.set("userData", JSON.stringify(user), cookieOptions);
+      Cookies.set("userId", user.id.toString(), cookieOptions);
+      Cookies.set("userName", user.name, cookieOptions);
+      Cookies.set("userEmail", user.email, cookieOptions);
+      Cookies.set("authProvider", "google", cookieOptions);
+
+      toast.success("Google login successful!");
+
+      // Role-based routing
+      routeBasedOnRole(user);
+    } catch (error) {
+      console.error("OAuth session handling error:", error);
+      setError("Failed to complete Google login");
+    }
+  };
+
+  const routeBasedOnRole = (user) => {
+    if (user.role === null) {
+      router.push("/role");
+    } else if (user.role === "contributor" || user.role === "producer") {
+      router.push("/contributor-dashboard");
+    } else if (user.role === "music_lover") {
+      router.push("/music-lover-profile");
+    } else if (user.role === "artist") {
+      router.push("/musician-profile");
+    } else if (user.role === "venue") {
+      router.push("/venue-dashboard");
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,12 +114,22 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setError("");
-    setSuccess("");
+    
     try {
-      await signIn("google", { callbackUrl: "/musician-dashboard" });
+      const result = await signIn("google", {
+        redirect: false,
+        callbackUrl: "/login",
+      });
+
+      if (result?.error) {
+        setError("Google sign-in failed. Please try again.");
+      } else if (result?.url) {
+        // If there's a redirect URL, navigate to it
+        window.location.href = result.url;
+      }
     } catch (err) {
       console.error("Google sign-in error:", err);
-      setError(err.message || "Google sign-in failed. Please try again.");
+      setError("Google sign-in failed. Please try again.");
     } finally {
       setGoogleLoading(false);
     }
@@ -78,6 +167,7 @@ const Login = () => {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         expires: formData.rememberMe ? 30 : undefined,
+        path: '/',
       };
 
       if (result.token) Cookies.set("token", result.token, cookieOptions);
@@ -86,31 +176,12 @@ const Login = () => {
         Cookies.set("userId", result.user.id.toString(), cookieOptions);
         Cookies.set("userName", result.user.name, cookieOptions);
         Cookies.set("userEmail", result.user.email, cookieOptions);
-        Cookies.set(
-          "id",
-          result?.profile?.id || result?.user?.id,
-          cookieOptions
-        );
+        Cookies.set("authProvider", "email", cookieOptions);
 
         toast.success("Login successful!");
         setSuccess("Login successful!");
-        if (result.user.role === null) {
-          router.push("/role");
-        } else if (
-          result.user.role === "contributor" ||
-          result.user.role === "producer"
-        ) {
-          if (result.profile) {
-            router.push("/contributor-dashboard");
-          } else {
-            router.push("/contributor-profile");
-          }
-        } else if (result.user.role === "music_lover") {
-          router.push("/music-lover-profile");
-        } else if (result.user.role === "artist") {
-          router.push("/musician-profile");
-        } else if (result.user.role === "venue")
-          router.push("/venue-dashboard");
+        
+        routeBasedOnRole(result.user);
       }
     } catch (err) {
       const errorMessage =
@@ -159,7 +230,7 @@ const Login = () => {
                   onChange={handleChange}
                   placeholder="Your email address"
                   className="w-full bg-white text-[#1B3139] pl-6 py-[16px] rounded-[25px] focus:outline-none focus:ring-2 focus:ring-teal-400"
-                  disabled={loading}
+                  disabled={loading || googleLoading}
                 />
               </div>
 
@@ -174,7 +245,7 @@ const Login = () => {
                   onChange={handleChange}
                   placeholder="Your password"
                   className="w-full bg-white text-[#1B3139] pl-6 py-[16px] rounded-[25px] focus:outline-none focus:ring-2 focus:ring-teal-400"
-                  disabled={loading}
+                  disabled={loading || googleLoading}
                 />
                 <div className="flex justify-between items-center mt-3">
                   <label className="flex items-center text-[#1B3139] text-sm">
@@ -184,7 +255,7 @@ const Login = () => {
                       checked={formData.rememberMe}
                       onChange={handleChange}
                       className="mr-2 h-4 w-4 rounded"
-                      disabled={loading}
+                      disabled={loading || googleLoading}
                     />
                     Remember me
                   </label>
@@ -199,7 +270,7 @@ const Login = () => {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || googleLoading}
                 className="w-full bg-[#1FB58F] text-white py-[16px] rounded-[25px] text-[16px] font-semibold hover:bg-teal-600 transition disabled:opacity-50 flex items-center justify-center"
               >
                 {loading ? (
