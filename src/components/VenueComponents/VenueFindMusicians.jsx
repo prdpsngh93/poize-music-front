@@ -1,10 +1,12 @@
 'use client';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation'; // Add this import
 import FindGigsSearchBar from '../FindgigsComponents/FindGigsSearchBar';
 import MusicianCard from './MusicianCard';
 import FilterDropdown from './FilterDropDown';
 import { authAPI } from '../../../lib/api';
 import BackButton from '../common/BackButton';
+import Cookies from 'js-cookie';
 
 const filters = {
   Genre: ['Rock', 'Pop', 'Metal', 'Jazz', 'Blues'],
@@ -16,11 +18,13 @@ const filters = {
 };
 
 const VenueFindMusicians = () => {
+  const router = useRouter(); // Add router hook
   const [musicians, setMusicians] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState({});
+  const [selectedArtist, setSelectedArtist] = useState(null); // Add this state
   
   // Server-side pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,6 +38,30 @@ const VenueFindMusicians = () => {
   // Ref to track if component is mounted to prevent state updates after unmount
   const isMountedRef = useRef(true);
   const abortControllerRef = useRef(null);
+
+  const token = Cookies.get("token")
+
+  // Add the handleMessageClick function
+  const handleMessageClick = (artist) => {
+    if(token){
+
+    setSelectedArtist(artist);
+    try {
+      // Note: localStorage is not supported in Claude artifacts, so this might not work
+      // In a real environment, this would work fine
+      localStorage.setItem("selectedArtist", JSON.stringify(artist));
+      router.push("/messaging-inbox3-4"); 
+    } catch (e) {
+      console.error("Error saving artist data:", e);
+      // Still navigate even if localStorage fails
+      router.push("/messaging-inbox3-4");
+    }
+  }
+    else {
+router.push("/login")
+    }
+
+  };
 
   // Debounce search query
   useEffect(() => {
@@ -94,7 +122,6 @@ const VenueFindMusicians = () => {
         }
       });
 
-
       const response = await authAPI.getArtist(params);
 
       // Check if component is still mounted before updating state
@@ -114,6 +141,8 @@ const VenueFindMusicians = () => {
         featured: item.featured || false,
         bio: item.bio,
         gigsCompleted: item?.gigs_completed || 0,
+        // Include the full original data for the connect functionality
+        originalData: item
       }));
       
       setMusicians(transformedMusicians);
@@ -361,7 +390,14 @@ const VenueFindMusicians = () => {
                 <h2 className="text-lg text-[#121417] font-bold mb-4">Featured Musicians</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">
                   {featuredMusicians.map((m) => (
-                    <MusicianCard key={`featured-${m.id}`} image={m.image} name={m.name} role={m.role} />
+                    <MusicianCard 
+                      key={`featured-${m.id}`} 
+                      image={m.image} 
+                      name={m.name} 
+                      role={m.role}
+                      artist={m} 
+                      onConnect={handleMessageClick} 
+                    />
                   ))}
                 </div>
               </div>
@@ -377,7 +413,14 @@ const VenueFindMusicians = () => {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">
                 {musicians.map((m) => (
-                  <MusicianCard key={`all-${m.id}`} image={m.image} name={m.name} role={m.role} />
+                  <MusicianCard 
+                    key={`all-${m.id}`} 
+                    image={m.image} 
+                    name={m.name} 
+                    role={m.role}
+                    artist={m} 
+                    onConnect={handleMessageClick} 
+                  />
                 ))}
               </div>
             </div>
@@ -459,8 +502,6 @@ const VenueFindMusicians = () => {
                     Next
                   </button>
                 </div>
-
-               
               </div>
             )}
           </>

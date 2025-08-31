@@ -6,6 +6,9 @@ import Cookies from "js-cookie";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import BackButton from "@/components/common/BackButton";
+import { postNotification } from "@/utils/notifications";
+import { authAPI } from "../../../../../lib/api";
+// Import the notification utility
 
 const EditGigForm = () => {
   const [title, setTitle] = useState("");
@@ -24,6 +27,7 @@ const EditGigForm = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [artistResults, setArtistResults] = useState([]);
   const [selectedArtist, setSelectedArtist] = useState(null);
+  const [originalArtist, setOriginalArtist] = useState(null); // Track original artist
   const [errors, setErrors] = useState({});
 
   const router = useRouter();
@@ -55,13 +59,15 @@ const EditGigForm = () => {
         setStatus(gig.status);
 
         if (gig.musician) {
-          setSelectedArtist({
+          const artistData = {
             id: gig.musician.id,
             name: gig.musician.name,
             email: gig.musician.email,
             profile_picture: gig.musician.profile_picture,
             genre: gig.musician.genre,
-          });
+          };
+          setSelectedArtist(artistData);
+          setOriginalArtist(artistData); // Store original artist
         }
       } catch (err) {
         console.error("Error fetching gig:", err);
@@ -77,9 +83,7 @@ const EditGigForm = () => {
   /** Search Artist */
   const searchArtists = async (query) => {
     try {
-      const res = await axios.get(
-        `https://poize-music-backend-kn0u.onrender.com/api/artists?query=${query}`
-      );
+      const res = await authAPI.getArtist(query);
       const users = res.data.map((item) => ({
         id: item.User.id,
         name: item.User.name,
@@ -95,13 +99,13 @@ const EditGigForm = () => {
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      if (searchQuery.length >= 2) searchArtists(searchQuery);
+      if (searchQuery.length >= 1) searchArtists(searchQuery);
     }, 300);
     return () => clearTimeout(delayDebounce);
   }, [searchQuery]);
 
   /** Upload to Cloudinary */
-  const uploadToCloudinary = async (file) => {
+  const uploadToCloudinary = async (file) => { 
     const formData = new FormData();
     formData.append("file", file);
     formData.append(
@@ -129,10 +133,41 @@ const EditGigForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  /** Function to send notification to musician */
+  const sendGigUpdateNotification = async (notificationType, targetArtist) => {
+    try {
+      const collaboratorName = Cookies.get("name") || "Collaborator";
+      const currentUserId = Cookies.get("id");
+      
+      let message = "";
+      
+      if (notificationType === "gig_updated") {
+        message = `Gig updated: "${title}" by ${collaboratorName} on ${date} at ${venue} venue`;
+      } else if (notificationType === "gig_assigned") {
+        message = `You've been assigned to gig: "${title}" by ${collaboratorName} on ${date} at ${venue} venue`;
+      }
+
+      const notificationPayload = {
+        user_id: currentUserId,           // Current user ID from cookies
+        type: notificationType,          // "gig_updated" or "gig_assigned"
+        reference_id: targetArtist.id,   // Artist ID as reference
+        message: message
+      };
+
+      await postNotification(notificationPayload);
+      console.log(`Notification sent successfully: ${notificationType}`);
+    } catch (error) {
+      console.error("Failed to send notification:", error);
+      // Don't throw error here as gig update was successful
+    }
+  };
+
   /** Submit Form */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+
+    if (!validateForm()) return;
 
     setLoading(true);
     try {
@@ -160,6 +195,21 @@ const EditGigForm = () => {
         `https://poize-music-backend-kn0u.onrender.com/api/contributor-gigs/${gigId}`,
         payload
       );
+
+      // Send notifications only if gig is published (not draft)
+      if (status === "active" && selectedArtist) {
+        // Check if musician has changed
+        if (originalArtist && originalArtist.id !== selectedArtist.id) {
+          // New musician assigned - send assignment notification
+          await sendGigUpdateNotification("gig_assigned", selectedArtist);
+        } else if (originalArtist && originalArtist.id === selectedArtist.id) {
+          // Same musician - send update notification
+          await sendGigUpdateNotification("gig_updated", selectedArtist);
+        } else if (!originalArtist) {
+          // First time assigning a musician
+          await sendGigUpdateNotification("gig_assigned", selectedArtist);
+        }
+      }
 
       toast.success("Gig updated successfully!");
       router.push("/manage-created-gigs");
@@ -315,6 +365,67 @@ const EditGigForm = () => {
               )}
             </div>
           </div>
+
+          {/* Musician Search */}
+          <div className="mt-6">
+            <label className="text-sm font-medium text-[#121417]">Musician *</label>
+            <input
+              type="text"
+              placeholder="Search musician..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`rounded-full px-4 py-2 border ${
+                errors.musician ? "border-red-500" : "border-gray-300"
+              } bg-white text-sm text-[#121417] w-full outline-none mb-2`}
+            />
+            {errors.musician && (
+              <p className="text-xs text-red-500">{errors.musician}</p>
+            )}
+
+            {artistResults.length > 0 && (
+              <ul className="bg-white border border-gray-300 rounded-lg max-h-40 overflow-auto mb-3">
+                {artistResults.map((artist) => (
+                  <li
+                    key={artist.id}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-[#121417]"
+                    onClick={() => {
+                      setSelectedArtist(artist);
+                      setSearchQuery("");
+                      setArtistResults([]);
+                    }}
+                  >
+                    {artist.name} ({artist.email})
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {selectedArtist && (
+              <div className="flex items-center justify-between bg-white rounded-lg p-2 shadow-sm border">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={selectedArtist.profile_picture || "/images/avatar.png"}
+                    alt="artist"
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-[#121417]">
+                      {selectedArtist.name}
+                    </p>
+                    <p className="text-xs text-gray-500">{selectedArtist.genre}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="text-xl font-semibold text-gray-400 hover:text-red-500"
+                  onClick={() => setSelectedArtist(null)}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="mt-6">
             <label className="text-sm font-medium text-[#121417]">
               Payment (Optional)
@@ -378,12 +489,6 @@ const EditGigForm = () => {
               </div>
             )}
           </div>
-          {/* === Reuse your existing inputs exactly as in CreateGigForm but with prefilled state === */}
-          {/* Replace "Create Gig" label with "Edit Gig" */}
-          {/* Keep rest of the JSX identical, but note:
-            - "selectedArtist" prefilled
-            - "attachmentUrl" shows existing file
-        */}
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mt-8">
@@ -401,7 +506,7 @@ const EditGigForm = () => {
               className="px-6 py-2 rounded-full bg-[#1FB58F] text-white text-sm hover:bg-green-600 transition"
               disabled={loading}
             >
-              {loading ? "Saving..." : "Save Draft"}
+              { "Save Draft"}
             </button>
           </div>
         </div>

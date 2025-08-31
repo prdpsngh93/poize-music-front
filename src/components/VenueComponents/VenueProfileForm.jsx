@@ -498,7 +498,7 @@ const VenueProfileForm = () => {
                   placeholder={placeholder}
                   className="w-full border border-gray-300 rounded-full px-4 bg-white text-[#121417] py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1FB58F]"
                   disabled={loading}
-                  required={name === "email" || name === "contactPhone"}
+                  required={name === "email" || name === "contactPhone" || name==="website"}
                 />
                 {name === "equipment" && (
                   <p className="text-xs text-gray-500 mt-1">Separate multiple items with commas</p>

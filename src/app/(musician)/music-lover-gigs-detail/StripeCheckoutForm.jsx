@@ -1,25 +1,14 @@
 "use client";
-import {
-  useStripe,
-  useElements,
-  PaymentElement,
-} from "@stripe/react-stripe-js";
+import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
-export default function StripeCheckoutForm({
-  amount,
-  gigId,
-  userEmail,
-  currency = "inr",
-}) {
+export default function StripeCheckoutForm({ amount, gigId, userEmail, currency = "inr",onSuccess }) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState(null);
-  const [paymentIntentId, setPaymentIntentId] = useState(null);
 
-  // 🔹 Step 1: Create PaymentIntent on backend and get clientSecret
   useEffect(() => {
     const createPaymentIntent = async () => {
       try {
@@ -32,30 +21,23 @@ export default function StripeCheckoutForm({
               amount: amount * 100,
               gigId,
               userEmail,
-              currency: "usd",
+              currency,
             }),
           }
         );
 
-        if (!res.ok) {
-          throw new Error(`HTTP Error: ${res.status}`);
-        }
-
+        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
         const data = await res.json();
         setClientSecret(data.clientSecret);
-        setPaymentIntentId(data.paymentIntentId); // Store the payment intent ID
       } catch (err) {
         console.error("Error creating payment intent:", err);
         toast.error("Failed to initialize payment. Please try again.");
       }
     };
 
-    if (amount && gigId) {
-      createPaymentIntent();
-    }
-  }, [amount, gigId, userEmail]);
+    if (amount && gigId) createPaymentIntent();
+  }, [amount, gigId, userEmail, currency]);
 
-  // 🔹 Step 2: Handle form submit with proper elements.submit() call
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -67,49 +49,42 @@ export default function StripeCheckoutForm({
     setLoading(true);
 
     try {
-      // 🔹 CRITICAL: Submit the form first
       const { error: submitError } = await elements.submit();
-
       if (submitError) {
-        console.error("Form submission error:", submitError);
         toast.error(submitError.message || "Payment form validation failed");
         setLoading(false);
         return;
       }
 
-      // 🔹 Now confirm the payment with clientSecret
-      const { error: confirmError } = await stripe.confirmPayment({
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
-        clientSecret, // ✅ Required for confirmPayment
+        clientSecret,
         confirmParams: {
-          return_url: `${window.location.origin}/dashboard?gigId=${gigId}&payment_intent=${paymentIntentId}`,
+          return_url: `${window.location.origin}`,
         },
+        redirect: "if_required",
       });
 
-      if (confirmError) {
-        console.error("Payment confirmation error:", confirmError);
-        toast.error(
-          confirmError.message || "Payment failed. Please try again."
-        );
-        setLoading(false);
+      if (error) {
+        toast.error(error.message || "Payment failed");
+      } else if (paymentIntent?.status === "succeeded") {
+        toast.success("Payment successful!");
+       await onSuccess(paymentIntent.id);
       }
-      // If successful, Stripe will redirect to return_url
     } catch (err) {
       console.error("Unexpected error during payment:", err);
       toast.error("An unexpected error occurred. Please try again.");
-      setLoading(false);
     }
+
+    setLoading(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
-      {/* Show loading state while clientSecret is being fetched */}
       {!clientSecret ? (
         <div className="flex items-center justify-center py-4">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#5925DC]"></div>
-          <span className="ml-2 text-sm text-gray-600">
-            Initializing payment...
-          </span>
+          <span className="ml-2 text-sm text-gray-600">Initializing payment...</span>
         </div>
       ) : (
         <PaymentElement />
