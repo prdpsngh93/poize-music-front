@@ -1,30 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
 import { useAppContext } from "@/context/AppContext";
 
-export default function NavbarMusician({ variant = "light",isLoggedIn }) {
+export default function NavbarMusician({ variant = "light", isLoggedIn }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState("");
   const isLight = variant === "light";
 
-  const [profileImage, setProfileImage] = useState("");
   const { userData, setUserData } = useAppContext();
-
-  const token = Cookies.get("token")
+  const token = Cookies.get("token");
 
   useEffect(() => {
-    if(token){
-    fetchUserProfile();
-
+    if (token) {
+      fetchUserProfile();
     }
   }, []);
 
-   const handleLogout = () => {
+  const handleLogout = () => {
     const allCookies = Cookies.get();
     Object.keys(allCookies).forEach((cookieName) => {
       Cookies.remove(cookieName);
@@ -40,7 +38,6 @@ export default function NavbarMusician({ variant = "light",isLoggedIn }) {
       const result = await authAPI.getApi();
 
       if (result.user) {
-        // Map API response to form data
         setProfileImage(
           result.user?.profile_image || result?.profile?.profile_picture || ""
         );
@@ -52,34 +49,27 @@ export default function NavbarMusician({ variant = "light",isLoggedIn }) {
     }
   };
 
-  // Get user data from cookie
+  // ✅ Compute dashboard link
+  const dashboardLink = useMemo(() => {
+    if (!userData || !userData.user?.role) return "/role";
 
-  let dashboardLink = "/";
-
-  if (userData) {
     switch (userData.user.role) {
-      case null:
-        dashboardLink = "/role";
-        break;
       case "contributor":
       case "producer":
-        dashboardLink = "/contributor-profile";
-        break;
+        return "/contributor-profile";
       case "music_lover":
-        dashboardLink = "/music-lover-profile";
-        break;
+        return "/music-lover-profile";
       case "artist":
-        dashboardLink = "/musician-profile";
-        break;
+        return "/musician-profile";
       case "venue":
-        dashboardLink = "/venue-profile-form";
-        break;
+        return "/venue-profile-form";
       default:
-        dashboardLink = "/";
+        return "/";
     }
-  }
+  }, [userData]);
 
-  const navItems = [
+  // ✅ Default nav (for guests)
+  const defaultNavItems = [
     { label: "Home", href: "/" },
     { label: "Events", href: "/event-booking" },
     { label: "Shop", href: "/shop" },
@@ -88,9 +78,66 @@ export default function NavbarMusician({ variant = "light",isLoggedIn }) {
     { label: "Artists", href: "/venue-find-musician" },
   ];
 
+  // ✅ Role-based nav items
+  const contributorNav = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Dashboard", href: "/contributor-dashboard" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Manage Gigs", href: "/manage-created-gigs" },
+    { label: "Create Gig", href: "/create-gig" },
+    { label: "Artists", href: "/venue-find-musician" },
+  ];
+
+  const venueNav = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Dashboard", href: "/venue-dashboard" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Create Gig", href: "/venue-post-gig" },
+    { label: "Artists", href: "/venue-find-musician" },
+  ];
+
+  const artistNav = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Dashboard", href: "/musician-dashboard" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Find Gigs", href: "/find-gigs" },
+    { label: "Collaborate", href: "/find-artist-to-collab" },
+  ];
+
+  const musicLoverNav = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Dashboard", href: "/music-lover-dashboard" },
+    { label: "Gigs", href: "/music-lover-browse-gigs" },
+    { label: "Artists", href: "/venue-find-musician" },
+  ];
+
+  // ✅ Pick correct nav items
+  const roleBasedNavItems = useMemo(() => {
+    const role = userData?.user?.role;
+
+    switch (role) {
+      case "contributor":
+      case "producer":
+        return contributorNav;
+      case "venue":
+        return venueNav;
+      case "artist":
+        return artistNav;
+      case "music_lover":
+        return musicLoverNav;
+      default:
+        return defaultNavItems;
+    }
+  }, [userData]);
+
   return (
     <div
-      className="relative h-[120px] bg-cover bg-top "
+      className="relative h-[120px] bg-cover bg-top"
       style={{
         backgroundImage: "url('/images/banner.png')",
         backgroundRepeat: "no-repeat",
@@ -123,13 +170,10 @@ export default function NavbarMusician({ variant = "light",isLoggedIn }) {
               />
             </Link>
 
-            {/* Desktop Nav Links */}
+            {/* Desktop Nav */}
             <ul className="hidden md:flex space-x-6">
-              {navItems.map((item) => (
-                <li
-                  key={item.label}
-                  className="group flex flex-col items-center"
-                >
+              {roleBasedNavItems.map((item) => (
+                <li key={item.label} className="group flex flex-col items-center">
                   <Link href={item.href} className="hover:text-white">
                     {item.label}
                   </Link>
@@ -138,16 +182,16 @@ export default function NavbarMusician({ variant = "light",isLoggedIn }) {
               ))}
             </ul>
 
-            {/* Desktop Right Side - Only Profile Image */}
+            {/* Desktop Right - Profile + Logout */}
             <div className="hidden md:flex gap-6 items-center">
-                {isLoggedIn && (
-              <button
-                onClick={handleLogout}
-                className="hover:underline uppercase cursor-pointer"
-              >
-                Logout
-              </button>
-            )}
+              {isLoggedIn && (
+                <button
+                  onClick={handleLogout}
+                  className="hover:underline uppercase cursor-pointer"
+                >
+                  Logout
+                </button>
+              )}
               <Link href={dashboardLink}>
                 <Image
                   src={profileImage || "/images/avatar.png"}
@@ -159,7 +203,7 @@ export default function NavbarMusician({ variant = "light",isLoggedIn }) {
               </Link>
             </div>
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile Toggle */}
             <button
               className={`md:hidden ${isLight ? "text-white" : "text-black"}`}
               onClick={() => setIsOpen(!isOpen)}
@@ -172,7 +216,7 @@ export default function NavbarMusician({ variant = "light",isLoggedIn }) {
         {/* Mobile Dropdown */}
         {isOpen && (
           <div className="md:hidden bg-white/90 px-6 py-4 space-y-4 text-black z-50">
-            {navItems.map((item) => (
+            {roleBasedNavItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -181,6 +225,22 @@ export default function NavbarMusician({ variant = "light",isLoggedIn }) {
                 {item.label}
               </Link>
             ))}
+            {isLoggedIn && (
+              <>
+                <Link
+                  href={dashboardLink}
+                  className="block border-b border-gray-300 py-2 hover:underline"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="block border-b uppercase cursor-pointer border-gray-300 py-2 hover:underline"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
         )}
       </nav>

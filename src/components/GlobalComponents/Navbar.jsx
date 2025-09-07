@@ -19,7 +19,8 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
     venue: "/venue-dashboard",
   };
 
-  const navItems = [
+  // ✅ Default nav (for guests)
+  const defaultNavItems = [
     { label: "Home", href: "/" },
     { label: "Events", href: "/event-booking" },
     { label: "Shop", href: "/shop" },
@@ -28,6 +29,75 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
     { label: "Artists", href: "/venue-find-musician" },
   ];
 
+  // ✅ Role-specific nav items
+  const contributorNav = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Dashboard", href: "/contributor-dashboard" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Manage Gigs", href: "/manage-created-gigs" },
+    { label: "Create Gig", href: "/create-gig" },
+    { label: "Artists", href: "/venue-find-musician" },
+  ];
+
+  const venueNav = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Dashboard", href: "/venue-dashboard" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Create Gig", href: "/venue-post-gig" },
+    { label: "Artists", href: "/venue-find-musician" },
+  ];
+
+  const artistNav = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Dashboard", href: "/musician-dashboard" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Find Gigs", href: "/find-gigs" },
+    { label: "Artists", href: "/find-artist-to-collab" },
+  ];
+
+  const musicLoverNav = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/event-booking" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Dashboard", href: "/music-lover-dashboard" },
+    { label: "Gigs", href: "/music-lover-browse-gigs" },
+    { label: "Artists", href: "/venue-find-musician" },
+  ];
+
+  // ✅ Get user data from cookies
+  const userDataCookie = Cookies.get("userData");
+  const userData = userDataCookie ? JSON.parse(userDataCookie) : null;
+
+  // ✅ Compute dashboard link
+  const dashboardHref = useMemo(() => {
+    if (userData?.role && roleDashboards[userData.role]) {
+      return roleDashboards[userData.role];
+    }
+    return "/login";
+  }, [userData]);
+
+  // ✅ Compute nav items based on role
+  const roleBasedNavItems = useMemo(() => {
+    if (!userData?.role) return defaultNavItems;
+
+    switch (userData.role) {
+      case "contributor":
+        return contributorNav;
+      case "venue":
+        return venueNav;
+      case "artist":
+        return artistNav;
+      case "music_lover":
+        return musicLoverNav;
+      default:
+        return defaultNavItems;
+    }
+  }, [userData]);
+
+  // ✅ Logout handler
   const handleLogout = () => {
     const allCookies = Cookies.get();
     Object.keys(allCookies).forEach((cookieName) => {
@@ -38,18 +108,6 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
       window.location.replace("/login");
     }
   };
-
-  // ✅ Get user role from cookie
-  const userDataCookie = Cookies.get("userData");
-  const userData = userDataCookie ? JSON.parse(userDataCookie) : null;
-
-  // ✅ Compute dashboard path
-  const dashboardHref = useMemo(() => {
-    if (userData?.role && roleDashboards[userData.role]) {
-      return roleDashboards[userData.role];
-    }
-    return "/login"; // fallback
-  }, [userData]);
 
   return (
     <nav
@@ -64,15 +122,13 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
           } justify-between items-center py-4`}
         >
           {/* Logo */}
-          <Link 
-          href="/"
-          className="flex-shrink-0 w-15 lg:w-20">
+          <Link href="/" className="flex-shrink-0 w-15 lg:w-20">
             <Image src="/images/logo.png" alt="Logo" width={100} height={100} />
           </Link>
 
           {/* Desktop Nav */}
           <ul className="hidden md:flex space-x-6">
-            {navItems.map((item) => (
+            {roleBasedNavItems.map((item) => (
               <li key={item.label}>
                 <Link href={item.href} className="hover:underline">
                   {item.label}
@@ -81,12 +137,13 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
             ))}
           </ul>
 
-          {/* Desktop Right */}
+          {/* Desktop Right Section */}
           <div className="hidden md:flex space-x-4 items-center">
             {isLoggedIn ? (
-              <Link href={dashboardHref} className="hover:underline">
-                Dashboard
-              </Link>
+              // <Link href={dashboardHref} className="hover:underline">
+              //   Dashboard
+              // </Link>
+              <div>                </div>
             ) : (
               <Link href="/login" className="hover:underline">
                 Login
@@ -103,16 +160,9 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
             <Link href="/cart" className="hover:underline">
               Cart(0)
             </Link>
-{/* 
-            <Image
-              src={isLight ? "/images/menu.png" : "/images/menu2.png"}
-              alt="menu"
-              width={30}
-              height={30}
-            /> */}
           </div>
 
-          {/* Mobile Toggle */}
+          {/* Mobile Toggle Button */}
           <button
             className={`md:hidden ${isLight ? "text-white" : "text-black"}`}
             onClick={() => setIsOpen(!isOpen)}
@@ -125,7 +175,7 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
       {/* Mobile Dropdown */}
       {isOpen && (
         <div className="md:hidden bg-white/90 px-6 py-4 space-y-4">
-          {navItems.map((item) => (
+          {roleBasedNavItems.map((item) => (
             <Link
               key={item.label}
               href={item.href}
@@ -151,12 +201,14 @@ export default function Navbar({ variant = "light", isLoggedIn }) {
             </Link>
           )}
 
-          <button
-            onClick={handleLogout}
-            className="block border-b uppercase cursor-pointer border-gray-300 py-2 text-black hover:underline"
-          >
-            Logout
-          </button>
+          {isLoggedIn && (
+            <button
+              onClick={handleLogout}
+              className="block border-b uppercase cursor-pointer border-gray-300 py-2 text-black hover:underline"
+            >
+              Logout
+            </button>
+          )}
 
           <Link
             href="/cart"

@@ -9,6 +9,7 @@ export default async function MusicianLayout({ children }) {
   return (
     <>
       <NavbarMusician isLoggedIn={isLoggedIn} />
+      
       <main className="flex-grow bg-white">{children}</main>
     </>
   );
