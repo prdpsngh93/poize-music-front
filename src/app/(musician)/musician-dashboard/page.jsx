@@ -1,7 +1,7 @@
 "use client";
 
 import UpcomingGigs from "@/components/MusicianDashboardComponents/UpcomingGigs";
-import React from "react";
+import React, { useEffect } from "react";
 import ProfileStats from "@/components/MusicianDashboardComponents/ProfileStats";
 import RecentActivity from "@/components/MusicianDashboardComponents/RecentActivity";
 import Announcements from "@/components/MusicianDashboardComponents/Annoucement";
@@ -9,17 +9,27 @@ import Analytics from "@/components/MusicianDashboardComponents/Analytics";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import BackButton from "@/components/GlobalComponents/BackButton";
+import { redirect } from "next/navigation";
 
 const userName = Cookies.get("userName");
+const userDataCookie = Cookies.get("userData");
+const userData = userDataCookie ? JSON.parse(userDataCookie) : null;
+
+
 
 const page = () => {
+  useEffect(() => {
+  const role = userData?.role;
+  if (role !== "artist") {
+    redirect("/");
+  }
+}, []);
   return (
     <>
       <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
         <div className="max-w-5xl mx-auto flex flex-col gap-10">
-          
           {/* Back Button */}
-            <BackButton />
+          <BackButton />
 
           {/* Heading */}
           <div className="text-left">
@@ -66,7 +76,7 @@ const page = () => {
           </div>
 
           <Announcements />
-          <Analytics  />
+          <Analytics />
         </div>
       </main>
     </>

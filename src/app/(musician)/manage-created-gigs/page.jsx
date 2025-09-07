@@ -1,12 +1,17 @@
-import ManagedCreatedGigs from '@/components/ContributorComponent/ManagedCreatedGigs'
-import React from 'react'
+import ManagedCreatedGigs from "@/components/ContributorComponent/ManagedCreatedGigs";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-const page = () => {
+const page = async () => {
+  const role = await cookies().get("role")?.value;
+  if (role !== "contributer") {
+    redirect("/");
+  }
   return (
     <div>
-      <ManagedCreatedGigs/>
+      <ManagedCreatedGigs />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;

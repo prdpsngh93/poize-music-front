@@ -1,12 +1,17 @@
-import MyEvents from '@/components/MusicLoverComponents/MyEvents'
-import React from 'react'
+import MyEvents from "@/components/MusicLoverComponents/MyEvents";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-const page = () => {
+const page = async () => {
+  const role = await cookies().get("role")?.value;
+  if (role !== "music_lover") {
+    redirect("/");
+  }
   return (
     <div>
-      <MyEvents/>
+      <MyEvents />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;

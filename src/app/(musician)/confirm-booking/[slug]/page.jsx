@@ -1,12 +1,18 @@
-import ConfirmBookingPage from '@/components/ContributorComponent/ConfirmBooking'
-import React from 'react'
+import ConfirmBookingPage from "@/components/ContributorComponent/ConfirmBooking";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-const page = () => {
+const page = async () => {
+  const role = await cookies().get("role")?.value;
+  if (role !== "contributer") {
+    redirect("/");
+  }
+
   return (
     <div>
-      <ConfirmBookingPage/>
+      <ConfirmBookingPage />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;

@@ -1,7 +1,12 @@
 import PostGigForm from '@/components/VenueComponents/PostGigForm'
-import React from 'react'
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-const page = () => {
+const page = async () => {
+  const role = await cookies().get("role")?.value;
+  if (role !== "venue") {
+    redirect("/");
+  }
   return (
     <div>
       <PostGigForm/>

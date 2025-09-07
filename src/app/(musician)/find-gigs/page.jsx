@@ -5,8 +5,19 @@ import Dropdowns from "@/components/FindgigsComponents/Dropdowns";
 import FindGigsSearchBar from "@/components/FindgigsComponents/FindGigsSearchBar";
 import NoGigsFound from "@/components/FindgigsComponents/NogigsFound";
 import BackButton from "@/components/GlobalComponents/BackButton";
+import { redirect } from "next/navigation";
+import Cookies from "js-cookie";
 
 const FindGigsPage = () => {
+  const userDataCookie = Cookies.get("userData");
+  const userData = userDataCookie ? JSON.parse(userDataCookie) : null;
+
+  useEffect(() => {
+    const role = userData?.role;
+    if (role !== "artist") {
+      redirect("/");
+    }
+  }, []);
   const [gigs, setGigs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -196,7 +207,7 @@ const FindGigsPage = () => {
   return (
     <main className="bg-[#f4f3ee] min-h-screen px-4 md:px-9 lg:px-12 py-10">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <BackButton/>
+        <BackButton />
         {/* Header */}
         <div className="text-left">
           <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
