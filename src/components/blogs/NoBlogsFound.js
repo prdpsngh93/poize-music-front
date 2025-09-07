@@ -16,7 +16,7 @@ const NoBlogsFound = () => {
             No Articles Found
           </h3>
           <p className="text-gray-600 max-w-md">
-            We couldn't find any blog articles at the moment. Please check back later or try adjusting your search criteria.
+            We couldn&apos;t find any blog articles at the moment. Please check back later or try adjusting your search criteria.
           </p>
         </div>
 
