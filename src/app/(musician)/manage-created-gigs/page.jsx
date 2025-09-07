@@ -17,7 +17,7 @@ const  userRole = cookieStore.get("userRole")?.value
     }
   }
 
-  if (role !== "contributer" && userRole !== "contributer") {
+  if (role !== "contributor" && userRole !== "contributor") {
     redirect("/");
   }
   return (
