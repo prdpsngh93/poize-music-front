@@ -10,11 +10,12 @@ import Cookies from "js-cookie";
 
 const FindGigsPage = () => {
   const userDataCookie = Cookies.get("userData");
+  const userRole = Cookies.get("userRole");
   const userData = userDataCookie ? JSON.parse(userDataCookie) : null;
 
   useEffect(() => {
     const role = userData?.role;
-    if (role !== "artist") {
+    if (role !== "artist"  && userRole !== "artist" ) {
       redirect("/");
     }
   }, []);

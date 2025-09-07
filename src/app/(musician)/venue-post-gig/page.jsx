@@ -1,17 +1,30 @@
-import PostGigForm from '@/components/VenueComponents/PostGigForm'
+import PostGigForm from "@/components/VenueComponents/PostGigForm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const page = async () => {
-  const role = await cookies().get("role")?.value;
-  if (role !== "venue") {
+  const cookieStore = await cookies();
+  const userData = cookieStore.get("userData")?.value;
+  const userRole = cookieStore.get("userRole")?.value;
+
+  let role = null;
+  if (userData) {
+    try {
+      const parsedUserData = JSON.parse(userData);
+      role = parsedUserData.role;
+    } catch (error) {
+      console.error("Error parsing userData cookie:", error);
+    }
+  }
+
+  if (role !== "venue" && userRole !== "venue") {
     redirect("/");
   }
   return (
     <div>
-      <PostGigForm/>
+      <PostGigForm />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;
