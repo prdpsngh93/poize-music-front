@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'JUNO Demo';
+    src: url('JUNO-RegularDemo.woff2') format('woff2'),
+        url('JUNO-RegularDemo.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
