@@ -3,11 +3,21 @@
 import Hero from "@/components/GlobalComponents/Hero";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authAPI } from "../../../../lib/api";
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import Navbar from "@/components/GlobalComponents/Navbar";
 import { toast } from "sonner";
+import axios from "axios";
+import {
+  Mic,
+  Headphones,
+  BarChart3,
+  ArrowRight,
+  LocationEditIcon,
+  X,
+  ChevronDown,
+} from "lucide-react";
+import Cookies from "js-cookie";
 
 const SignUp = () => {
   const router = useRouter();
@@ -21,6 +31,38 @@ const SignUp = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Role selection states
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("");
+  const [roleError, setRoleError] = useState("");
+
+  const roles = [
+    {
+      id: "artist",
+      icon: Mic,
+      title: "Artist",
+      description: "Upload and share your music",
+    },
+    {
+      id: "music_lover",
+      icon: Headphones,
+      title: "Listener",
+      description: "Discover new music",
+    },
+    {
+      id: "contributor",
+      icon: BarChart3,
+      title: "Producer",
+      description: "Mix and sell your tracks",
+    },
+    {
+      id: "venue",
+      icon: LocationEditIcon,
+      title: "Venue",
+      description: "Discover and enjoy your tracks",
+    },
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,10 +94,27 @@ const SignUp = () => {
       setError("Passwords do not match");
       return false;
     }
+    if (!selectedRole) {
+      setError("Please select your role");
+      return false;
+    }
     return true;
   };
 
-  // Regular form submission sign-up
+  // Handle role selection from modal
+  const handleRoleSelect = (roleId) => {
+    setSelectedRole(roleId);
+    setRoleError("");
+    setShowRoleModal(false);
+    if (error) setError("");
+  };
+
+  // Get selected role details for display
+  const getSelectedRoleDetails = () => {
+    return roles.find((role) => role.id === selectedRole);
+  };
+
+  // Updated registration with axios
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -66,27 +125,91 @@ const SignUp = () => {
     setSuccess("");
 
     try {
-      const payload = {
+      const registerPayload = {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
-        is_oauth_login: false, // Indicate this is email signup
+        is_oauth_login: false,
+        role: selectedRole,
       };
 
-      const result = await authAPI.register(payload);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/register`,
+        registerPayload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      setSuccess("Account created successfully!");
+      const registerResult = response.data;
 
-      if (result.status === "success") {
-        toast.success("Account created successfully!")
-        sessionStorage.setItem("authToken", result.token);
-        setTimeout(() => router.push("/login"), 0); 
+      if (registerResult.status === "success") {
+        sessionStorage.setItem("authToken", registerResult.token);
+        Cookies.set("id", registerResult?.profile?.id);
+        
+        toast.success("Account created successfully!");
+
+        // Redirect based on role
+        const userRole = registerResult.user?.role || selectedRole;
+        
+        switch (userRole) {
+          case "contributor":
+          case "producer":
+            router.push("/contributor-profile");
+            break;
+          case "artist":
+            router.push("/musician-profile");
+            break;
+          case "music_lover":
+            router.push("/music-lover-profile");
+            break;
+          case "venue":
+            router.push("/venue-profile-form");
+            break;
+          default:
+            router.push("/dashboard");
+        }
+      } else {
+        throw new Error(registerResult.message || "Registration failed");
       }
-
     } catch (err) {
-      const errorMessage =  err?.response?.data?.message || err?.response?.data?.error || "Registration failed. Please try again.";
-      setError(errorMessage);
       console.error("Registration error:", err);
+      
+      let errorMessage = "Registration failed. Please try again.";
+      
+      if (err.response) {
+        // Server responded with error status
+        const responseData = err.response.data;
+        
+        // Handle specific error types
+        if (responseData?.error?.name === "SequelizeUniqueConstraintError") {
+          const emailError = responseData.error.errors?.find(e => e.path === "email");
+          if (emailError) {
+            errorMessage = "This email address is already registered. Please use a different email or try logging in.";
+          }
+        } else if (responseData?.error?.errors && Array.isArray(responseData.error.errors)) {
+          // Handle array of validation errors
+          errorMessage = responseData.error.errors.map(e => e.message).join(", ");
+        } else {
+          // Handle other server errors
+          errorMessage = 
+            responseData?.message || 
+            responseData?.error?.message ||
+            responseData?.error || 
+            `Server error: ${err.response.status}`;
+        }
+      } else if (err.request) {
+        // Request was made but no response received
+        errorMessage = "Network error. Please check your connection.";
+      } else if (err.message) {
+        // Something else happened
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -102,11 +225,98 @@ const SignUp = () => {
       await signIn("google", { callbackUrl: "/" });
     } catch (err) {
       console.error("Google sign-in error:", err);
-      setError(err.message || "Google sign-in failed. Please try again.");
+      const errorMessage = err.message || "Google sign-in failed. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setGoogleLoading(false);
     }
   };
+
+  // Role Selection Modal Component
+  const RoleSelectionModal = () => (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      onClick={() => setShowRoleModal(false)}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Select Your Role</h2>
+          <button
+            onClick={() => setShowRoleModal(false)}
+            className="p-2 hover:bg-gray-100 rounded-full"
+          >
+            <X size={20} className="text-gray-500" />
+          </button>
+        </div>
+
+        <div className="text-center mb-8">
+          <p className="text-lg text-gray-600">
+            Choose the role that best describes you to personalize your
+            experience.
+          </p>
+        </div>
+
+        {/* Error Message */}
+        {roleError && (
+          <div className="mb-6 p-3 bg-red-100 border border-red-400 text-red-700 rounded-2xl text-center">
+            {roleError}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {roles.map((role) => {
+            const IconComponent = role.icon;
+            const isSelected = selectedRole === role.id;
+
+            return (
+              <button
+                key={role.id}
+                onClick={() => handleRoleSelect(role.id)}
+                className={`p-6 rounded-2xl border-2 transition-all duration-200 text-center hover:shadow-md hover:cursor-pointer ${
+                  isSelected
+                    ? "border-emerald-400 bg-emerald-50"
+                    : "border-gray-200 bg-white hover:border-gray-300"
+                }`}
+              >
+                <div className="flex flex-col items-center space-y-3">
+                  <div
+                    className={`p-3 rounded-full ${
+                      isSelected ? "bg-emerald-100" : "bg-gray-100"
+                    }`}
+                  >
+                    <IconComponent
+                      size={24}
+                      className={
+                        isSelected ? "text-emerald-600" : "text-gray-600"
+                      }
+                    />
+                  </div>
+                  <h3
+                    className={`font-semibold ${
+                      isSelected ? "text-emerald-900" : "text-gray-900"
+                    }`}
+                  >
+                    {role.title}
+                  </h3>
+                  <p
+                    className={`text-sm ${
+                      isSelected ? "text-emerald-700" : "text-gray-600"
+                    }`}
+                  >
+                    {role.description}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -191,10 +401,53 @@ const SignUp = () => {
                 />
               </div>
 
+              {/* Role Selection Field */}
+              <div>
+                <label className="block text-[#1B3139] text-[15px] md:text-[17px] font-semibold pl-3 mb-1">
+                  Select your role *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowRoleModal(true)}
+                  disabled={loading || googleLoading}
+                  className={`w-full pl-4 py-3 text-left rounded-[20px] focus:outline-none bg-white focus:ring focus:ring-teal-400 border-2 transition-colors ${
+                    selectedRole
+                      ? "border-emerald-400 text-[#1b3139]"
+                      : "border-gray-200 text-gray-500"
+                  } disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between`}
+                >
+                  <span className="flex items-center">
+                    {selectedRole ? (
+                      <>
+                        {(() => {
+                          const roleDetails = getSelectedRoleDetails();
+                          if (roleDetails) {
+                            const IconComponent = roleDetails.icon;
+                            return (
+                              <>
+                                <IconComponent
+                                  size={18}
+                                  className="mr-2 text-emerald-600"
+                                />
+                                {roleDetails.title}
+                              </>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </>
+                    ) : (
+                      "Choose your role"
+                    )}
+                  </span>
+                  <ChevronDown size={18} className="text-gray-400 mr-4" />
+                </button>
+              </div>
+
               <button
                 type="submit"
-                disabled={loading || googleLoading}
-                className="w-full bg-[#1FB58F] font-semibold text-white py-3 rounded-[20px] hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                disabled={loading || googleLoading || !selectedRole}
+                className="w-full bg-[#1FB58F] font-semibold text-white py-3 rounded-[20px] hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
               >
                 {loading ? "Creating Account..." : "Sign Up"}
               </button>
@@ -232,7 +485,7 @@ const SignUp = () => {
         </div>
 
         {/* Right: Image Section with Background */}
-        <div className="w-full lg:w-1/2 bg-[#1FB58F] relative flex items-end justify-center   px-6 py-12 md:py-18">
+        <div className="w-full lg:w-1/2 bg-[#1FB58F] relative flex items-end justify-center px-6 py-12 md:py-18">
           {/* Main Content */}
           <div className="relative z- w-full max-w-[400px] md:max-w-[450px] h-[100%] md:h-[90%] bg-[#FFFFFF]/30 rounded-xl p-6 md:p-10 text-center ">
             {/* Music Notes Background */}
@@ -246,14 +499,14 @@ const SignUp = () => {
             <img
               src="/images/login-gradient.png"
               alt="Gradient Overlay"
-              className="absolute inset-0 left-10 h-full z-0 object-cover  mix-blend-plus-lighter "
+              className="absolute inset-0 left-10 h-full z-0 object-cover mix-blend-plus-lighter "
             />
 
             {/* Headphone Image */}
             <img
               src="/images/headphone.png"
               alt="Live Music"
-              className="absolute -top-[10%] left-[56%]  -translate-x-1/2 w-[90%] md:w-[100%] z-10"
+              className="absolute -top-[10%] left-[56%] -translate-x-1/2 w-[90%] md:w-[100%] z-10"
             />
 
             {/* Text */}
@@ -267,6 +520,9 @@ const SignUp = () => {
           </div>
         </div>
       </div>
+
+      {/* Role Selection Modal */}
+      {showRoleModal && <RoleSelectionModal />}
     </>
   );
 };

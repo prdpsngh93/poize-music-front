@@ -12,15 +12,14 @@ import BackButton from "@/components/GlobalComponents/BackButton";
 import { redirect } from "next/navigation";
 
 const userName = Cookies.get("userName");
+const userRole = Cookies.get("userRole");
 const userDataCookie = Cookies.get("userData");
 const userData = userDataCookie ? JSON.parse(userDataCookie) : null;
-
-
 
 const page = () => {
   useEffect(() => {
   const role = userData?.role;
-  if (role !== "artist") {
+  if (role !== "artist" && userRole !== "artist" ) {
     redirect("/");
   }
 }, []);
