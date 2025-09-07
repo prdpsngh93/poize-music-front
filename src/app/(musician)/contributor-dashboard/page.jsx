@@ -7,6 +7,8 @@ const cookieStore = await cookies();
   const userData = cookieStore.get("userData")?.value;
 const  userRole = cookieStore.get("userRole")?.value
 
+console.log("userRole",userRole)
+
   let role = null;
   if (userData) {
     try {
@@ -17,7 +19,7 @@ const  userRole = cookieStore.get("userRole")?.value
     }
   }
 
-  if (role !== "contributer" && userRole !== "contributer") {
+  if (role !== "contributor" && userRole !== "contributor") {
     redirect("/");
   }
   return (
