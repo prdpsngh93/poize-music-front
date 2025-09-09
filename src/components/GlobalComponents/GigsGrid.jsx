@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import FilterSidebar from "./FilterSidebar";
 import GigsGridCard from "./GigsGridCard";
@@ -7,15 +8,16 @@ import Pagination from "./Pagination";
 import CustomDropdown from "./CustomDropdown";
 import { FaListUl, FaTh } from "react-icons/fa";
 import NoGigsFound from "./NoGigsFound";
-import Modal from "../common/Modal";
 import { toast } from "sonner";
 
 const GigsGrid = () => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [gigs, setGigs] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [viewMode, setViewMode] = useState("grid");
+  const [loading, setLoading] = useState(false);
 
   // FILTER STATES - Updated structure
   const [filters, setFilters] = useState({
@@ -25,14 +27,6 @@ const GigsGrid = () => {
     sortBy: "Default Sorting",
     showCount: 10,
   });
-
-  // MODAL STATES
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [applyModalOpen, setApplyModalOpen] = useState(false);
-  const [viewGigId, setViewGigId] = useState(null);
-  const [applyGigId, setApplyGigId] = useState(null);
-  const [applyData, setApplyData] = useState({ title: "", description: "" });
-  const [loading, setLoading] = useState(false);
 
   // Updated fields layout
   const fieldsLayout = [
@@ -50,9 +44,9 @@ const GigsGrid = () => {
       onChange: (value) => handleFilterChange("dateFilter", value),
     },
     {
-      label: "Gig Title",
+      label: "Event Title",
       type: "input",
-      placeholder: "Search by gig name",
+      placeholder: "Search by event name",
       value: filters.artist,
       onChange: (value) => handleFilterChange("artist", value),
     },
@@ -136,7 +130,7 @@ const GigsGrid = () => {
       setTotalItems(res.data.totalItems || 0);
     } catch (err) {
       console.error("Error fetching gigs:", err);
-      toast.error("Failed to load gigs");
+      toast.error("Failed to load events");
       setGigs([]);
       setTotalPages(1);
       setTotalItems(0);
@@ -168,23 +162,10 @@ const GigsGrid = () => {
     setCurrentPage(1);
   };
 
-  // HANDLE APPLY
-  const handleApply = async () => {
-    if (!applyData.title || !applyData.description) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-    try {
-      // Replace with actual POST API endpoint:
-      // await axios.post(`/api/apply/${applyGigId}`, applyData);
-
-      setApplyModalOpen(false);
-      setApplyData({ title: "", description: "" });
-      toast.success("Application submitted successfully!");
-    } catch (error) {
-      console.error("Error submitting application:", error);
-      toast.error("Failed to apply. Try again.");
-    }
+  // Navigate to event details
+  const handleViewEvent = (gigId) => {
+    console.log("gid-id",gigId)
+    router.push(`/event-booking/${gigId}`);
   };
 
   // List View Component
@@ -202,7 +183,8 @@ const GigsGrid = () => {
                 <img
                   src={gig.attachment_url || "/images/avatar.png"}
                   alt={gig.gig_title}
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => handleViewEvent(gig.id)}
                 />
               </div>
 
@@ -210,30 +192,27 @@ const GigsGrid = () => {
               <div className="flex-1 space-y-2">
                 <div className="flex justify-between items-start">
                   <h3
-                    className="text-lg font-semibold text-[#1B3139] hover:text-[#1FB58F] cursor-pointer"
-                    onClick={() => {
-                      setViewGigId(gig.id);
-                      setViewModalOpen(true);
-                    }}
+                    className="text-lg font-semibold text-[#1B3139] hover:text-[#1FB58F] cursor-pointer transition-colors"
+                    onClick={() => handleViewEvent(gig.id)}
                   >
                     {gig.gig_title}
                   </h3>
                   <span className="text-lg font-bold text-[#1FB58F]">
-                    ${gig.payment}
+                    ${gig.payment || "0"}
                   </span>
                 </div>
 
                 <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                  <span>📍 {gig.venue_type}</span>
+                  <span>📍 {gig.venue_type || "Venue TBD"}</span>
                   <span>
                     🗓️ {gig.date} {gig.time}
                   </span>
-                  <span>🎤 {gig.artist?.name || "N/A"}</span>
+                  <span>🎤 {gig.artist?.name || "Artist TBD"}</span>
                   {gig.genre && <span>🎵 {gig.genre}</span>}
                 </div>
 
                 <p className="text-gray-700 text-sm line-clamp-2">
-                  {gig.description}
+                  {gig.description || "No description available"}
                 </p>
 
                 <div className="flex justify-between items-center pt-2">
@@ -244,27 +223,21 @@ const GigsGrid = () => {
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {gig.status}
+                    {gig.status || "inactive"}
                   </span>
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => {
-                        setViewGigId(gig.id);
-                        setViewModalOpen(true);
-                      }}
+                      onClick={() => handleViewEvent(gig.id)}
                       className="px-3 py-1 border border-[#1FB58F] text-[#1FB58F] rounded hover:bg-[#1FB58F] hover:text-white transition-colors text-sm"
                     >
                       View Details
                     </button>
                     <button
-                      onClick={() => {
-                        setApplyGigId(gig.id);
-                        setApplyModalOpen(true);
-                      }}
+                      onClick={() => handleViewEvent(gig.id)}
                       className="px-3 py-1 bg-[#1FB58F] text-white rounded hover:bg-[#17a07b] transition-colors text-sm"
                     >
-                      Apply
+                      Apply Now
                     </button>
                   </div>
                 </div>
@@ -276,15 +249,13 @@ const GigsGrid = () => {
     );
   };
 
-  const currentViewGig = gigs.find((g) => g.id === viewGigId);
-
   return (
     <div className="max-w-7xl mx-auto px-4 pt-10">
       <div className="flex flex-col lg:flex-row gap-6">
         {/* SIDEBAR FILTERS */}
         <div className="w-full lg:w-[300px]">
           <FilterSidebar
-            title="Filter Gigs"
+            title="Filter Events"
             fields={fieldsLayout}
             onApply={handleApplyFilters}
             onReset={handleResetFilters}
@@ -295,7 +266,7 @@ const GigsGrid = () => {
         <div className="flex-1">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-[#1B3139]">
-              Gigs Happening
+              Events Happening
             </h1>
             <p className="text-sm text-gray-600 mt-1">
               Discover and attend live performances
@@ -315,12 +286,6 @@ const GigsGrid = () => {
               )}
             </div>
             <div className="flex flex-col md:flex-row gap-3">
-              {/* <CustomDropdown 
-                label="Sort By" 
-                options={sortingOptions} 
-                value={filters.sortBy}
-                onChange={handleSortingChange}
-              /> */}
               <CustomDropdown
                 label="Show"
                 options={showOptions}
@@ -339,7 +304,7 @@ const GigsGrid = () => {
                   viewMode === "list" ? "opacity-100" : "opacity-70"
                 }`}
               >
-                Post List
+                Event List
               </button>
               <button
                 onClick={() => setViewMode("grid")}
@@ -347,7 +312,7 @@ const GigsGrid = () => {
                   viewMode === "grid" ? "opacity-100" : "opacity-70"
                 }`}
               >
-                Post Grid
+                Event Grid
               </button>
             </div>
             <div className="flex gap-3 text-xl">
@@ -429,7 +394,7 @@ const GigsGrid = () => {
           {loading && (
             <div className="text-center py-10">
               <div className="w-8 h-8 border-4 border-[#1FB58F] border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-gray-600 mt-2">Loading gigs...</p>
+              <p className="text-gray-600 mt-2">Loading events...</p>
             </div>
           )}
 
@@ -438,12 +403,11 @@ const GigsGrid = () => {
             (gigs.length > 0 ? (
               viewMode === "grid" ? (
                 // GRID VIEW
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {gigs.map((gig) => (
                     <GigsGridCard
                       key={gig.id}
-                      gigId={gig.id} // Add this line
+                      gigId={gig.id}
                       image={gig.attachment_url || "/images/avatar.png"}
                       title={gig.gig_title}
                       location={gig.venue_type}
@@ -451,14 +415,8 @@ const GigsGrid = () => {
                       artist={gig.artist?.name || "N/A"}
                       price={gig.payment}
                       description={gig.description}
-                      onClick={() => {
-                        setViewGigId(gig.id);
-                        setViewModalOpen(true);
-                      }}
-                      footerButton={() => {
-                        setApplyGigId(gig.id);
-                        setApplyModalOpen(true);
-                      }}
+                      status={gig.status}
+                      genre={gig.genre}
                     />
                   ))}
                 </div>
@@ -482,85 +440,6 @@ const GigsGrid = () => {
           )}
         </div>
       </div>
-
-      {/* VIEW MODAL */}
-      <Modal
-        isOpen={viewModalOpen}
-        onClose={() => setViewModalOpen(false)}
-        title={currentViewGig?.gig_title || "Gig Details"}
-      >
-        {currentViewGig && (
-          <div className="space-y-2 max-h-[70dvh] overflow-y-auto">
-            <img
-              src={currentViewGig.attachment_url || "/images/avatar.png"}
-              alt=""
-              className="w-full rounded-lg"
-            />
-            <p>
-              <strong>Date:</strong> {currentViewGig.date} {currentViewGig.time}
-            </p>
-            <p>
-              <strong>Venue:</strong> {currentViewGig.venue_type}
-            </p>
-            <p>
-              <strong>Genre:</strong> {currentViewGig.genre}
-            </p>
-            <p>
-              <strong>Artist:</strong> {currentViewGig.artist?.name}
-            </p>
-            <p>
-              <strong>Payment:</strong> ${currentViewGig.payment}
-            </p>
-            <p>
-              <strong>Status:</strong> {currentViewGig.status}
-            </p>
-            <p>
-              <strong>Description:</strong> {currentViewGig.description}
-            </p>
-          </div>
-        )}
-      </Modal>
-
-      {/* APPLY MODAL */}
-      <Modal
-        isOpen={applyModalOpen}
-        onClose={() => setApplyModalOpen(false)}
-        title="Apply for Gig"
-      >
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Enter Title"
-            value={applyData.title}
-            onChange={(e) =>
-              setApplyData({ ...applyData, title: e.target.value })
-            }
-            className="w-full border px-3 py-2 rounded"
-          />
-          <textarea
-            placeholder="Enter Description"
-            value={applyData.description}
-            onChange={(e) =>
-              setApplyData({ ...applyData, description: e.target.value })
-            }
-            className="w-full border px-3 py-2 rounded min-h-[100px]"
-          />
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={() => setApplyModalOpen(false)}
-              className="px-4 py-2 border rounded"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleApply}
-              className="px-4 py-2 bg-[#1FB58F] text-white rounded hover:bg-[#17a07b]"
-            >
-              Apply
-            </button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

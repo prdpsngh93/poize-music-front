@@ -5,7 +5,7 @@ import {
   FaMusic,
   FaDollarSign,
 } from "react-icons/fa";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -52,15 +52,12 @@ const PaymentForm = ({ gigId, amount, onSuccess, onCancel }) => {
         return;
       }
 
-      console.log("Payment method created:", paymentMethod.id);
-
       // Create payment intent on your backend
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stripe/create-payment-intent`,
         {
           amount: amount * 100, // Convert to cents
           gigId: gigId,
-          // Don't send paymentMethodId here - we'll attach it during confirmation
         },
         {
           headers: {
@@ -69,21 +66,13 @@ const PaymentForm = ({ gigId, amount, onSuccess, onCancel }) => {
         }
       );
 
-      console.log("Payment intent response:", response.data);
-
-      // Check if response contains client_secret
       if (!response.data || !response.data.clientSecret) {
-        console.error(
-          "Invalid response from payment intent API:",
-          response.data
-        );
         toast.error("Failed to initialize payment. Please try again.");
         setProcessing(false);
         return;
       }
 
       const { clientSecret } = response.data;
-      console.log("Client secret received:", clientSecret);
 
       // Confirm payment with the payment method
       const { error: confirmError, paymentIntent } =
@@ -95,32 +84,22 @@ const PaymentForm = ({ gigId, amount, onSuccess, onCancel }) => {
         console.error("Payment confirmation error:", confirmError);
         toast.error(confirmError.message);
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
-        console.log("Payment succeeded:", paymentIntent.id);
         toast.success("Payment successful! Event Booked");
-        onSuccess(); // This will close the modal and handle success
+        onSuccess();
       } else {
-        console.error("Payment status not succeeded:", paymentIntent?.status);
         toast.error("Payment was not completed successfully.");
       }
     } catch (error) {
       console.error("Payment error:", error);
-
-      // More specific error handling
       if (error.response) {
-        // API responded with error status
-        console.error("API Error Response:", error.response.data);
         toast.error(
           `Payment failed: ${error.response.data?.message || "Server error"}`
         );
       } else if (error.request) {
-        // Request was made but no response received
-        console.error("Network Error:", error.request);
         toast.error(
           "Network error. Please check your connection and try again."
         );
       } else {
-        // Something else happened
-        console.error("Unexpected Error:", error.message);
         toast.error("An unexpected error occurred. Please try again.");
       }
     }
@@ -238,7 +217,7 @@ const getCookie = (name) => {
 };
 
 const GigsGridCard = ({
-  onClick,
+  gigId,
   image,
   title,
   location,
@@ -246,20 +225,27 @@ const GigsGridCard = ({
   artist,
   price,
   description,
-  footerButton,
-  gigId, // Add gigId prop
+  status = "active",
+  genre,
 }) => {
   const router = useRouter();
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [booking, setBooking] = useState(false);
 
-  const handleApplyClick = () => {
+  // Navigate to event details page
+  const handleViewDetails = () => {
+    router.push(`/event-booking/${gigId}`);
+  };
+
+  // Quick booking action
+  const handleQuickBook = (e) => {
+    e.stopPropagation(); // Prevent triggering view details
+    
     const token = getCookie("token");
 
     if (!token) {
-      // No token found, redirect to login
-      toast.error("Please log in to apply for this gig");
+      toast.error("Please log in to book this event");
       router.push("/login");
       return;
     }
@@ -268,78 +254,161 @@ const GigsGridCard = ({
     if (price < 1 || price === "0") {
       setConfirmationModalOpen(true);
     } else {
-      // Token exists and amount > 0, open payment modal
       setPaymentModalOpen(true);
     }
   };
 
   const handlePaymentSuccess = () => {
-    setPaymentModalOpen(false); // Close payment modal
-    toast.success("Application submitted successfully!");
-    // You can add any additional success logic here
-    // For example, refresh the gigs list or update the UI
+    setPaymentModalOpen(false);
+    toast.success("Event booked successfully!");
+    // You can add additional success logic here
   };
 
   const handleFreeBookingConfirm = async () => {
     setBooking(true);
-    toast.success("Booked successfully!");
-    setConfirmationModalOpen(false);
     
-    setBooking(false);
+    try {
+      // Add your free booking API call here
+      // await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/bookings`, {
+      //   gigId,
+      //   userId: getCookie("userId"),
+      // });
+      
+      toast.success("Event booked successfully!");
+      setConfirmationModalOpen(false);
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast.error("Failed to book event. Please try again.");
+    } finally {
+      setBooking(false);
+    }
   };
+
+  const formatPrice = (price) => {
+    if (!price || price < 1 || price === "0") return "Free";
+    return typeof price === "number" ? `$${price}` : price;
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Date TBD";
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString;
+      }
+      
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  const truncateText = (text, maxLength = 100) => {
+    if (!text || text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
+
   return (
     <>
-      <div className="bg-white shadow-md rounded-lg p-4 sm:p-5 w-full max-w-full md:max-w-md transition hover:shadow-lg">
-        <div className="flex items-center mb-3 flex-wrap sm:flex-nowrap">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+        {/* Image Section */}
+        <div className="relative h-48 overflow-hidden cursor-pointer" onClick={handleViewDetails}>
           <img
-            src={image}
+            src={image || "/images/avatar.png"}
             alt={title}
-            className="w-12 h-12 rounded-full mr-3 mb-2 sm:mb-0 object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          <div>
-            <h2 className="font-bold text-base md:text-lg text-black">
-              {title}
-            </h2>
-            <p className="text-sm text-gray-500">
-              Lorem Ipsum is simply dummy text
-            </p>
+          
+          {/* Status Badge */}
+          <div className="absolute top-3 left-3">
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              status === "active"
+                ? "bg-green-100 text-green-800"
+                : "bg-gray-100 text-gray-800"
+            }`}>
+              {status}
+            </span>
+          </div>
+
+          {/* Price Badge */}
+          <div className="absolute top-3 right-3">
+            <span className="px-3 py-1 bg-[#1FB58F] text-white text-sm font-bold rounded-full">
+              {formatPrice(price)}
+            </span>
           </div>
         </div>
 
-        <ul className="text-sm text-gray-700 mb-3 space-y-1">
-          <li className="flex items-center">
-            <FaMapMarkerAlt className="mr-2 text-gray-600" />
-            <strong>{location}</strong>
-          </li>
-          <li className="flex items-center">
-            <FaCalendarAlt className="mr-2 text-gray-600" />
-            {date}
-          </li>
-          <li className="flex items-center">
-            <FaMusic className="mr-2 text-gray-600" />
-            {artist}
-          </li>
-          <li className="flex items-center">
-            <FaDollarSign className="mr-2 text-gray-600" />
-            {price < 1 || price === "0" ? "Free" : `$${price}`}
-          </li>
-        </ul>
-
-        <p className="text-sm text-gray-600 mb-4">{description}</p>
-
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={onClick}
-            className="border border-gray-400 text-gray-800 px-4 py-2 rounded hover:bg-gray-100 w-full sm:w-auto"
+        {/* Content Section */}
+        <div className="p-4">
+          {/* Title */}
+          <h2 
+            className="font-bold text-lg text-black mb-2 hover:text-[#1FB58F] cursor-pointer transition-colors line-clamp-2"
+            onClick={handleViewDetails}
           >
-            View Details
-          </button>
-          <button
-            onClick={handleApplyClick}
-            className="bg-[#1FB58F] text-white px-6 py-2 rounded hover:bg-green-600 w-full sm:w-auto"
-          >
-            {price < 1 || price === "0" ? "Book" : "Apply"}
-          </button>
+            {title}
+          </h2>
+
+          {/* Event Details */}
+          <ul className="text-sm text-gray-700 mb-3 space-y-2">
+            <li className="flex items-center">
+              <FaMapMarkerAlt className="mr-2 text-gray-600 flex-shrink-0" />
+              <span className="font-medium capitalize">{location || "Location TBD"}</span>
+            </li>
+            <li className="flex items-center">
+              <FaCalendarAlt className="mr-2 text-gray-600 flex-shrink-0" />
+              <span>{formatDate(date)}</span>
+            </li>
+            <li className="flex items-center">
+              <FaMusic className="mr-2 text-gray-600 flex-shrink-0" />
+              <span>{artist || "Artist TBD"}</span>
+            </li>
+            {genre && (
+              <li className="flex items-center">
+                <span className="mr-2 text-gray-600">🎵</span>
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                  {genre}
+                </span>
+              </li>
+            )}
+          </ul>
+
+          {/* Description */}
+          {description && (
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+              {truncateText(description)}
+            </p>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={handleViewDetails}
+              className="flex-1 px-4 py-2 border border-gray-400 text-gray-800 rounded hover:bg-gray-100 transition-colors text-sm font-medium"
+            >
+              View Details
+            </button>
+            
+            {status === "active" && (
+              <button
+                onClick={handleQuickBook}
+                className="flex-1 px-4 py-2 bg-[#1FB58F] text-white rounded hover:bg-green-600 transition-colors text-sm font-medium"
+              >
+                {price < 1 || price === "0" ? "Book Now" : "Quick Book"}
+              </button>
+            )}
+          </div>
+
+          {/* Inactive Status Message */}
+          {status !== "active" && (
+            <div className="mt-2 p-2 bg-yellow-100 border border-yellow-200 rounded text-xs text-yellow-800 text-center">
+              This event is currently {status}
+            </div>
+          )}
         </div>
       </div>
 
