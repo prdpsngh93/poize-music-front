@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import { authAPI } from "../../../lib/api";
 import Cookies from "js-cookie";
@@ -10,11 +10,27 @@ import { useAppContext } from "@/context/AppContext";
 
 export default function NavbarMusician({ variant = "light", isLoggedIn }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [profileImage, setProfileImage] = useState("");
+  const dropdownRef = useRef(null);
   const isLight = variant === "light";
 
   const { userData, setUserData } = useAppContext();
   const token = Cookies.get("token");
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -68,8 +84,8 @@ export default function NavbarMusician({ variant = "light", isLoggedIn }) {
     }
   }, [userData]);
 
-  // ✅ Default nav (for guests)
-  const defaultNavItems = [
+  // ✅ Static nav items (common for all users)
+  const staticNavItems = [
     { label: "Home", href: "/" },
     { label: "Events", href: "/event-booking" },
     { label: "Shop", href: "/shop" },
@@ -78,60 +94,36 @@ export default function NavbarMusician({ variant = "light", isLoggedIn }) {
     { label: "Artists", href: "/venue-find-musician" },
   ];
 
-  // ✅ Role-based nav items
-  const contributorNav = [
-    { label: "Home", href: "/" },
-    { label: "Events", href: "/event-booking" },
-    { label: "Dashboard", href: "/contributor-dashboard" },
-    { label: "Blog", href: "/blogs" },
-    { label: "Manage Gigs", href: "/manage-created-gigs" },
-    { label: "Create Gig", href: "/create-gig" },
-    { label: "Artists", href: "/venue-find-musician" },
-  ];
-
-  const venueNav = [
-    { label: "Home", href: "/" },
-    { label: "Events", href: "/event-booking" },
-    { label: "Dashboard", href: "/venue-dashboard" },
-    { label: "Blog", href: "/blogs" },
-    { label: "Create Gig", href: "/venue-post-gig" },
-    { label: "Artists", href: "/venue-find-musician" },
-  ];
-
-  const artistNav = [
-    { label: "Home", href: "/" },
-    { label: "Events", href: "/event-booking" },
-    { label: "Dashboard", href: "/musician-dashboard" },
-    { label: "Blog", href: "/blogs" },
-    { label: "Find Gigs", href: "/find-gigs" },
-    { label: "Collaborate", href: "/find-artist-to-collab" },
-  ];
-
-  const musicLoverNav = [
-    { label: "Home", href: "/" },
-    { label: "Events", href: "/event-booking" },
-    { label: "Blog", href: "/blogs" },
-    { label: "Dashboard", href: "/music-lover-dashboard" },
-    { label: "Gigs", href: "/music-lover-browse-gigs" },
-    { label: "Artists", href: "/venue-find-musician" },
-  ];
-
-  // ✅ Pick correct nav items
-  const roleBasedNavItems = useMemo(() => {
+  // ✅ Role-based dropdown items
+  const roleBasedDropdownItems = useMemo(() => {
     const role = userData?.user?.role;
 
     switch (role) {
       case "contributor":
       case "producer":
-        return contributorNav;
+        return [
+          { label: "Dashboard", href: "/contributor-dashboard" },
+          { label: "Manage Gigs", href: "/manage-created-gigs" },
+          { label: "Create Gig", href: "/create-gig" },
+        ];
       case "venue":
-        return venueNav;
+        return [
+          { label: "Dashboard", href: "/venue-dashboard" },
+          { label: "Create Gig", href: "/venue-post-gig" },
+        ];
       case "artist":
-        return artistNav;
+        return [
+          { label: "Dashboard", href: "/musician-dashboard" },
+          { label: "Find Gigs", href: "/find-gigs" },
+          { label: "Collaborate", href: "/find-artist-to-collab" },
+        ];
       case "music_lover":
-        return musicLoverNav;
+        return [
+          { label: "Dashboard", href: "/music-lover-dashboard" },
+          { label: "Browse Gigs", href: "/music-lover-browse-gigs" },
+        ];
       default:
-        return defaultNavItems;
+        return [];
     }
   }, [userData]);
 
@@ -170,9 +162,9 @@ export default function NavbarMusician({ variant = "light", isLoggedIn }) {
               />
             </Link>
 
-            {/* Desktop Nav */}
+            {/* Desktop Nav - Static Items */}
             <ul className="hidden md:flex space-x-6">
-              {roleBasedNavItems.map((item) => (
+              {staticNavItems.map((item) => (
                 <li key={item.label} className="group flex flex-col items-center">
                   <Link href={item.href} className="hover:text-white">
                     {item.label}
@@ -182,25 +174,67 @@ export default function NavbarMusician({ variant = "light", isLoggedIn }) {
               ))}
             </ul>
 
-            {/* Desktop Right - Profile + Logout */}
+            {/* Desktop Right - Profile Dropdown */}
             <div className="hidden md:flex gap-6 items-center">
               {isLoggedIn && (
-                <button
-                  onClick={handleLogout}
-                  className="hover:underline uppercase cursor-pointer"
-                >
-                  Logout
-                </button>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    className="flex items-center space-x-1 hover:bg-white/10 rounded-lg px-2 py-1 transition-colors"
+                  >
+                    <Image
+                      src={profileImage || "/images/avatar.png"}
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      className="rounded-full h-8 w-8 object-cover"
+                    />
+                    <ChevronDown className={`w-4 h-4 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      {roleBasedDropdownItems.map((item) => (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm normal-case"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                      {roleBasedDropdownItems.length > 0 && <hr className="my-1 border-gray-200" />}
+                      <Link
+                        href={dashboardLink}
+                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm normal-case"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        <User className="w-4 h-4 mr-2" />
+                        Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsProfileDropdownOpen(false);
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm normal-case"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
-              <Link href={dashboardLink}>
-                <Image
-                  src={profileImage || "/images/avatar.png"}
-                  alt="Profile"
-                  width={32}
-                  height={32}
-                  className="rounded-full h-8 w-8 object-cover cursor-pointer"
-                />
-              </Link>
+
+              {/* Login Link if not logged in */}
+              {!isLoggedIn && (
+                <Link href="/login" className="hover:underline uppercase">
+                  Login
+                </Link>
+              )}
             </div>
 
             {/* Mobile Toggle */}
@@ -216,7 +250,7 @@ export default function NavbarMusician({ variant = "light", isLoggedIn }) {
         {/* Mobile Dropdown */}
         {isOpen && (
           <div className="md:hidden bg-white/90 px-6 py-4 space-y-4 text-black z-50">
-            {roleBasedNavItems.map((item) => (
+            {staticNavItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -225,21 +259,42 @@ export default function NavbarMusician({ variant = "light", isLoggedIn }) {
                 {item.label}
               </Link>
             ))}
+            
+            {/* Role-based items in mobile */}
+            {isLoggedIn && roleBasedDropdownItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="block border-b border-gray-300 py-2 hover:underline"
+              >
+                {item.label}
+              </Link>
+            ))}
+            
             {isLoggedIn && (
               <>
                 <Link
                   href={dashboardLink}
                   className="block border-b border-gray-300 py-2 hover:underline"
                 >
-                  Dashboard
+                  Profile
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="block border-b uppercase cursor-pointer border-gray-300 py-2 hover:underline"
+                  className="block border-b uppercase cursor-pointer border-gray-300 py-2 hover:underline text-left w-full"
                 >
                   Logout
                 </button>
               </>
+            )}
+            
+            {!isLoggedIn && (
+              <Link
+                href="/login"
+                className="block border-b border-gray-300 py-2 hover:underline uppercase"
+              >
+                Login
+              </Link>
             )}
           </div>
         )}
